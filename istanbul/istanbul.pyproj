@@ -120,6 +120,8 @@
     <Content Include="installations\templates\installations\style_list.html" />
     <Content Include="installations\templates\installations\system_list.html" />
     <Content Include="installations\templates\installations\texttype_list.html" />
+    <Content Include="notes" />
+    <Content Include="README.md" />
     <Content Include="requirements.txt" />
     <Content Include="utilities\templates\utilities\add_simple_model.html" />
     <Content Include="utilities\templates\utilities\base.html" />
