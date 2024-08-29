@@ -1,0 +1,136 @@
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+  <a class="navbar-brand" href={% url 'installations:home' %}>
+	Istanbul-su
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" 
+	data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" 
+	aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto">
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+			role="button" data-toggle="dropdown" aria-haspopup="true" 
+			aria-expanded="false">
+          View
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'System' 'installations' %}">
+			System</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Installation' 'installations'%}">
+			Installation</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Person' 'installations' %}">
+			Person</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Institution' 'installations' %}">
+			Institution</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Religion' 'installations' %}">
+			Religion</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Event' 'installations' %}">
+			Event</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Literature' 'installations' %}">
+			Literature</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Image' 'installations' %}">
+			Image</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Figure' 'installations' 100 %}">
+			Figure</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'Style' 'installations' 100 %}">
+			Style</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'EventType' 'installations' 100 %}">
+			Event type</a>
+          <a class="dropdown-item" href=
+			"{% url 'utilities:list_view' 'TextType' 'installations' 100 %}">
+			Text type</a>
+          <a class="dropdown-item" href=
+            "{% url 'utilities:list_view' 'InstitutionType' 'installations' %}">
+			Institution type</a>
+          <a class="dropdown-item" href=
+            "{% url 'utilities:list_view' 'EventRole' 'installations' %}">
+			Event role</a>
+          <a class="dropdown-item" href=
+            "{% url 'utilities:list_view' 'Purpose' 'installations' %}">
+			Purpose</a>
+        </div>
+      </li>
+
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" 
+			role="button" data-toggle="dropdown" aria-haspopup="true" 
+			aria-expanded="false">
+          Add
+        </a>
+        <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_system' %}">System</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_installation' %}">Installation</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_person' %}">Person</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_institution' %}">Institution</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_religion' %}">Religion</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_event' %}">Event</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_literature' %}">Literature</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_image' %}">Image</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_figure' %}">Figure</a>
+          <a class="dropdown-item" href=
+			"{% url 'installations:add_style' %}">Style</a>
+        </div>
+      </li>
+
+    </ul>
+
+	<ul class = "navbar-nav navbar-right">
+      {% if user.is_staff %}
+            <li class ="nav-item">
+                <a class="nav-link" href="{% url 'admin:index' %}">
+                   admin
+                </a>
+            </li>
+      {% endif %}
+      {% if user.username == '' %}
+            <li class ="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">
+                    login
+                </a>
+            </li>
+      {% else %}
+            <li class ="nav-item">
+                <a class="nav-link" href="{% url 'accounts:edit_profile' %}">
+                    {{user.username}}
+                </a>
+            </li>
+            <li class ="nav-item">
+                <a class="nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span class="sr-only">(current)</span>
+                </a>
+            </li>
+      {% endif %}
+	</ul>
+
+
+  </div>
+</nav>
+

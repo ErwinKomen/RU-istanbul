@@ -1,0 +1,129 @@
+jk
+System
+	original_name 		string
+	ottoman_name		string
+	english_name 		string
+	turkish_name 		string
+	comments 		text
+	description		text
+
+Installation
+	original_name 		string
+	ottoman_name		string
+	english_name 		string
+	turkish_name 		string
+	events			link (multiple)	event
+	installation_type	link 		installation_type
+	purposes 		link (multiple) 	purpose
+	description		text
+	comments 		text
+	still_exists 		boolean
+
+	
+SystemInstallationRelation
+	system 			link 		System
+	installation		link 		Installation
+	start_date		partial date
+	end_date			partial date
+	date_comments 		text
+	description		text
+	comments 		text
+	is_part_of		boolean
+
+
+Institution
+	original_name 		string
+	ottoman_name		string
+	english_name 		string
+	turkish_name 		string
+	institution_type		link  		institution_type
+	religion 		link 		Religion
+	description		text
+	comments 		text
+
+
+Institution_type
+	name
+
+
+Religion
+	name
+
+
+Person
+	naam			text
+	gender 			categary		 male / female / unknown
+	birth_year 		partial date
+	death_year 		partial date
+	start_reign		partial date
+	end_reign 		partial date
+	description		text
+	comments 		text
+	religion			link 		Religion
+
+
+Event
+	type 			link 		event_type	
+	persons			link (multiple)	person 		role
+	institutions 		link (multiple)  institution 	role
+	start_date 		partial date 	(jaartal decenium eeuw)
+	end_date 		partial date 	(jaartal decenium eeuw)
+	date_comments 		text
+	images 			link (multiple) 	Image
+	figure 			link 		Figure
+	description		text
+	comments 		text
+
+EventLiteratureRelation
+	event		link		
+	Literature	link
+	pagenumber 	string
+	text		text
+	text_image 	file
+	type		primary source / literature
+
+Image
+	image 		file
+	maker		string
+	title		string
+	year		partial date 
+	description 	text
+	comments 	text
+	url 		string
+	current location string
+	collection	string
+	latitude 	float
+	longitude 	float
+
+Literature
+	code 		string
+	title 		string
+	author 		string
+	editor		string
+	publisher 	string
+	place 		string
+	year 		string
+	journal		string
+	volume		string
+	page_numbers 	string
+	issue 		string
+	comments 	text
+
+
+Figure
+	name 		string
+	geojson		file 	(tekening voor op de kaart)
+	style 		link 	style
+
+	
+Style
+	name		string
+	line_color	colorfield
+	fill_color	colorfield
+	line_thickness	float
+	line_alpha 	float
+	fill_alpha 	float
+	striped_line	boolean
+	
+	
+	

@@ -1,0 +1,66 @@
+{% extends "utilities/base.html" %}
+
+
+{% load static %}
+{% block head %}
+    <title>{{page_name}}</title>
+    <link rel="stylesheet" href="{% static 'installations/detail.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<h2>{{installation.english_name}}
+    <a class = "btn btn-link btn-sm ml-auto"
+        href ="{% url 'installations:edit_installation' installation.pk %}"
+        role="button">
+            <i class="far fa-edit text-secondary"></i>
+    </a>
+    <a class ="btn btn-link ml-auto"
+        href="{% url 'utilities:list_view' 'Installation' 'installations'%}"
+        role="button">
+            <i class="fas fa-list text-secondary"></i>
+    </a>
+</h2>
+{% if installation.original_name %}
+    <small>({{installation.original_name}})</small>
+{% endif %}
+<hr>
+<span class="right text-secondary">installation</span>
+
+{% if installation.description %}
+    <h5>Description</h5>
+    <p class="description">
+        {{installation.description}}
+    </p>
+{% endif %}
+
+<br>
+<h5>Events</h5>
+{% for event in events %}
+    <a class='btn btn-link text-dark event'
+        href="{% url 'installations:edit_event' event.pk %}"
+        role="button">
+        {{event.name}}
+        <span class='date'>
+            <small>
+                {% if event.start_date %}
+                    {{event.start_date}} 
+                {% endif %}    
+                {% if event.start_date and event.end_date %}
+                    - 
+                {% endif %}    
+                {% if event.end_date %}
+                    {{event.end_date}}
+                {% endif %}    
+            </small>
+        </span>
+    </a>
+    {% for epr in event.personrelations%}
+        <p class='event_person_role'>
+            {{epr.person.name}},
+            <span class='role'>{{epr.role.name}}</span>
+        </p>
+    {% endfor %}
+{% endfor %}
+
+{% endblock %}

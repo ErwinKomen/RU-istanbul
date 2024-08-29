@@ -1,0 +1,16 @@
+*.DS_Store
+*.pyc
+*.swp
+__pychache__
+installations/SWP/
+installations/migrations/*
+accounts/migrations/*
+utilities/migrations/*
+*/migrations/*
+db.sqlite3*
+.env
+*.txt
+*.json
+media/
+IMAGES/
+data/OLD/

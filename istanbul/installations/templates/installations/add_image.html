@@ -1,0 +1,178 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %}
+
+{% load static %}
+{% block head %}
+    {{form.media.css}}
+    <title>{{page_name}}</title>
+    <link rel="stylesheet" href="{% static 'installations/add_image.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+{% if form.instance.image_file %}
+    <img 
+        class="small-img"
+        src="{{form.instance.image_file.url}}"
+        alt="{{form.instance.image_file.url}}" 
+    >
+{% endif %}
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();" id="form">
+    {% csrf_token %}
+
+<div class="col-md-12 d-flex">
+    <h4 class="mt-2">{{page_name}}</h4>
+
+    {% if view != "inline" %}
+        {% if page_name == "Edit image"%}
+            <a class ="btn btn-link ml-auto" 
+				href="{% url 'installations:add_image' %}"
+                role="button">
+					<i class="fa fa-plus"></i>
+			</a>
+        {% endif %}
+        <a class ="btn btn-link ml-auto"
+            href="{% url 'utilities:list_view' 'Image' 'installations'%}"
+            role="button">
+				<i class="fas fa-list"></i>
+		</a>
+    {% endif %}
+</div>
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<!-- contains div Edit and Minimize -->
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="Edit">
+        {% if page_name == "Edit system" and 'unknown' not in crud.last_update %}
+            {% include 'utilities/change_log.html' %}
+            {% else %} <p class="mb-4"></p>
+        {% endif %}
+
+        <table class="table table-borderless table-sm" id="form_table">
+
+            <tr class="d-flex">
+                <th class="col-2">title</th>
+                <td class="col-8">
+					{{form.title}} 
+					{{from.title.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">maker</th>
+                <td class="col-8">
+					{{form.maker}} 
+					{{from.maker.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">file</th>
+                <td class="col-8">
+					{{form.image_file}} 
+					{{from.image_file.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">url</th>
+                <td class="col-8">
+					{{form.url}} 
+					{{from.url.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">year</th>
+                <td class="col-8">
+					{{form.year}} 
+					{{from.year.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">current location</th>
+                <td class="col-8">
+					{{form.current_location}} 
+					{{form.current_location.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">latitude</th>
+                <td class="col-8">
+					{{form.latitude}} 
+					{{form.latitude.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">longitude</th>
+                <td class="col-8">
+					{{form.longitude}} 
+					{{form.longitude.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">description</th>
+                <td class="col-8">
+					{{form.description}} 
+					{{form.description.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">comments</th>
+                <td class="col-8">
+					{{form.comments}} 
+					{{form.comments.error}}
+				</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="Minimize">
+        <!-- you can minimize the illustration form -->
+        <br>
+
+        <div class="col-md-12 d-flex">
+            <h5 class="mb-1">{{form.instance.title}} </h5>
+            <p class="text-small ml-auto text-secondary mb-1">
+				{{form.instance.original_name}}
+			</p>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+{% if view == "inline" %}
+{% else %}
+
+
+{% endif %}
+
+<!-- current tab state is stored here to maintain it after submit -->
+<!-- see tab_selector --> 
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+
+{% include 'utilities/save.html' %}
+
+<br><br>
+
+{% if form.instance.image_file %}
+    <img 
+        class="mx-auto d-block img-fluid"
+        src="{{form.instance.image_file.url}}"
+        alt="{{form.instance.image_file.url}}" 
+    >
+{% endif %}
+<!-- displays the help text for each field -->
+{% include 'utilities/helper.html' %}
+{{form.media.js}}
+
+{% include 'utilities/tab_selector.html' %}
+
+<br>
+
+{% endblock content %}
+
+

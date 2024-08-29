@@ -1,0 +1,44 @@
+hr {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+h2 {
+    margin-bottom: 0px;
+}
+
+h5 {
+    margin-top:27px;
+    margin-bottom: 0px;
+}
+
+.right {
+    font-size:16;
+    float:right;
+}
+
+.description {
+    margin-top:12px;
+    margin-bottom:0px;
+}
+
+.event {
+    margin-left:9px;
+    margin-top:27px;
+    margin-bottom:0px;
+}
+
+.date {
+    margin-left:9px;
+}
+
+.event_person_role{
+    margin-left:60px;
+    margin-top:0px;
+    margin-bottom:0px;
+}
+
+.role {
+    color:#e81b05;
+    margin-left:20px;
+}

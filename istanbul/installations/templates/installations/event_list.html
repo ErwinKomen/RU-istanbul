@@ -1,0 +1,52 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+    <title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+{% include 'utilities/list_search_bar.html' %}
+
+{% if event_list %}
+<br>
+
+<div class="d-flex">
+
+<table class="table table-hover">
+    <tr>
+    <th><a href="?order_by=name,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">name</a></th>
+    <th><a href="?order_by=start_date,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">start</a></th>
+    <th><a href="?order_by=end_date,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">end</a></th>
+    <th></th>
+    </tr>
+    {% for event in event_list %}
+
+        <td>{{event.name}}</td>
+        <td>{{event.start_date.year}}</td>
+        <td>{{event.end_date.year}}</td>
+        <td style="white-space:nowrap;">
+            <a class = "btn btn-link btn-sm ml-auto" 
+href ="{% url 'utilities:delete_model' event.pk 'Event' 'installations' %}"
+                role="button">
+                    <i class="fa fa-trash text-secondary"></i>
+            </a>
+            <a class = "btn btn-link btn-sm ml-auto"
+                href ="{% url 'installations:edit_event' event.pk %}"
+                role="button">
+                    <i class="far fa-edit text-secondary"></i>
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+{% else %}
+    <p>no events are available</p>
+{% endif %}
+
+{% endblock content %}

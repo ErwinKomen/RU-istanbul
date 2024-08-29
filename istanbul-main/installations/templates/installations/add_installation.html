@@ -1,0 +1,215 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %}
+
+
+{% block head %}
+    {{form.media.css}}
+    <title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();" id="form">
+    {% csrf_token %}
+
+<div class="col-md-12 d-flex">
+    <h4 class="mt-2">{{page_name}}</h4>
+
+    {% if view != "inline" %}
+        {% if page_name == "Edit installation"%}
+            <a class ="btn btn-link ml-auto" 
+				href="{% url 'installations:add_installation' %}"
+                role="button">
+					<i class="fa fa-plus"></i>
+			</a>
+        {% include 'utilities/detail_view_link.html' %}
+        {% endif %}
+        <a class ="btn btn-link ml-auto"
+            href="{% url 'utilities:list_view' 'Installation' 'installations'%}"
+            role="button">
+				<i class="fas fa-list"></i>
+		</a>
+    {% endif %}
+</div>
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<!-- contains div Edit and Minimize -->
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="Edit">
+	{% if page_name == "Edit installation" and 'unknown' not in crud.last_update %}
+            {% include 'utilities/change_log.html' %}
+            {% else %} <p class="mb-4"></p>
+	{% endif %}
+
+        <table class="table table-borderless table-sm" id="form_table">
+            <tr class="d-flex">
+                <th class="col-2">english name</th>
+                <td class="col-8">
+					{{form.english_name}} 
+					{{from.english_name.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">turkish name</th>
+                <td class="col-8">
+					{{form.turkish_name}} 
+					{{from.turkish_name.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">original name</th>
+                <td class="col-8">
+					{{form.original_name}} 
+					{{from.original_name.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">ottoman name</th>
+                <td class="col-8">
+					{{form.ottoman_name}} 
+					{{from.ottoman_name.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">events</th>
+                <td class="col-8">
+					{{form.events}} 
+					{{from.events.error}}
+				</td>
+				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'installations:add_event' 'inline' %}"
+						role="button"><i class="fa fa-plus"></i></a>
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">purposes</th>
+                <td class="col-8">
+					{{form.purposes}} 
+					{{from.purposes.error}}
+				</td>
+				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						href ="{% url 'installations:add_purpose' 'inline' %}"
+						role="button"><i class="fa fa-plus"></i></a>
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">still exists</th>
+                <td class="col-8">
+					{{form.still_exists}} 
+					{{from.still_exists.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">images</th>
+                <td class="col-8">
+					{{form.images}} 
+					{{from.images.error}}
+				</td>
+				<td>
+                    <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+                        href ="{% url 'installations:add_image'  'inline' %}" 
+						role="button">
+                        <i class="fa fa-plus"></i></a>
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">description</th>
+                <td class="col-8">
+					{{form.description}} 
+					{{form.description.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">comments</th>
+                <td class="col-8">
+					{{form.comments}} 
+					{{form.comments.error}}
+				</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="Minimize">
+        <!-- you can minimize the illustration form -->
+        <br>
+
+        <div class="col-md-12 d-flex">
+            <h5 class="mb-1">{{form.instance.title}} </h5>
+            <p class="text-small ml-auto text-secondary mb-1">
+				{{form.instance.original_name}}
+			</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% if view == "inline" %}
+{% else %}
+
+{% include 'utilities/relation_tabs.html' %}
+<div class="tab-content">
+    <div class="tab-pane fade" id="System">
+        {{installationsystem_formset.management_form}}
+        <table class="table table-borderless table-sm">
+            <tr class ="d-flex">
+                <th class="col-4">system
+                    <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+                        href ="{% url 'installations:add_system'  'inline' %}" 
+						role="button">
+                        <i class="fa fa-plus"></i></a>
+                </th>
+                <th class="col-3">start date</th>
+                <th class="col-3">end date</th>
+                <th class="col-2">part of</th>
+                <th><i class="fa fa-times text-danger"></i></th>
+            </tr>
+            {% for f in installationsystem_formset.forms %}
+				{{f.media.css}}
+                <tr class ="d-flex">
+                    <td class="col-4">
+						{{f.system}} 
+						{{f.system.errors}}
+					</td>
+                    <td class="col-3">
+						{{f.start_date}} 
+						{{f.start_date.errors}}
+					</td>
+                    <td class="col-3">
+						{{f.end_date}} 
+						{{f.end_date.errors}}
+					</td>
+                    <td class="col-2">
+						{{f.is_part_of}} 
+						{{f.is_part_of.errors}}
+					</td>
+                    <td class="col-1">{{f.DELETE}} {{f.id}}</td>
+                </tr>
+			{{f.media.js}}
+            {% endfor %}
+        </table>
+    </div>
+</div>
+
+{% endif %}
+
+<!-- current tab state is stored here to maintain it after submit -->
+<!-- see tab_selector --> 
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+
+{% include 'utilities/save.html' %}
+
+<!-- displays the help text for each field -->
+{% include 'utilities/helper.html' %}
+{{form.media.js}}
+
+{% include 'utilities/tab_selector.html' %}
+
+<br>
+
+{% endblock content %}
+
+

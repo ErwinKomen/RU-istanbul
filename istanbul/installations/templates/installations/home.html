@@ -1,0 +1,20 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+    <title>Istanbul-su</title>
+{% endblock %}
+
+
+{% block content %}
+<img 
+    class="mx-auto d-block img-fluid"
+    src="{{image.image_file.url}}"
+    alt="{{image.image_file.url}}" 
+>
+<i>{{image.title}}</i>,
+<small>
+    {{image.maker}}
+    ({{image.year}})
+</small>
+
+{% endblock %}

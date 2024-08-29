@@ -1,0 +1,107 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %}
+
+
+{% block head %}
+    {{form.media.css}}
+    <title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<!-- dosubmit function can be found in template/utilities/tab_selector.html -->
+<form method="post" enctype="multipart/form-data" onsubmit="dosubmit();" id="form">
+    {% csrf_token %}
+
+<div class="col-md-12 d-flex">
+    <h4 class="mt-2">{{page_name}}</h4>
+
+    {% if view != "inline" %}
+        {% if page_name == "Edit figure"%}
+            <a class ="btn btn-link ml-auto" 
+				href="{% url 'installations:add_figure' %}"
+                role="button">
+					<i class="fa fa-plus"></i>
+			</a>
+        {% endif %}
+        <a class ="btn btn-link ml-auto"
+            href="{% url 'utilities:list_view' 'Figure' 'installations'%}"
+            role="button">
+				<i class="fas fa-list"></i>
+		</a>
+    {% endif %}
+</div>
+
+{% include 'utilities/edit_minimize_tab.html' %}
+
+<!-- contains div Edit and Minimize -->
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="Edit">
+        {% if page_name == "Edit system" and 'unknown' not in crud.last_update %}
+            {% include 'utilities/change_log.html' %}
+            {% else %} <p class="mb-4"></p>
+        {% endif %}
+
+        <table class="table table-borderless table-sm" id="form_table">
+
+            <tr class="d-flex">
+                <th class="col-2">name</th>
+                <td class="col-8">
+					{{form.name}} 
+					{{from.name.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">file</th>
+                <td class="col-8">
+					{{form.geojson}} 
+					{{from.geojson.error}}
+				</td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">style</th>
+                <td class="col-8">
+					{{form.style}} 
+					{{from.style.error}}
+				</td>
+			</tr>
+        </table>
+    </div>
+
+    <div class="tab-pane fade" id="Minimize">
+        <!-- you can minimize the illustration form -->
+        <br>
+
+        <div class="col-md-12 d-flex">
+            <h5 class="mb-1">{{form.instance.title}} </h5>
+            <p class="text-small ml-auto text-secondary mb-1">
+				{{form.instance.original_name}}
+			</p>
+        </div>
+
+    </div>
+
+</div>
+
+{% if view == "inline" %}
+{% else %}
+
+{% endif %}
+
+<!-- current tab state is stored here to maintain it after submit -->
+<!-- see tab_selector --> 
+<input type="hidden" name="navbar" id="navbar" value="" />
+<input type="hidden" name="navcontent" id="navcontent" value="" />
+<input type="hidden" name="focus" id="focus" value="" />
+
+{% include 'utilities/save.html' %}
+
+<!-- displays the help text for each field -->
+{% include 'utilities/helper.html' %}
+{{form.media.js}}
+
+{% include 'utilities/tab_selector.html' %}
+
+<br>
+
+{% endblock content %}
+

@@ -1,0 +1,209 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <Name>istanbul</Name>
+    <RootNamespace>istanbul</RootNamespace>
+    <InterpreterId>MSBuild|istanbul|$(MSBuildProjectFullPath)</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>045db80a-5300-433d-b62e-a2cb514ce0f3</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <ProjectTypeGuids>{5F0BE9CA-D677-4A4D-8806-6076C0FAAD37};{349c5851-65df-11da-9384-00065b846f21};{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <StartupFile>manage.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <LaunchProvider>Django launcher</LaunchProvider>
+    <DjangoSettingsModule>istanbul.settings</DjangoSettingsModule>
+    <WebBrowserUrl>http://localhost</WebBrowserUrl>
+    <OutputPath>.</OutputPath>
+    <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="accounts\admin.py" />
+    <Compile Include="accounts\apps.py" />
+    <Compile Include="accounts\forms.py" />
+    <Compile Include="accounts\models.py" />
+    <Compile Include="accounts\tests.py" />
+    <Compile Include="accounts\urls.py" />
+    <Compile Include="accounts\views.py" />
+    <Compile Include="accounts\__init__.py" />
+    <Compile Include="installations\admin.py" />
+    <Compile Include="installations\apps.py" />
+    <Compile Include="installations\forms.py" />
+    <Compile Include="installations\models.py" />
+    <Compile Include="installations\tests.py" />
+    <Compile Include="installations\urls.py" />
+    <Compile Include="installations\views.py" />
+    <Compile Include="installations\widgets.py" />
+    <Compile Include="installations\__init__.py" />
+    <Compile Include="istanbul\asgi.py" />
+    <Compile Include="istanbul\views.py" />
+    <Compile Include="manage.py" />
+    <Compile Include="istanbul\__init__.py" />
+    <Compile Include="istanbul\settings.py" />
+    <Compile Include="istanbul\urls.py" />
+    <Compile Include="istanbul\wsgi.py" />
+    <Compile Include="utilities\admin.py" />
+    <Compile Include="utilities\apps.py" />
+    <Compile Include="utilities\forms.py" />
+    <Compile Include="utilities\models.py" />
+    <Compile Include="utilities\search.py" />
+    <Compile Include="utilities\templatetags\getattribute.py" />
+    <Compile Include="utilities\templatetags\__init__.py" />
+    <Compile Include="utilities\tests.py" />
+    <Compile Include="utilities\urls.py" />
+    <Compile Include="utilities\views.py" />
+    <Compile Include="utilities\__init__.py" />
+    <Compile Include="utils\general.py" />
+    <Compile Include="utils\help_util.py" />
+    <Compile Include="utils\model_util.py" />
+    <Compile Include="utils\select2.py" />
+    <Compile Include="utils\signal_util.py" />
+    <Compile Include="utils\view_util.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="accounts\templates\accounts\change_password.html" />
+    <Content Include="accounts\templates\accounts\edit_profile.html" />
+    <Content Include="accounts\templates\accounts\log.html" />
+    <Content Include="accounts\templates\accounts\logs.html" />
+    <Content Include="accounts\templates\accounts\register.html" />
+    <Content Include="accounts\templates\registration\login.html" />
+    <Content Include="accounts\templates\registration\password_reset_complete.html" />
+    <Content Include="accounts\templates\registration\password_reset_confirm.html" />
+    <Content Include="accounts\templates\registration\password_reset_done.html" />
+    <Content Include="accounts\templates\registration\password_reset_email.html" />
+    <Content Include="accounts\templates\registration\password_reset_form.html" />
+    <Content Include="data\Protocols.xlsx" />
+    <Content Include="data\thumbnail_detail.Philipp_Ferdinand_von_Gudenus_Panorama_of_Constantinople.jpg" />
+    <Content Include="installations\static\installations\add_image.css" />
+    <Content Include="installations\static\installations\detail.css" />
+    <Content Include="installations\templates\installations\add_event.html" />
+    <Content Include="installations\templates\installations\add_eventrole.html" />
+    <Content Include="installations\templates\installations\add_eventtype.html" />
+    <Content Include="installations\templates\installations\add_figure.html" />
+    <Content Include="installations\templates\installations\add_image.html" />
+    <Content Include="installations\templates\installations\add_installation.html" />
+    <Content Include="installations\templates\installations\add_institution.html" />
+    <Content Include="installations\templates\installations\add_institutiontype.html" />
+    <Content Include="installations\templates\installations\add_literature.html" />
+    <Content Include="installations\templates\installations\add_person.html" />
+    <Content Include="installations\templates\installations\add_purpose.html" />
+    <Content Include="installations\templates\installations\add_religion.html" />
+    <Content Include="installations\templates\installations\add_style.html" />
+    <Content Include="installations\templates\installations\add_system.html" />
+    <Content Include="installations\templates\installations\add_texttype.html" />
+    <Content Include="installations\templates\installations\detail_installation_view.html" />
+    <Content Include="installations\templates\installations\eventrole_list.html" />
+    <Content Include="installations\templates\installations\eventtype_list.html" />
+    <Content Include="installations\templates\installations\event_list.html" />
+    <Content Include="installations\templates\installations\figure_list.html" />
+    <Content Include="installations\templates\installations\home.html" />
+    <Content Include="installations\templates\installations\image_list.html" />
+    <Content Include="installations\templates\installations\installation_list.html" />
+    <Content Include="installations\templates\installations\institutiontype_list.html" />
+    <Content Include="installations\templates\installations\institution_list.html" />
+    <Content Include="installations\templates\installations\literature_list.html" />
+    <Content Include="installations\templates\installations\person_list.html" />
+    <Content Include="installations\templates\installations\purpose_list.html" />
+    <Content Include="installations\templates\installations\religion_list.html" />
+    <Content Include="installations\templates\installations\style_list.html" />
+    <Content Include="installations\templates\installations\system_list.html" />
+    <Content Include="installations\templates\installations\texttype_list.html" />
+    <Content Include="requirements.txt" />
+    <Content Include="utilities\templates\utilities\add_simple_model.html" />
+    <Content Include="utilities\templates\utilities\base.html" />
+    <Content Include="utilities\templates\utilities\change_log.html" />
+    <Content Include="utilities\templates\utilities\change_log_list.html" />
+    <Content Include="utilities\templates\utilities\close.html" />
+    <Content Include="utilities\templates\utilities\delete_model.html" />
+    <Content Include="utilities\templates\utilities\detail_view_link.html" />
+    <Content Include="utilities\templates\utilities\edit_minimize_tab.html" />
+    <Content Include="utilities\templates\utilities\helper.html" />
+    <Content Include="utilities\templates\utilities\list_search_bar.html" />
+    <Content Include="utilities\templates\utilities\navbar.html" />
+    <Content Include="utilities\templates\utilities\overview.html" />
+    <Content Include="utilities\templates\utilities\relation_tabs.html" />
+    <Content Include="utilities\templates\utilities\save.html" />
+    <Content Include="utilities\templates\utilities\tab_selector.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="accounts\" />
+    <Folder Include="accounts\templates\" />
+    <Folder Include="accounts\templates\accounts\" />
+    <Folder Include="accounts\templates\registration\" />
+    <Folder Include="data\" />
+    <Folder Include="installations\" />
+    <Folder Include="installations\static\" />
+    <Folder Include="installations\static\installations\" />
+    <Folder Include="installations\templates\" />
+    <Folder Include="installations\templates\installations\" />
+    <Folder Include="istanbul\" />
+    <Folder Include="utilities\" />
+    <Folder Include="utilities\templates\" />
+    <Folder Include="utilities\templates\utilities\" />
+    <Folder Include="utilities\templatetags\" />
+    <Folder Include="utils\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="..\..\..\..\..\env\istanbul\">
+      <Id>istanbul</Id>
+      <Version>3.9</Version>
+      <Description>istanbul (Python 3.9 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.Django.targets" />
+  <!-- Specify pre- and post-build commands in the BeforeBuild and 
+       AfterBuild targets below. -->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <AutoAssignPort>True</AutoAssignPort>
+          <UseCustomServer>True</UseCustomServer>
+          <CustomServerUrl>http://localhost</CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}" User="">
+        <WebProjectProperties>
+          <StartPageUrl>
+          </StartPageUrl>
+          <StartAction>CurrentPage</StartAction>
+          <AspNetDebugging>True</AspNetDebugging>
+          <SilverlightDebugging>False</SilverlightDebugging>
+          <NativeDebugging>False</NativeDebugging>
+          <SQLDebugging>False</SQLDebugging>
+          <ExternalProgram>
+          </ExternalProgram>
+          <StartExternalURL>
+          </StartExternalURL>
+          <StartCmdLineArguments>
+          </StartCmdLineArguments>
+          <StartWorkingDirectory>
+          </StartWorkingDirectory>
+          <EnableENC>False</EnableENC>
+          <AlwaysStartWebServerOnDebug>False</AlwaysStartWebServerOnDebug>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

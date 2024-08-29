@@ -1,0 +1,49 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+    <title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+{% include 'utilities/list_search_bar.html' %}
+
+{% if literature_list %}
+<br>
+
+<div class="d-flex">
+
+<table class="table table-hover">
+    <tr>
+    <th><a href="?order_by=title,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">title</a></th>
+    <th><a href="?order_by=code,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">code</a></th>
+    <th></th>
+    </tr>
+    {% for l in literature_list %}
+
+        <td>{{l.title}}</td>
+        <td>{{l.code}}</td>
+        <td style="white-space:nowrap;">
+            <a class = "btn btn-link btn-sm ml-auto" 
+	href ="{% url 'utilities:delete_model' l.pk 'Literature' 'installations' %}"
+                role="button">
+                    <i class="fa fa-trash text-secondary"></i>
+            </a>
+            <a class = "btn btn-link btn-sm ml-auto"
+                href ="{% url 'installations:edit_literature' l.pk %}"
+                role="button">
+                    <i class="far fa-edit text-secondary"></i>
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+{% else %}
+    <p>no literature entries are available</p>
+{% endif %}
+
+{% endblock content %}

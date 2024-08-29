@@ -1,0 +1,54 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+    <title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+{% include 'utilities/list_search_bar.html' %}
+
+{% if image_list %}
+<br>
+
+<div class="d-flex">
+
+<table class="table table-hover">
+    <tr>
+    <th><a href="?order_by=caption,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">title</a></th>
+    <th><a href="?order_by=caption,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">maker</a></th>
+    <th><a href="?order_by=caption,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">year</a></th>
+    <th><a href="?order_by=caption,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">location</a></th>
+    <th></th>
+    </tr>
+    {% for image in image_list %}
+        <td>{{image.title}}</td>
+        <td>{{image.maker}}</td>
+        <td>{{image.year.year}}</td>
+        <td>{{image.current_location}}</td>
+        <td style="white-space:nowrap;">
+            <a class = "btn btn-link btn-sm ml-auto" 
+href ="{% url 'utilities:delete_model' image.pk 'Image' 'installations' %}"
+                role="button">
+                    <i class="fa fa-trash text-secondary"></i>
+            </a>
+            <a class = "btn btn-link btn-sm ml-auto"
+                href ="{% url 'installations:edit_image' image.pk %}"
+                role="button">
+                    <i class="far fa-edit text-secondary"></i>
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+{% else %}
+    <p>no images are available</p>
+{% endif %}
+
+{% endblock content %}
