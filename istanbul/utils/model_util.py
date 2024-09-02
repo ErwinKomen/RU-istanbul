@@ -1,3 +1,4 @@
+from pickle import NONE
 from django.apps import apps
 import random
 import string
@@ -5,6 +6,7 @@ import itertools
 
 # Import from own application
 from utils.general import sort_count_dict, sort_dict_on_keys
+from basic.utils import ErrHandle
 
 
 # Initialisation
@@ -94,7 +96,14 @@ def compare_queryset(qs):
 		
 
 def instance2names(instance):
-	app_name,model_name = instance._meta.app_label, instance._meta.model_name.capitalize()
+	app_name = ""
+	model_name = ""
+	oErr = ErrHandle()
+	try:
+		app_name,model_name = instance._meta.app_label, instance._meta.model_name.capitalize()
+	except:
+		msg = oErr.get_error_message()
+		oErr.DoError("instance2names")
 	return app_name, model_name
 
 
@@ -105,16 +114,23 @@ def instance2name(instance):
 
 def copy_complete(instance, commit = True):
 	'''copy a model instance completely with all relations.'''
-	copy = simple_copy(instance, commit)
-	app_name, model_name = instance2names(instance)
-	for f in copy._meta.get_fields():
-		if f.one_to_many:
-			for r in list(getattr(instance,f.name+'_set').all()):
-				rcopy = simple_copy(r,False,False)
-				setattr(rcopy,model_name.lower(), copy)
-				rcopy.save()
-		if f.many_to_many:
-			getattr(copy,f.name).set(getattr(instance,f.name).all())
+	
+	oErr = ErrHandle()
+	copy = None
+	try:
+		copy = simple_copy(instance, commit)
+		app_name, model_name = instance2names(instance)
+		for f in copy._meta.get_fields():
+			if f.one_to_many:
+				for r in list(getattr(instance,f.name+'_set').all()):
+					rcopy = simple_copy(r,False,False)
+					setattr(rcopy,model_name.lower(), copy)
+					rcopy.save()
+			if f.many_to_many:
+				getattr(copy,f.name).set(getattr(instance,f.name).all())
+	except:
+		msg = oErr.get_error_message()
+		oErr.DoError("copy_complete")
 	return copy
 
 
@@ -122,20 +138,27 @@ def simple_copy(instance, commit = True,add_copy_suffix = True):
 	'''Copy a model instance and save it to the database.
 	m2m and relations are not saved.
 	'''
-	app_name, model_name = instance2names(instance)
-	model = apps.get_model(app_name,model_name)
-	copy = model.objects.get(pk=instance.pk)
-	copy.pk = None
-	print('copying...')
-	for name in 'title,name,caption,first_name'.split(','):
-		if hasattr(copy,name):
-			print('setting',name)
-			copy.view()
-			setattr(copy,name,getattr(copy,name)+ ' !copy!')
-			copy.view()
-			break
-	if commit:
-		copy.save()
+
+	oErr = ErrHandle()
+	copy = None
+	try:
+		app_name, model_name = instance2names(instance)
+		model = apps.get_model(app_name,model_name)
+		copy = model.objects.get(pk=instance.pk)
+		copy.pk = None
+		print('copying...')
+		for name in 'title,name,caption,first_name'.split(','):
+			if hasattr(copy,name):
+				print('setting',name)
+				copy.view()
+				setattr(copy,name,getattr(copy,name)+ ' !copy!')
+				copy.view()
+				break
+		if commit:
+			copy.save()
+	except:
+		msg = oErr.get_error_message()
+		oErr.DoError("simple_copy")
 	return copy
 		
 
@@ -160,6 +183,7 @@ def make_models_image_file_dict():
 			d[app_name, model_name] = file_field_names
 	return d
 
+
 def get_empty_fields(instance,fields = [],default_is_empty =False):
 	if not fields: fields = instance._meta.fields
 	empty_values = ['',None]
@@ -177,6 +201,7 @@ def get_empty_fields(instance,fields = [],default_is_empty =False):
 			if value == default: empty = True
 		if empty: empty_fields.append(f.name)
 	return empty_fields
+
 
 def get_all_models(model_names =''):
 	if model_names == '': model_names = n
@@ -224,6 +249,7 @@ def _add_to_count_instance_dict(count_d,instances_d,names, instance):
 		if name not in count_d.keys(): count_d[name] ,instances_d[name] = 0, []
 		count_d[name] +=1
 		instances_d[name].append(instance)
+
 
 def instances2model_counts(instances):
 	'''names and counts of models that are linked to a list of instance.'''
