@@ -2,9 +2,12 @@ from django.apps import apps
 import random
 import string
 import itertools
+
+# Import from own application
 from utils.general import sort_count_dict, sort_dict_on_keys
 
 
+# Initialisation
 n='text,publication,periodical,publisher,illustration,person,movement'.split(',')
 
 class info():

@@ -1,9 +1,17 @@
-from django.apps import apps
+"""
+The signal utility is an add-on to django-easy-audit
+The latter is middleware that registers every CRUD event of the whoel project
+"""
+
 import sys
+import os
 from easyaudit.models import CRUDEvent
+from django.apps import apps
 from django.db.models.signals import m2m_changed, post_delete, post_save
 from django.dispatch import receiver
 from django.conf import settings
+
+# Imports from own application
 from .model_util import instance2name, instance2names, make_models_image_file_dict
 # from .backup_util import put_file, isfile
 
@@ -12,9 +20,6 @@ from persons.models import Person,Movement, PersonTextRelation, PersonIllustrati
 from persons.models import PublisherManager, PersonPeriodicalRelation, PersonMovementRelation
 from catalogue.models import Text,Publication,Publisher,Illustration,Periodical
 '''
-
-import sys
-import os
 
 def catch_m2m(instance, action, pk_set, model_name,field_name):
 	'''Adds a changed field dict to changed_fields attr of easyaudit event object
@@ -59,6 +64,7 @@ def make_m2mreceiver(sender,model_name,field_name):
 	m+= '\tpk_set = kwargs["pk_set"]\n'
 	m+= '\tcatch_m2m(instance,action,pk_set,"'+model_name+'","'+field_name+'")'
 	exec(m,globals())
+
 
 def model2m2mreceiver(model_name,app_name):
 	'''creates m2m reciever for each m2m field of a model.'''
