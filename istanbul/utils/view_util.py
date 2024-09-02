@@ -1,9 +1,35 @@
+"""
+"""
 from django.apps import apps
 import inspect
 import sys
 from easyaudit.models import CRUDEvent
 from utils import signal_util
+
+# From own application
 from .model_util import instance2name, instance2names
+
+# =================== Helper functions ===================================
+
+def partial_year_to_date(form, instance, date_field, year_field):
+    """Used in [before_save()] to change the date_field"""
+
+    # Get the value of the year_field
+    value_year = form.cleaned_data.get(year_field)
+    if value_year != "":
+        value_year = value_year.zfill(4)
+    # This only works if there is an instance
+    if instance is None:
+        value_date = None
+    else:
+        # Get the date_field
+        value_date = getattr(instance, date_field)
+    # If they are the same: don't change
+    if value_date != value_year:
+        # Check for changes
+        if value_date is None or value_date == "" or str(value_date.date.year).zfill(4) != value_year:
+            # Adapt the form's instance value
+            setattr(form.instance, date_field, value_year)
 
 def get_modelform(namespace,modelform_name):
 	temp = sys.modules[namespace]
@@ -33,6 +59,9 @@ def _wip_edit_model(request, instance_id, app_name, model_name):
 	form = modelform(instance=instance)
 	args = {'form':form,'page_name':'Edit '+model_name.lower()}
 	return render(request,app_name+'/add_' + model_name.lower() + '.html',args)
+
+
+# =================== Helper classes =====================================
 
 
 class FormsetFactoryManager:
@@ -250,6 +279,7 @@ class Crud:
 		if len(self.events) == 0: return 'user unknown'
 		return self.events[0].username
 
+
 class Event:
 	def __init__(self,e, related_name = '',related_instance = None):
 		self.event = e
@@ -336,7 +366,6 @@ class Event:
 			return "/"+app_name+"/edit_"+model_name.lower()+"/"+str(instance.primary.pk)
 		return "/"+self.app_name +"/edit_"+self.model_name.lower()+"/"+str(self.model_pk)
 		
-				
 
 class Change:
 	def __init__(self,user,time,field_name,state,related_name,related_instance = None):
@@ -353,6 +382,7 @@ class Change:
 	def __repr__(self):
 		return str(self.field) + ' ' + str(self.username) + ' ' + self.time
 
+
 class Tab:
 	def __init__(self,tab_names,focus=0):
 		if type(tab_names) != list: self.tab_names = tab_names.split(',')
@@ -363,6 +393,7 @@ class Tab:
 
 	def __repr__(self):
 		return ' '.join(self.tab_names)
+
 
 class Tabs:
 	def __init__(self,tabs,names,focus_names = ''):

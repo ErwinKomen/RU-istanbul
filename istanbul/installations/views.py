@@ -1,5 +1,10 @@
+"""
+Views for the installations app
+"""
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
+
+# From own applicatino
 from .models import System, Image, Installation
 from .forms import SystemForm, PersonForm, InstallationForm 
 from .forms import EventForm, LiteratureForm, InstitutionForm
@@ -10,7 +15,31 @@ from .forms import eventperson_formset, personevent_formset
 from .forms import eventinstitution_formset, institutionevent_formset
 from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm
+from .forms import partial_year_to_date
 from utilities.views import edit_model
+
+@permission_required('utilities.add_generic')
+def home(request):
+    f = 'Panorama of Constantinople, detail showing the Valens aqueduct'
+    image = Image.objects.get(title = f)
+    args = {'image':image}
+    return render(request,'installations/home.html',args)
+
+# --------------------- System ----------------------------------------------
+def edit_system(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [System] instance"""
+
+    names = 'systeminstallation_formset'
+    return edit_model(request, __name__, 'System','installations',pk,
+        formset_names = names, focus = focus, view = view)
+
+# --------------------- Installation ----------------------------------------
+def edit_installation(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Installation] instance"""
+
+    names = 'installationsystem_formset'
+    return edit_model(request, __name__, 'Installation','installations',pk,
+        formset_names = names, focus = focus, view = view)
 
 def detail_installation_view(request,pk):
     installation= Installation.objects.get(pk = pk)
@@ -24,85 +53,113 @@ def detail_installation_view(request,pk):
     return render(request,'installations/detail_installation_view.html',args)
 
 
-@permission_required('utilities.add_generic')
-def home(request):
-    f = 'Panorama of Constantinople, detail showing the Valens aqueduct'
-    image = Image.objects.get(title = f)
-    args = {'image':image}
-    return render(request,'installations/home.html',args)
-
-# Create your views here.
-def edit_system(request, pk = None, focus = '', view = 'complete'):
-    names = 'systeminstallation_formset'
-    return edit_model(request, __name__, 'System','installations',pk,
-        formset_names = names, focus = focus, view = view)
-
-def edit_installation(request, pk = None, focus = '', view = 'complete'):
-    names = 'installationsystem_formset'
-    return edit_model(request, __name__, 'Installation','installations',pk,
-        formset_names = names, focus = focus, view = view)
-
+# --------------------- Person ----------------------------------------------
 def edit_person(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Person] instance"""
+
+    def before_save(form, instance):
+        # Check whether the date is filled in as a correct four-digit year
+        partial_year_to_date(form, instance, "birth_year", "birth_year")
+        partial_year_to_date(form, instance, "death_year", "death_year")
+        partial_year_to_date(form, instance, "start_reign", "start_reign")
+        partial_year_to_date(form, instance, "end_reign", "end_reign")
+
     names = 'personevent_formset'
     return edit_model(request, __name__, 'Person','installations',pk,
-        formset_names = names, focus = focus, view = view)
+        formset_names = names, focus = focus, view = view, before_save=before_save)
 
+# --------------------- Institution -----------------------------------------
 def edit_institution(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Institution] instance"""
+
     names = 'institutionevent_formset'
     return edit_model(request, __name__, 'Institution','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Purpose ---------------------------------------------
 def edit_purpose(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Purpose] instance"""
+
     names = ''
     return edit_model(request, __name__, 'Purpose','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Institution Type ------------------------------------
 def edit_institutiontype(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Institution type] instance"""
+
     names = ''
     return edit_model(request, __name__, 'InstitutionType','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Event Type ------------------------------------------
 def edit_eventtype(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Event type] instance"""
+
     names = ''
     return edit_model(request, __name__, 'EventType','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Event Role ------------------------------------------
 def edit_eventrole(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Event role] instance"""
+
     names = ''
     return edit_model(request, __name__, 'EventRole','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Religion --------------------------------------------
 def edit_religion(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Religion] instance"""
+
     names = ''
     return edit_model(request, __name__, 'Religion','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Event -----------------------------------------------
 def edit_event(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Event] instance"""
+
     names = 'eventliterature_formset,eventperson_formset,eventinstitution_formset'
     return edit_model(request, __name__, 'Event','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Literature ------------------------------------------
 def edit_literature(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Literature] instance"""
+
     names = 'literatureevent_formset'
     return edit_model(request, __name__, 'Literature','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Text type -------------------------------------------
 def edit_texttype(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Text Type] instance"""
+
     names = ''
     return edit_model(request, __name__, 'TextType','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Image -----------------------------------------------
 def edit_image(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Image] instance"""
+
     names = ''
     return edit_model(request, __name__, 'Image','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Figure ----------------------------------------------
 def edit_figure(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Figure] instance"""
+
     names = ''
     return edit_model(request, __name__, 'Figure','installations',pk,
         formset_names = names, focus = focus, view = view)
 
+# --------------------- Style -----------------------------------------------
 def edit_style(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Style] instance"""
+
     names = ''
     return edit_model(request, __name__, 'Style','installations',pk,
         formset_names = names, focus = focus, view = view)

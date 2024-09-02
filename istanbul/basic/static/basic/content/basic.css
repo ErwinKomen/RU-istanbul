@@ -1,0 +1,215 @@
+body
+{
+}
+
+.hiddenaway {
+    position: absolute; left: -9999px; top: 0px;
+}
+
+.blinded {
+    opacity: 0.0;
+    min-width: 25px;
+}
+
+.hidehover:hover .blinded {
+    opacity: 1.0;
+}
+
+th div a.clickable.sorted {
+  color: darkblue;
+}
+
+th div a.clickable.ordered:hover {
+  color: darkblue;
+  background-color: lightgoldenrodyellow;
+}
+
+.sortshow:hover {
+    opacity: 1.0;
+    color: red;
+}
+
+table thead th.sortable .sortoptions {
+    color: dimgray;
+    font-size: small;
+}
+
+table thead th.sortable .sortoptions .sortmulti.fa-sort {
+    opacity: 0.0;
+}
+table thead th.sortable .sortoptions .sortmulti:hover {
+    opacity: 1.0;
+    color: orangered;
+}
+
+table thead th.sortable .sortoptions a.sortremove {
+    /* background-position: 0 0; */
+    color: darkgray;
+    opacity: 0.0;
+}
+
+table thead th.sortable .sortoptions a.sortremove:after {
+    content: '\\';
+    position: fixed;/* */
+    margin-left: -10px;
+    margin-top: -2px;
+    font-weight: 200;
+    font-size: 18px;
+    color: darkgray;
+    opacity: 0.0;
+    /* top: -6px;
+    left: 3px;
+    font-weight: 200;
+    font-size: 18px;
+    color: #999;*/
+}
+
+table thead th.sortable .sortoptions a.sortremove:focus:after,
+table thead th.sortable .sortoptions a.sortremove:hover:after {
+    color: #447e9b;
+    opacity: 1.0;
+}
+
+table thead th.sortable .sortoptions a.sortremove:focus,
+table thead th.sortable .sortoptions a.sortremove:hover {
+    /* background-position: 0 -14px; */
+    opacity: 1.0;
+}
+
+
+.ruler_white {
+    background-color: white;
+}
+
+.ruler_black {
+    /* background-color: black; */
+    border: 1px solid black !important;
+}
+
+.ruler_show {
+    height: 12px;
+    border: 1px dashed black !important;
+}
+
+td.ruler {
+    padding: 0px !important;
+}
+
+.related-remove {
+    cursor: pointer;
+}
+
+.search_url {
+    color: darkblue;
+    font-size: small;
+    font-family: monospace;
+}
+
+.bi-filetype-xls {
+    position: relative;
+    top: 3px;
+}
+
+/* MAP addition */
+/* Mapview */
+.map-list-switch {
+    height: 30px;
+    border-radius: 22px;
+    padding: 2px;
+    background-color: #ddd;
+    top: 18px;
+    z-index: 10;
+    position: sticky;
+    color: #000;
+    box-sizing: border-box;
+    font-size: 18px;
+}
+
+.map-list-switch.map-active {
+    background-color: #000;
+    color: #fff;
+}
+
+.map-list-switch ul {
+    list-style: none;
+    display: flex;
+    padding: 0;
+    margin-top: 1px;
+}
+
+.map-list-switch li {
+    height: 24px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.map-list-switch li.list-switch {
+    background-color: #fff;
+}
+
+.map-list-switch.map-active li.map-switch {
+    background-color: #fff;
+}
+
+.map-list-switch.map-active li.list-switch {
+    background-color: transparent;
+}
+
+.map-list-switch.map-active li.list-switch .switch-item {
+    color: #fff;
+}
+
+.map-list-switch .switch-item {
+    display: flex;
+    text-decoration: none;
+    color: #000;
+    line-height: 13px;
+}
+
+.map-list-switch .switch-item strong {
+    font-weight: 700;
+    margin-right: 4px;
+    margin-top: 4px;
+}
+.map-list-switch .switch-item span.count {
+    margin-top: 3px;
+}
+
+.werkstuk-map {
+    z-index: 5;
+    top: 55px; /* -45px; */
+    position: absolute;
+}
+
+.family-head {
+    position: absolute;
+}
+
+.inner-map {
+    margin-left: 15px;
+    margin-right: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+    position: absolute;
+    right: 0px;
+    margin-top: 10px;
+    top: 50px;
+}
+
+.leaflet-top {
+    margin-top: 50px;
+    margin-right: 15px;
+}
+
+.leaflet-marker-icon .fa-map-marker-alt {
+    font-size: x-large;
+    color: #345beb;
+}
+
+span.warning {
+    background-color: lightgray;
+    color: darkred;
+    font-size: larger;
+}

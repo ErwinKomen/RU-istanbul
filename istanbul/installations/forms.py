@@ -1,3 +1,6 @@
+"""
+Forms for the Installations app inside istanbul-su
+"""
 from django import forms
 from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,Style,Figure,Event
@@ -14,7 +17,10 @@ from .widgets import EventTypeWidget,StyleWidget,FigureWidget
 from .widgets import InstallationTypeWidget,InstallationWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
+
+# From our own application
 from utils.select2 import  make_select2_attr
+from utils.view_util import partial_year_to_date
 
 
 dattr = {'attrs':{'style':'width:100%'}}
@@ -28,6 +34,8 @@ dnumber= {'widget':forms.NumberInput(attrs={'style':'width:100%','rows':3}),
 dselect2 = make_select2_attr(input_length = 0)
 dselect2n2 = make_select2_attr(input_length = 2)
 
+
+# ================================= Main forms ===============================================
 
 class SystemForm(forms.ModelForm):
 	original_name = forms.CharField(**dchar)
@@ -43,191 +51,6 @@ class SystemForm(forms.ModelForm):
 		fields += ',description,comments'
 		fields = fields.split(',')
 
-
-class InstitutionTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-
-	class Meta:
-		model = InstitutionType
-		fields = ['name']
-
-
-class EventRoleForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-
-	class Meta:
-		model = EventRole
-		fields = ['name']
-
-
-class ReligionForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Religion
-		fields = 'name,description,comments'.split(',')
-
-
-class GenderForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-
-	class Meta:
-		model = Gender
-		fields = ['name']
-
-
-class PersonForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	gender = forms.ModelChoiceField(
-		queryset = Gender.objects.all(),
-		widget = GenderWidget(**dselect2),
-		required = False)
-	religion = forms.ModelChoiceField(
-		queryset = Religion.objects.all(),
-		widget = ReligionWidget(**dselect2),
-		required = False)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Person
-		fields = 'name,gender,birth_year,death_year,start_reign,end_reign'
-		fields += ',religion,description,comments'
-		fields = fields.split(',')
-
-
-class InstitutionTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = InstitutionType
-		fields = 'name,description,comments'.split(',')
-
-
-class InstitutionForm(forms.ModelForm):
-	original_name = forms.CharField(**dchar)
-	ottoman_name = forms.CharField(**dchar)
-	english_name = forms.CharField(**dchar_required)
-	turkish_name = forms.CharField(**dchar)
-	institution_type = forms.ModelChoiceField(
-		queryset = InstitutionType.objects.all(),
-		widget = InstitutionTypeWidget(**dselect2),
-		required = False)
-	religion = forms.ModelChoiceField(
-		queryset = Religion.objects.all(),
-		widget = ReligionWidget(**dselect2),
-		required = False)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Institution
-		fields = 'original_name,ottoman_name,english_name,turkish_name'
-		fields += ',institution_type,religion,description,comments'
-		fields = fields.split(',')
-
-
-class EventTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = EventType
-		fields = 'name,description,comments'.split(',')
-
-
-class ImageForm(forms.ModelForm):
-	maker = forms.CharField(**dchar)
-	title = forms.CharField(**dchar)
-	url= forms.CharField(**dchar)
-	current_location= forms.CharField(**dchar)
-	collection = forms.CharField(**dchar)
-	description = forms.CharField(**dtext)
-	latitude = forms.DecimalField(**dgps)
-	longitude = forms.DecimalField(**dgps)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Image
-		fields = 'image_file,maker,year,title,url,current_location'
-		fields += ',collection,description,comments,latitude,longitude'
-		fields = fields.split(',')
-
-
-class StyleForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	line_thickness = forms.IntegerField(**dnumber)
-	fill_opacity = forms.FloatField(**dnumber)
-	line_opacity = forms.FloatField(**dnumber)
-	z_index = forms.IntegerField(**dnumber)
-
-	class Meta:
-		model = Style
-		fields = 'name,color,line_thickness,fill_opacity,line_opacity'
-		fields += ',dashed,z_index'
-		fields = fields.split(',')
-	
-
-class FigureForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	style = forms.ModelChoiceField(
-		queryset = Style.objects.all(),
-		widget = StyleWidget(**dselect2),
-		required = False)
-
-	class Meta:
-		model = Figure 
-		fields = 'name,geojson,style'.split(',')
-
-
-class EventForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	event_type = forms.ModelChoiceField(
-		queryset = EventType.objects.all(),
-		widget = EventTypeWidget(**dselect2),
-		required = False)
-	date_comments = forms.CharField(**dtext)
-	images = forms.ModelMultipleChoiceField(
-		queryset = Image.objects.all(),
-		widget = ImagesWidget(**dselect2),
-		required = False)
-	figure = forms.ModelChoiceField(
-		queryset = Figure.objects.all(),
-		widget = FigureWidget(**dselect2),
-		required = False)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Event
-		fields = 'name,start_date,end_date,date_comments,images'
-		fields += ',figure,description,comments,event_type'
-		fields = fields.split(',')
-
-class PurposeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Purpose
-		fields = 'name,description,comments'.split(',')
-
-
-class InstallationTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = Purpose
-		fields = 'name,description,comments'.split(',')
-	
 
 class InstallationForm(forms.ModelForm):
 	original_name = forms.CharField(**dchar)
@@ -261,6 +84,108 @@ class InstallationForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
+class PersonForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	gender = forms.ModelChoiceField(
+		queryset = Gender.objects.all(),
+		widget = GenderWidget(**dselect2),
+		required = False)
+	religion = forms.ModelChoiceField(
+		queryset = Religion.objects.all(),
+		widget = ReligionWidget(**dselect2),
+		required = False)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Person
+		fields = 'name,gender,birth_year,death_year,start_reign,end_reign'
+		fields += ',religion,description,comments'
+		fields = fields.split(',')
+
+	def save(self, commit=True, *args, **kwargs):
+		# Get the instance
+		instance = self.instance
+		# Adapt the form.instance for date fields
+		partial_year_to_date(self, instance, "start_reign", "start_reign")
+		partial_year_to_date(self, instance, "end_reign", "end_reign")
+		partial_year_to_date(self, instance, "birth_year", "birth_year")
+		partial_year_to_date(self, instance, "death_year", "death_year")
+		# Perform the actual saving
+		response = super(PersonForm, self).save(commit=commit)
+		# Return the save response
+		return response
+
+
+class InstitutionForm(forms.ModelForm):
+	original_name = forms.CharField(**dchar)
+	ottoman_name = forms.CharField(**dchar)
+	english_name = forms.CharField(**dchar_required)
+	turkish_name = forms.CharField(**dchar)
+	institution_type = forms.ModelChoiceField(
+		queryset = InstitutionType.objects.all(),
+		widget = InstitutionTypeWidget(**dselect2),
+		required = False)
+	religion = forms.ModelChoiceField(
+		queryset = Religion.objects.all(),
+		widget = ReligionWidget(**dselect2),
+		required = False)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Institution
+		fields = 'original_name,ottoman_name,english_name,turkish_name'
+		fields += ',institution_type,religion,description,comments'
+		fields = fields.split(',')
+
+
+class ReligionForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Religion
+		fields = 'name,description,comments'.split(',')
+
+
+class EventForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	event_type = forms.ModelChoiceField(
+		queryset = EventType.objects.all(),
+		widget = EventTypeWidget(**dselect2),
+		required = False)
+	date_comments = forms.CharField(**dtext)
+	images = forms.ModelMultipleChoiceField(
+		queryset = Image.objects.all(),
+		widget = ImagesWidget(**dselect2),
+		required = False)
+	figure = forms.ModelChoiceField(
+		queryset = Figure.objects.all(),
+		widget = FigureWidget(**dselect2),
+		required = False)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Event
+		fields = 'name,start_date,end_date,date_comments,images'
+		fields += ',figure,description,comments,event_type'
+		fields = fields.split(',')
+
+	def save(self, commit=True, *args, **kwargs):
+		# Get the instance
+		instance = self.instance
+		# Adapt the form.instance for start_date and end_date
+		partial_year_to_date(self, instance, "start_date", "start_date")
+		partial_year_to_date(self, instance, "end_date", "end_date")
+		# Perform the actual saving
+		response = super(EventForm, self).save(commit=commit)
+		# Return the save response
+		return response
+
+
 class LiteratureForm(forms.ModelForm):
 	code = forms.CharField(**dchar_required)
 	title= forms.CharField(**dchar_required)
@@ -284,6 +209,136 @@ class LiteratureForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
+# ================================= Helper model forms ========================================
+
+class InstitutionTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+
+	class Meta:
+		model = InstitutionType
+		fields = ['name']
+
+
+class EventRoleForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+
+	class Meta:
+		model = EventRole
+		fields = ['name']
+
+
+class GenderForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+
+	class Meta:
+		model = Gender
+		fields = ['name']
+
+
+class InstitutionTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = InstitutionType
+		fields = 'name,description,comments'.split(',')
+
+
+class EventTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = EventType
+		fields = 'name,description,comments'.split(',')
+
+
+class ImageForm(forms.ModelForm):
+	maker = forms.CharField(**dchar)
+	title = forms.CharField(**dchar)
+	url= forms.CharField(**dchar)
+	current_location= forms.CharField(**dchar)
+	collection = forms.CharField(**dchar)
+	description = forms.CharField(**dtext)
+	latitude = forms.DecimalField(**dgps)
+	longitude = forms.DecimalField(**dgps)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Image
+		fields = 'image_file,maker,year,title,url,current_location'
+		fields += ',collection,description,comments,latitude,longitude'
+		fields = fields.split(',')
+
+	def save(self, commit=True, *args, **kwargs):
+		# Get the instance
+		instance = self.instance
+		# Adapt the form.instance for date fields
+		partial_year_to_date(self, instance, "year", "year")
+		# Perform the actual saving
+		response = super(ImageForm, self).save(commit=commit)
+		# Return the save response
+		return response
+
+
+class StyleForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	line_thickness = forms.IntegerField(**dnumber)
+	fill_opacity = forms.FloatField(**dnumber)
+	line_opacity = forms.FloatField(**dnumber)
+	z_index = forms.IntegerField(**dnumber)
+
+	class Meta:
+		model = Style
+		fields = 'name,color,line_thickness,fill_opacity,line_opacity'
+		fields += ',dashed,z_index'
+		fields = fields.split(',')
+	
+
+class FigureForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	style = forms.ModelChoiceField(
+		queryset = Style.objects.all(),
+		widget = StyleWidget(**dselect2),
+		required = False)
+
+	class Meta:
+		model = Figure 
+		fields = 'name,geojson,style'.split(',')
+
+
+class PurposeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Purpose
+		fields = 'name,description,comments'.split(',')
+
+
+class InstallationTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Purpose
+		fields = 'name,description,comments'.split(',')
+	
+
+class TextTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+
+	class Meta:
+		model = TextType
+		fields = ['name']
+
+
+# ================================== Relation forms ==========================================
+
 class SystemInstallationRelationForm(forms.ModelForm):
 	system = forms.ModelChoiceField(
 		queryset = System.objects.all(),
@@ -302,13 +357,16 @@ class SystemInstallationRelationForm(forms.ModelForm):
 		fields += ',description,comments,is_part_of'
 		fields = fields.split(',')
 
-
-class TextTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-
-	class Meta:
-		model = TextType
-		fields = ['name']
+	def save(self, commit=True, *args, **kwargs):
+		# Get the instance
+		instance = self.instance
+		# Adapt the form.instance for date fields
+		partial_year_to_date(self, instance, "start_date", "start_date")
+		partial_year_to_date(self, instance, "end_date", "end_date")
+		# Perform the actual saving
+		response = super(SystemInstallationRelationForm, self).save(commit=commit)
+		# Return the save response
+		return response
 
 
 class EventLiteratureRelationForm(forms.ModelForm):
@@ -333,6 +391,7 @@ class EventLiteratureRelationForm(forms.ModelForm):
 		fields += ',text_file,text_type'
 		fields = fields.split(',')
 
+
 class EventInstitutionRelationForm(forms.ModelForm):
 	event = forms.ModelChoiceField(
 		queryset = Event.objects.all(),
@@ -351,6 +410,7 @@ class EventInstitutionRelationForm(forms.ModelForm):
 		model = EventInstitutionRelation
 		fields = 'event,institution,role'
 		fields = fields.split(',')
+
 
 class EventPersonRelationForm(forms.ModelForm):
 	event = forms.ModelChoiceField(
@@ -372,7 +432,8 @@ class EventPersonRelationForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
-# formsets
+# ================================= Formsets ===============================================
+
 systeminstallation_formset = forms.inlineformset_factory(
 	System,SystemInstallationRelation,
 	form = SystemInstallationRelationForm, extra = 1)

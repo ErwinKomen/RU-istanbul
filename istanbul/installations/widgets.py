@@ -216,6 +216,7 @@ class InstallationWidget(ModelSelect2Widget):
     def get_queryset(self):
         return Installation.objects.all().order_by('english_name')
 
+
 class LiteratureWidget(ModelSelect2Widget):
     model = Literature
     search_fields = ['title__icontains','code__icontains']

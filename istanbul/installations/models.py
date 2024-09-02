@@ -1,6 +1,11 @@
+"""
+Main models for the istanbul-su application
+"""
 from django.db import models
 from partial_date import PartialDateField
 from colorfield.fields import ColorField
+
+# From own application
 from utils.model_util import info
 
 
@@ -320,6 +325,9 @@ class Literature(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+
+# ========================== RELATIONS BETWEEN MAIN ITEMS ===============================
   
     
 class SystemInstallationRelation(models.Model, info):
@@ -353,7 +361,7 @@ class TextType(models.Model, info):
 
 
 class EventRole(models.Model, info):
-    """Role of the event"""
+    """Role of the event (e.g: builder, finisher, founder, inaugurator)"""
 
     # [0-1] Name of the event role
     name = models.CharField(max_length=100,blank=True,null=True)
