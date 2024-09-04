@@ -40,7 +40,7 @@
           <!-- Actual contents -->
           <div class="col-md-10">
 
-            <div class="row">
+            <div class="flex-row">
               <div class="col-md-12">
                 <h3>
                   <span>{{titlesg}} details</span>
@@ -162,7 +162,7 @@
 
             <!-- Lists of related items -->
             {% for related in related_objects %}
-              <div class="row related-root {{related.classes}}" id="basic_{{related.prefix}}_set" >
+              <div class="flex-row related-root {{related.classes}}" id="basic_{{related.prefix}}_set" >
 
                 <!-- Hidden related hierarchy submit form -->
                 <div class="hidden">
@@ -237,7 +237,7 @@
                         <tbody>
                           {% for relrow in related.rel_list %}
 
-                            <tr class="form-row {{relrow.classes}}" rowid="{{relrow.id}}" {{relrow.params|safe}}>
+                            <tr class="ru-form-row {{relrow.classes}}" rowid="{{relrow.id}}" {{relrow.params|safe}}>
                               <!-- Counter-->
                               {% if related.use_counter %}<td>{{forloop.counter}}</td>{% endif %}
 

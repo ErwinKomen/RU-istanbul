@@ -365,3 +365,4 @@ FodyWeavers.xsd
 # Python stuff
 *.pyc
 /istanbul-main
+/istanbul/.env

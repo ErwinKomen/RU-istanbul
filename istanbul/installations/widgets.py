@@ -159,9 +159,14 @@ class EventWidget(ModelSelect2Widget):
 
     def label_from_instance(self,obj):
         label = obj.name
-        if obj.start_date: label += ' ' + str(obj.start_date.year)
-        if obj.start_date and obj.end_date: label += ' -'
-        if obj.end_date: label += ' ' + str(obj.end_date.year)
+        if obj.start_date: 
+            label += ' ' + str(obj.start_date.year)
+            # EK: label += ' ' + str(obj.start_date.YEAR)
+        if obj.start_date and obj.end_date: 
+            label += ' -'
+        if obj.end_date: 
+            label += ' ' + str(obj.end_date.year)
+            # EK: label += ' ' + str(obj.end_date.YEAR)
         return label 
     
     def get_queryset(self):
@@ -174,9 +179,14 @@ class EventsWidget(ModelSelect2MultipleWidget):
 
     def label_from_instance(self,obj):
         label = obj.name
-        if obj.start_date: label += ' ' + str(obj.start_date.year)
-        if obj.start_date and obj.end_date: label += ' -'
-        if obj.end_date: label += ' ' + str(obj.end_date.year)
+        if obj.start_date: 
+            label += ' ' + str(obj.start_date.year)
+            # EK: label += ' ' + str(obj.start_date.YEAR)
+        if obj.start_date and obj.end_date: 
+            label += ' -'
+        if obj.end_date: 
+            label += ' ' + str(obj.end_date.year)
+            # EK: label += ' ' + str(obj.end_date.YEAR)
         return label 
     
     def get_queryset(self):

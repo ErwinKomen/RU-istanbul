@@ -1,13 +1,17 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 from . import views
 
 app_name = 'installations'
 
 urlpatterns = [
 	path('',views.home, name = 'home'),
+	path('home/',views.home, name = 'home'),
+
+	# ================== View ===================================
     path('detail_installation_view/<int:pk>/', views.detail_installation_view,
         name='detail_installation_view'),
-	path('home/',views.home, name = 'home'),
+
+	# ================== Add ====================================
 	path('add_system/',views.edit_system, name = 'add_system'),
 	path('add_system/<str:view>', views.edit_system, 
 		name = 'add_system'),
@@ -48,6 +52,8 @@ urlpatterns = [
 	path('add_figure/<str:view>',views.edit_figure, name = 'add_figure'),
 	path('add_style/',views.edit_style, name = 'add_style'),
 	path('add_style/<str:view>',views.edit_style, name = 'add_style'),
+
+	# ==================== EDIT =========================================
 	path('edit_system/<int:pk>', views.edit_system, name = 'edit_system'),
 	path('edit_system/<int:pk>/<str:focus>', views.edit_system, 
 		name = 'edit_system'),

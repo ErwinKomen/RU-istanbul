@@ -4,6 +4,8 @@
     <Name>istanbul</Name>
     <RootNamespace>istanbul</RootNamespace>
     <InterpreterId>MSBuild|istanbul|$(MSBuildProjectFullPath)</InterpreterId>
+    <SuppressConfigureTestFrameworkPrompt>true</SuppressConfigureTestFrameworkPrompt>
+    <WebBrowserPort>6543</WebBrowserPort>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -41,9 +43,6 @@
     <Compile Include="basic\admin.py" />
     <Compile Include="basic\apps.py" />
     <Compile Include="basic\forms.py" />
-    <Compile Include="basic\migrations\0001_initial.py" />
-    <Compile Include="basic\migrations\0002_alter_usersearch_id.py" />
-    <Compile Include="basic\migrations\0003_address.py" />
     <Compile Include="basic\migrations\__init__.py" />
     <Compile Include="basic\models.py" />
     <Compile Include="basic\tests.py" />
@@ -111,6 +110,9 @@
     <Content Include="basic\migrations\__pycache__\__init__.cpython-39.pyc" />
     <Content Include="basic\static\basic\content\basic.css" />
     <Content Include="basic\static\basic\content\font-awesome.min.css" />
+    <Content Include="basic\static\basic\content\ru-base.css" />
+    <Content Include="basic\static\basic\content\ru-form.css" />
+    <Content Include="basic\static\basic\content\ru-widgets.css" />
     <Content Include="basic\static\basic\fonts\fontawesome-webfont.eot" />
     <Content Include="basic\static\basic\fonts\fontawesome-webfont.svg" />
     <Content Include="basic\static\basic\fonts\fontawesome-webfont.ttf" />
@@ -128,6 +130,7 @@
     <Content Include="basic\templates\basic\basic_details.html" />
     <Content Include="basic\templates\basic\basic_edit.html" />
     <Content Include="basic\templates\basic\basic_list.html" />
+    <Content Include="basic\templates\basic\basic_nlogin.html" />
     <Content Include="basic\templates\basic\filter_help.html" />
     <Content Include="basic\templates\basic\formset_new.html" />
     <Content Include="basic\templates\basic\map_list_switch.html" />
@@ -169,6 +172,7 @@
     <Content Include="installations\templates\installations\institutiontype_list.html" />
     <Content Include="installations\templates\installations\institution_list.html" />
     <Content Include="installations\templates\installations\literature_list.html" />
+    <Content Include="installations\templates\installations\nlogin.html" />
     <Content Include="installations\templates\installations\person_list.html" />
     <Content Include="installations\templates\installations\purpose_list.html" />
     <Content Include="installations\templates\installations\religion_list.html" />

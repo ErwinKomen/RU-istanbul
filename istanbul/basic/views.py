@@ -116,7 +116,7 @@ def get_breadcrumbs(request, name, is_menu, lst_crumb=[], **kwargs):
 
     # Initialisations
     p_list = []
-    p_list.append({'name': 'Home', 'url': reverse('home')})
+    p_list.append({'name': 'Home', 'url': reverse('installations:home')})
     # Find out who this is
     username = "anonymous" if request.user == None else request.user.username
     if username != "anonymous" and request.user.username != "":
@@ -1024,7 +1024,7 @@ class BasicList(ListView):
         context['is_app_editor'] = user_is_ingroup(self.request, app_editor) and self.may_edit(context, None)
 
         # Process this visit and get the new breadcrumbs object
-        prevpage = reverse('home')
+        prevpage = reverse('installations:home')
         context['prevpage'] = prevpage
         context['breadcrumbs'] = get_breadcrumbs(self.request, self.plural_name, True)
 
@@ -1483,7 +1483,8 @@ class BasicDetails(DetailView):
     basic_name = None
     basic_name_prefix = ""
     basic_add = ""
-    extend_template = "layout.html"
+    # extend_template = "layout.html"
+    extend_template = "utilities/base.html"
     add_text = "Add a new"
     permission = "read"     # Permission can be: (nothing), "read", "readonly", "write"
     new_button = False
@@ -1528,7 +1529,7 @@ class BasicDetails(DetailView):
             # Double check if this is a user and he/she may see it
             if self.is_invisible():
                 # Just go to the home page
-                return redirect(reverse('home'))
+                return redirect(reverse('installations:home'))
 
             # Only now we continue
             context = self.get_context_data(object=self.object)
@@ -1744,7 +1745,7 @@ class BasicDetails(DetailView):
             try:
                 context['listview'] = reverse(listviewname)
             except:
-                context['listview'] = reverse('home')
+                context['listview'] = reverse('installations:home')
 
         if self.basic_add:
             basic_add = reverse(self.basic_add)
@@ -1935,7 +1936,7 @@ class BasicDetails(DetailView):
                 if self.rtype == "json":
                     # This is the EditView
                     context['breadcrumbs'] = get_breadcrumbs(self.request, "{} edit".format(title), False)
-                    prevpage = reverse('home')
+                    prevpage = reverse('installations:home')
                     context['prevpage'] = prevpage
                 else:
                     # This is DetailsView
@@ -1952,7 +1953,7 @@ class BasicDetails(DetailView):
 
             # Double check the existence of an instance
             if instance is None:
-                self.redirectpage = reverse('home')
+                self.redirectpage = reverse('installations:home')
             else:
                 # Possibly add to context by the calling function
                 if instance.id:

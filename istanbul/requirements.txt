@@ -24,8 +24,10 @@ django-select2==7.10.0
 # Includes:
 #   django-appconf-1.0.6
 
-django_partial_date==1.3.2
+# Do *NOT* install django_partial_date:
+# django_partial_date==1.3.2
 #   six==1.16.0
+# Instead, download and install partial-date from https://github.com/martijnbentum/partial_date
 
 django-colorfield==0.7.1
 #   Pillow==10.4.0
@@ -36,3 +38,5 @@ django-easy-audit==1.3.3
 
 openpyxl==3.0.10
 #   et-xmlfile==1.1.0
+
+python-decouple==3.6

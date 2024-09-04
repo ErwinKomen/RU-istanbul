@@ -213,3 +213,128 @@ span.warning {
     color: darkred;
     font-size: larger;
 }
+
+.tdnowrap {
+    white-space: nowrap !important;
+}
+
+tr.view-row td:first-of-type {
+    font-weight: bold;
+    font-size: large;
+}
+
+/* Compatibility with lower Bootstrap versions */
+.hidden {
+    display: none !important;
+}
+
+/* Func-view related */
+
+table.func-view {
+    border: 1px solid white;
+    /* border: none; */
+    background-color: lightgray;
+    margin-top: 0px;
+    vertical-align: top;
+    padding: 2px;
+}
+
+    table.func-view.sermons {
+        padding: 0px 2px 0px 2px;
+    }
+
+    table.func-view th {
+        border: 1px solid white;
+        font-size: 12px;
+        background-color: darkgreen;
+        color: white;
+        border-radius: 3px 3px;
+        margin-top: 0px;
+        margin-left: 20px;
+        vertical-align: top;
+        padding: 2px;
+        background-clip: padding-box;
+    }
+
+        table.func-view th.selected {
+            background-color: darkorange;
+        }
+
+        table.func-view th.whitecell {
+            border: none;
+            background-color: white;
+            color: black;
+        }
+
+        table.func-view th:hover {
+            background-color: green;
+        }
+
+        table.func-view th.selected:hover {
+            background-color: orangered;
+        }
+
+        table.func-view th .func-title {
+            color: lightgray;
+        }
+
+        table.func-view th > span > .func-name {
+            font-family: monospace;
+        }
+
+    table.func-view td .func-name {
+        color: black;
+        font-family: monospace;
+        border-radius: 3px 3px;
+    }
+
+        table.func-view td .func-name:hover {
+            background-color: darkgreen;
+            color: white;
+            font-family: monospace;
+            border-radius: 3px 3px;
+        }
+
+    table.func-view td .arg-line {
+        color: black;
+        font-family: monospace;
+        border-radius: 3px 3px;
+    }
+
+    table.func-view th .func-title:hover {
+        background-color: darkolivegreen;
+    }
+
+table.func-oview tbody tr:hover {
+    background-color: palegreen !important;
+}
+
+table tr.func-inline {
+    background-color: lavender;
+}
+
+table.func-view td {
+    border: 1px solid white;
+    font-size: 12px;
+    margin-top: 0px;
+    vertical-align: top;
+    padding: 2px;
+    overflow: hidden;
+    /*
+  overflow-wrap: normal;
+  text-overflow: clip;*/
+}
+
+table.func-view.sermons td {
+    padding: 0px 2px 0px 2px;
+}
+
+table.func-view td.vmiddle {
+    vertical-align: middle;
+}
+
+table.func-view td.whitecell {
+    border: none;
+    background-color: white;
+    color: black;
+}

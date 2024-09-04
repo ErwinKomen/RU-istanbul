@@ -1,9 +1,11 @@
 import os
 import mimetypes
 from django.conf import settings
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpRequest
+from django.shortcuts import render, redirect
 from django.views.generic.detail import DetailView
 from django.urls import reverse_lazy
+from django.utils import timezone
 from . import views
 
 
@@ -38,3 +40,5 @@ def protected_media(request, filename):
     response['X-Sendfile'] = full_path
 
     return response
+
+
