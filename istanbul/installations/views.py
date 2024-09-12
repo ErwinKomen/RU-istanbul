@@ -49,6 +49,7 @@ def contact(request):
         template = "installations/contact.html"
         context = dict(
             page_name="Contact",
+            title="Contact",
             message="Mariëtte Verhoeven",
             year=get_current_datetime().year
             )
