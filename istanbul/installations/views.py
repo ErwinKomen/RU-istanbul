@@ -22,7 +22,7 @@ from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
 from basic.utils import ErrHandle
-from basic.views import BasicDetails, add_rel_item
+from basic.views import BasicDetails, add_rel_item, get_current_datetime
 
 @permission_required('utilities.add_generic')
 def home(request):
@@ -39,6 +39,24 @@ def nlogin(request):
                     'year':     timezone.now().year,}
     context['is_app_uploader'] = False
     return render(request,'basic/basic_nlogin.html', context)
+
+def contact(request):
+    """Renders the contact page."""
+    assert isinstance(request, HttpRequest)
+    response = "no contacts"
+    oErr = ErrHandle()
+    try:
+        template = "installations/contact.html"
+        context = dict(
+            page_name="Contact",
+            message="Mariëtte Verhoeven",
+            year=get_current_datetime().year
+            )
+        response = render(request, template, context)
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("installations/contact")
+    return response
 
 
 # --------------------- System ----------------------------------------------

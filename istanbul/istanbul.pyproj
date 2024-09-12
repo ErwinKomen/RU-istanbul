@@ -164,6 +164,7 @@
     <Content Include="installations\templates\installations\add_style.html" />
     <Content Include="installations\templates\installations\add_system.html" />
     <Content Include="installations\templates\installations\add_texttype.html" />
+    <Content Include="installations\templates\installations\contact.html" />
     <Content Include="installations\templates\installations\detail_installation_view.html" />
     <Content Include="installations\templates\installations\eventrole_list.html" />
     <Content Include="installations\templates\installations\eventtype_list.html" />

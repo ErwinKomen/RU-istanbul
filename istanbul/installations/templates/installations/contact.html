@@ -1,0 +1,24 @@
+{% extends "utilities/base.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<div class="container body-content">
+
+
+  <h2>{{ title }}</h2>
+  <h3>{{ message }}</h3>
+
+  <address>
+    {% trans "Radboud University" %} / Instanbul-su<br />
+    {% trans "PO Box" %} 9102<br />
+    NL-6500 HD Nijmegen<br />
+    {% trans "Netherlands" %} <br />
+    <abbr title="Phone">Tel:</abbr>
+    +31 24 36 12 623<br />
+    E-mail: CKD@let.ru.nl<br />
+    Website: <a href="https://www.ru.nl/en/staff/researchers/research-facilities/art-historical-documentation">Centre for Art historical documentation</a>
+  </address>
+
+</div>
+{% endblock %}

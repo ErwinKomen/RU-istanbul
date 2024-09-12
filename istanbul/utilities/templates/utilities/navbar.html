@@ -101,34 +101,36 @@
 
     </ul>
 
-	<ul class = "navbar-nav navbar-right">
+    <ul class="navbar-nav navbar-right">
+      <li><a class="nav-link"  title="Show contact details" href="{% url 'installations:contact' %}">Contact</a></li>
+
       {% if user.is_staff %}
-            <li class ="nav-item">
-                <a class="nav-link" href="{% url 'admin:index' %}">
-                   admin
-                </a>
-            </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'admin:index' %}">
+          admin
+        </a>
+      </li>
       {% endif %}
       {% if user.username == '' %}
-            <li class ="nav-item">
-                <a class="nav-link" href="{% url 'login' %}">
-                    login
-                </a>
-            </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'login' %}">
+          login
+        </a>
+      </li>
       {% else %}
-            <li class ="nav-item">
-                <a class="nav-link" href="{% url 'accounts:edit_profile' %}">
-                    {{user.username}}
-                </a>
-            </li>
-            <li class ="nav-item">
-                <a class="nav-link" href="{% url 'logout' %}">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span class="sr-only">(current)</span>
-                </a>
-            </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'accounts:edit_profile' %}">
+          {{user.username}}
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">
+          <i class="fas fa-sign-out-alt"></i>
+          <span class="sr-only">(current)</span>
+        </a>
+      </li>
       {% endif %}
-	</ul>
+    </ul>
 
 
   </div>

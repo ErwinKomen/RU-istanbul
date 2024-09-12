@@ -6,6 +6,7 @@ app_name = 'installations'
 urlpatterns = [
 	path('',views.home, name = 'home'),
 	path('home/',views.home, name = 'home'),
+	path('contact/', views.contact, name='contact'),
 
 	# ================== View ===================================
     path('detail_installation_view/<int:pk>/', views.detail_installation_view,
