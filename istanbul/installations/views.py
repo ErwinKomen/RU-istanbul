@@ -26,10 +26,29 @@ from basic.views import BasicDetails, add_rel_item, get_current_datetime
 
 @permission_required('utilities.add_generic')
 def home(request):
-    f = 'Panorama of Constantinople, detail showing the Valens aqueduct'
-    image = Image.objects.get(title = f)
-    args = {'image':image}
-    return render(request,'installations/home.html',args)
+    """Renders the home page."""
+    assert isinstance(request, HttpRequest)
+    response = "-"
+    oErr = ErrHandle()
+    try:
+        # Set the template
+        template = "installations/home.html"
+        # Get the image information
+        f = 'Panorama of Constantinople, detail showing the Valens aqueduct'
+        image = Image.objects.get(title = f)
+        # Retrieve the moderator-specified introductin text
+        home_intro = ""
+        # Prepare the context
+        context = { 'title': 'Istanbul-su', 
+                    'image':image,
+                    'home_intro': home_intro }
+        # Show the home page
+        response = render(request,template,context)
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("installations/home")
+        response = msg
+    return response
 
 def nlogin(request):
     """Renders the not-logged-in page."""
@@ -43,7 +62,7 @@ def nlogin(request):
 def contact(request):
     """Renders the contact page."""
     assert isinstance(request, HttpRequest)
-    response = "no contacts"
+    response = "-"
     oErr = ErrHandle()
     try:
         template = "installations/contact.html"
@@ -57,6 +76,7 @@ def contact(request):
     except:
         msg = oErr.get_error_message()
         oErr.DoError("installations/contact")
+        response = msg
     return response
 
 

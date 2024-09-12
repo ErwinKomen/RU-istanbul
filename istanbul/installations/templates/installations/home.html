@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block head %}
-<title>Istanbul-su</title>
+<title>{{title}}</title>
 {% endblock %}
 
 
@@ -15,6 +15,8 @@
        class="btn btn-success btn-xlarge">To the database</a>
   </div>
 </div>
+
+<!-- About the banner image -->
 <div>
   <i>{{image.title}}</i>,
   <small>
@@ -22,6 +24,16 @@
     ({{image.year}})
   </small>
 </div>
+
+<!-- Introductory text -->
+<div class="row">
+  <div class="col-md-12">
+    <h1>Istanbul su</h1>
+    {{home_intro|safe}}
+  </div>
+</div>
+
+
 
 
 {% endblock %}
