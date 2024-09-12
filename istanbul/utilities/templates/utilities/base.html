@@ -2,7 +2,6 @@
 <html lang='en'>
     <head>
 	<meta charset="utf-8">
-  <title>{{ title }}</title>
 	<!-- Latest compiled and minified CSS -->
 	{% load static %}
 	<link rel="stylesheet" 
@@ -14,6 +13,7 @@
 		href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" 
 		integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" 
 		crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="{% static 'installations/content/site.css' %}" />
 
 	<!-- jQuery library -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -27,6 +27,7 @@
 	<script src="https://unpkg.com/@popperjs/core@2"></script>
 	<script src="https://unpkg.com/tippy.js@6"></script>
 	<!-- end cdns for tippy -->
+  <script src="{% static 'installations/scripts/istanbul.js' %}"></script>
 
 	{% block scripts %}{% endblock %}
 
@@ -72,25 +73,29 @@
 
 	{% if user.username == '' %}
 	{% else %}
-		<div class="row">
-			<div class="col-1"> 
-				{% block left %}
+			<div class="container-fluid">
+
+				<div class="row">
+					<div class="col-1"> 
+						{% block left %}
 
 
-				{% endblock %}
+						{% endblock %}
+					</div>
+
+					<div class="col-10">
+						{% block content %}
+
+						{% endblock %}
+					</div>
+
+					<div class="col-1">
+						{% block right %}
+						{% endblock %}
+					</div>
+				</div>
+
 			</div>
-
-			<div class="col-10">
-				{% block content %}
-
-				{% endblock %}
-			</div>
-
-			<div class="col-1">
-				{% block right %}
-				{% endblock %}
-			</div>
-		</div>
 
 		</body>
 		{% block afterbody %}

@@ -366,3 +366,4 @@ FodyWeavers.xsd
 *.pyc
 /istanbul-main
 /istanbul/.env
+/istanbul/static
