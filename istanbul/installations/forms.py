@@ -211,12 +211,12 @@ class LiteratureForm(forms.ModelForm):
 
 # ================================= Helper model forms ========================================
 
-class InstitutionTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
+#class InstitutionTypeForm(forms.ModelForm):
+#	name = forms.CharField(**dchar_required)
 
-	class Meta:
-		model = InstitutionType
-		fields = ['name']
+#	class Meta:
+#		model = InstitutionType
+#		fields = ['name']
 
 
 class EventRoleForm(forms.ModelForm):
@@ -241,7 +241,7 @@ class InstitutionTypeForm(forms.ModelForm):
 	comments = forms.CharField(**dtext)
 
 	class Meta:
-		model = InstitutionType
+		model = InstallationType
 		fields = 'name,description,comments'.split(',')
 
 
@@ -325,7 +325,7 @@ class InstallationTypeForm(forms.ModelForm):
 	comments = forms.CharField(**dtext)
 
 	class Meta:
-		model = Purpose
+		model = InstallationType
 		fields = 'name,description,comments'.split(',')
 	
 

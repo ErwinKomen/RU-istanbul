@@ -17,7 +17,7 @@ from .forms import eventliterature_formset, literatureevent_formset
 from .forms import eventperson_formset, personevent_formset
 from .forms import eventinstitution_formset, institutionevent_formset
 from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
-from .forms import EventTypeForm, TextTypeForm
+from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
@@ -235,12 +235,18 @@ class InstallationEdit(BasicDetails):
 
         try:
             context['mainitems'] = [
-                {'type': 'plain', 'label': 'english name',  'value': instance.english_name},
-                {'type': 'plain', 'label': 'turkish name',  'value': instance.turkish_name},
-                {'type': 'plain', 'label': 'original name', 'value': instance.original_name},
-                {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name},
-                {'type': 'plain', 'label': 'description',   'value': instance.description},
-                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+                {'type': 'plain', 'label': 'english name',  'value': instance.english_name  },
+                {'type': 'plain', 'label': 'turkish name',  'value': instance.turkish_name  },
+                {'type': 'plain', 'label': 'original name', 'value': instance.original_name },
+                {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name  },
+                {'type': 'plain', 'label': 'events',        'value': instance.get_events()  },
+                {'type': 'plain', 'label': 'purposes',      'value': instance.get_purposes()},
+                {'type': 'plain', 'label': 'still exists',  'value': instance.get_stillexists() },
+                {'type': 'plain', 'label': 'type',          'value': instance.get_type()    },
+                {'type': 'plain', 'label': 'images',        'value': instance.get_images()  },
+                {'type': 'plain', 'label': 'description',   'value': instance.description   },
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
+                {'type': 'plain', 'label': 'systems',       'value': instance.get_systems() },
             ]
             context['title'] = "View installation"
         except:
@@ -292,6 +298,14 @@ def edit_institutiontype(request, pk = None, focus = '', view = 'complete'):
 
     names = ''
     return edit_model(request, __name__, 'InstitutionType','installations',pk,
+        formset_names = names, focus = focus, view = view)
+
+# --------------------- Installation Type ------------------------------------
+def edit_installationtype(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Installation type] instance"""
+
+    names = ''
+    return edit_model(request, __name__, 'InstallationType','installations',pk,
         formset_names = names, focus = focus, view = view)
 
 # --------------------- Event Type ------------------------------------------

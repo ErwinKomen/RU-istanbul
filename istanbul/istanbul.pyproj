@@ -156,6 +156,7 @@
     <Content Include="installations\templates\installations\add_image.html" />
     <Content Include="installations\templates\installations\add_installation.html" />
     <Content Include="installations\templates\installations\add_institution.html" />
+    <Content Include="installations\templates\installations\add_installationtype.html" />
     <Content Include="installations\templates\installations\add_institutiontype.html" />
     <Content Include="installations\templates\installations\add_literature.html" />
     <Content Include="installations\templates\installations\add_person.html" />
@@ -173,6 +174,7 @@
     <Content Include="installations\templates\installations\home.html" />
     <Content Include="installations\templates\installations\image_list.html" />
     <Content Include="installations\templates\installations\installation_list.html" />
+    <Content Include="installations\templates\installations\installationtype_list.html" />
     <Content Include="installations\templates\installations\institutiontype_list.html" />
     <Content Include="installations\templates\installations\institution_list.html" />
     <Content Include="installations\templates\installations\literature_list.html" />

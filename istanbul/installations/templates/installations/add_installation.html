@@ -74,44 +74,49 @@
             <tr class="d-flex">
                 <th class="col-2">events</th>
                 <td class="col-8">
-					{{form.events}} 
-					{{from.events.error}}
-				</td>
-				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-						href ="{% url 'installations:add_event' 'inline' %}"
-						role="button"><i class="fa fa-plus"></i></a>
-				</td>
+					        {{form.events}} 
+					        {{from.events.error}}
+				        </td>
+				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						        href ="{% url 'installations:add_event' 'inline' %}"
+						        role="button"><i class="fa fa-plus"></i></a>
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">purposes</th>
                 <td class="col-8">
-					{{form.purposes}} 
-					{{from.purposes.error}}
-				</td>
-				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-						href ="{% url 'installations:add_purpose' 'inline' %}"
-						role="button"><i class="fa fa-plus"></i></a>
-				</td>
+					        {{form.purposes}} 
+					        {{from.purposes.error}}
+				        </td>
+				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						        href ="{% url 'installations:add_purpose' 'inline' %}"
+						        role="button"><i class="fa fa-plus"></i></a>
+				        </td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">installation type</th>
+                <td class="col-8">
+                  {{form.installation_type}}
+                  {{from.installation_type.error}}
+                </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">still exists</th>
                 <td class="col-8">
-					{{form.still_exists}} 
-					{{from.still_exists.error}}
-				</td>
+					        {{form.still_exists}} 
+					        {{from.still_exists.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">images</th>
                 <td class="col-8">
-					{{form.images}} 
-					{{from.images.error}}
-				</td>
-				<td>
-                    <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-                        href ="{% url 'installations:add_image'  'inline' %}" 
-						role="button">
-                        <i class="fa fa-plus"></i></a>
-				</td>
+					        {{form.images}} 
+					        {{from.images.error}}
+				        </td>
+				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+                    href ="{% url 'installations:add_image'  'inline' %}" 
+						        role="button"><i class="fa fa-plus"></i></a>
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">description</th>
