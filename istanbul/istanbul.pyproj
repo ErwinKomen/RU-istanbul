@@ -57,6 +57,9 @@
     <Compile Include="installations\tests.py" />
     <Compile Include="installations\urls.py" />
     <Compile Include="installations\views.py" />
+    <Compile Include="installations\viewsbasic.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="installations\widgets.py" />
     <Compile Include="installations\__init__.py" />
     <Compile Include="istanbul\asgi.py" />
@@ -173,6 +176,7 @@
     <Content Include="installations\templates\installations\figure_list.html" />
     <Content Include="installations\templates\installations\home.html" />
     <Content Include="installations\templates\installations\image_list.html" />
+    <Content Include="installations\templates\installations\installation_addition.html" />
     <Content Include="installations\templates\installations\installation_list.html" />
     <Content Include="installations\templates\installations\installationtype_list.html" />
     <Content Include="installations\templates\installations\institutiontype_list.html" />

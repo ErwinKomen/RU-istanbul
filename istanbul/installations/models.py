@@ -1,11 +1,18 @@
 """
 Main models for the istanbul-su application
 """
+import os
+from re import X
 from django.db import models
+from django.urls import reverse
 from partial_date import PartialDateField
 from colorfield.fields import ColorField
 
+# idiosyncratics
+from partial_date import PartialDate
+
 # From own application
+from basic.utils import ErrHandle
 from utils.model_util import info
 
 
@@ -159,6 +166,36 @@ class Image(models.Model, info):
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
 
+    def get_image_html(self, tooltip=None):
+        """Get the HTML <img> code for this one"""
+
+        oErr = ErrHandle()
+        sBack = ""
+        sTitle = ""
+
+        try:
+            # Get the number of the image, depending on the options
+            image = self.image_file.url
+            sTitle = self.title
+            descr = self.description
+            sClass = "stalla-image" # Was: col-md-12
+
+            if ".geojson" in image.lower():
+                # This is a geojson file that I cannot show
+                sBack = "<span title='{}'>geojson file</span>".format(image)
+            else:
+
+                if tooltip == None:
+                    sBack = "<img src='{}' alt='{}' class='{}' >".format(image, descr, sClass)
+                else:
+                    sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}' class='{}'>".format(
+                        image, descr, tooltip, sClass)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Image/get_image_html")
+        return sBack, sTitle
+
 
 class Style(models.Model, info):
     """Style of a particular figure"""
@@ -227,6 +264,32 @@ class Event(models.Model, info):
     def personrelations(self):
         return self.eventpersonrelation_set.all()
 
+    def label(oItem):
+        """Construct a label from the three strings"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        start_date = None
+        end_date = None
+        try:
+            name = oItem.get('name')
+            if oItem.get('start_date'):
+                start_date = oItem.get('start_date').year
+            if oItem.get('end_date'):
+                end_date = oItem.get('end_date').year
+            sBack = name
+            if start_date: 
+                sBack += ' ' + str(start_date)
+            if start_date and end_date: 
+                sBack += ' -'
+            if end_date: 
+                sBack += ' ' + str(end_date)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Event/label")
+
+        return sBack
+
 
 class Purpose(models.Model, info):
     """A purpose (e.g. display, decoration, bathing)"""
@@ -252,6 +315,9 @@ class InstallationType(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
     
 
 class Installation(models.Model, info):
@@ -290,6 +356,56 @@ class Installation(models.Model, info):
     @property
     def detail_url(self):
         return 'installations:detail_installation_view'
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "events":
+                # Sort the events by DATE if possible
+                for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
+                    url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
+                    label = Event.label(oItem)
+                    sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    sItem = "<div>{}</div>".format(sItem)
+                    lst_value.append(sItem)
+                sBack = "\n".join(lst_value)
+            #elif field == "images":
+            #    count = self.images.count()
+            #    sBack = "not yet implemented - there are {} image(s)".format(count)
+            #    #for oItem in self.images.all().values('').order_by('name'):
+            #    #    url = X
+            #    #    sItem = ""
+            #    #    lst_value.append(sItem)
+            elif field == "purposes":
+                for oItem in self.purposes.all().values('id','name').order_by('name'):
+                    url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})
+                    label = oItem.get("name")
+                    sItem = "<span class='badge signature cl'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    lst_value.append(sItem)
+                sBack = ", ".join(lst_value)
+            elif field == "stillexists":
+                sBack = "Yes" if self.still_exists else "No"
+            elif field == "systems":
+                ids = [x['system__id'] for x in SystemInstallationRelation.objects.filter(
+                    installation=self, system__isnull=False).values('system__id')]
+                for oItem in System.objects.filter(id__in=ids).values('id', 'english_name').order_by('english_name'):
+                    url = reverse('installations:edit_system', kwargs={'pk': oItem['id']})
+                    label = oItem.get("english_name")
+                    sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    lst_value.append(sItem)
+                sBack = ", ".join(lst_value)
+            elif field == "instaltype":
+                if not self.installation_type is None:
+                    sBack = self.installation_type.name
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Installation/get_value")
+
+        return sBack
 
 
 class Literature(models.Model, info):

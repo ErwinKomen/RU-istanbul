@@ -1,0 +1,75 @@
+{% load i18n %}
+
+<div class="row">
+  <!-- Left pane -->
+  <div class="col-md-3">
+    <!-- To be shown always: my own picture -->
+    <div id="default_table" class="stalla-default">
+      {% if show_headers %}
+        <h3>{% trans "Object picture" %}</h3>
+      {% else %}
+        <div>&nbsp;</div>
+      {% endif %}
+      <div title="{{default.title}}" info="{{default.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+           onclick="ru.stalla.seeker.show_picture(this);">
+        {{default.img|safe}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Right pane -->
+  <div class="col-md-9">
+    <!-- List of buttons to show details -->
+    <div class="detail-button">
+      <!-- Additional images -->
+      {% if pictures|length == 0 %}
+        <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-normal jumbo-1">{% trans "More pictures" %}</button>
+      {% else %}
+        <button data-toggle="collapse" data-target="#pictures_table" class="btn btn-normal jumbo-3">
+          {% trans "More pictures" %}
+          <span style="color: yellow;">&nbsp;({{pictures|length}})</span>
+        </button>
+      {% endif %}
+
+    </div>
+
+
+    {% if pictures|length > 0 %}
+      <div id="pictures_table" class="collapse stalla-more">
+        {% for oPict in pictures %}
+          <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+               onclick="ru.stalla.seeker.show_picture(this);">
+            {{oPict.img|safe}}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal showing of picture with information -->
+<div id="werkstuk_modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content -->
+    <div class="modal-content">
+
+      <!-- Header with close X -->
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+
+      <!-- Body -->
+      <div class="modal-body">
+        <!-- This is where the image comes-->
+        <div class="modal-image"></div>
+
+        <!-- This is where the information comes -->
+        <div class="modal-info"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer"></div>
+
+    </div>
+  </div>
+</div>

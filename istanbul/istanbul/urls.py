@@ -19,8 +19,11 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from . import settings
 from . import views
-from installations.views import nlogin, \
-    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
+from installations.views import nlogin  #, \
+#    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
+from installations.viewsbasic import SystemDetails, SystemEdit, \
+    InstallationDetails, InstallationEdit, \
+    InstallationTypeDetails, InstallationTypeEdit
 from accounts.views import RegisterView
 
 urlpatterns = [
@@ -38,6 +41,9 @@ urlpatterns = [
 
 	re_path('installation/edit(?:/(?P<pk>\d+))?/$', InstallationEdit.as_view(), name='installation_edit'),
 	re_path('installation/details(?:/(?P<pk>\d+))?/$', InstallationDetails.as_view(), name='installation_details'),
+
+	re_path('instaltype/edit(?:/(?P<pk>\d+))?/$', InstallationTypeEdit.as_view(), name='installationtype_edit'),
+	re_path('instaltype/details(?:/(?P<pk>\d+))?/$', InstallationTypeDetails.as_view(), name='installationtype_details'),
 
     # Other stuff from EK
     re_path(r'^nlogin', nlogin, name='nlogin'),

@@ -48,22 +48,27 @@ bDebug = False
 
 # General functions serving the list and details views
 
+APPLICATION_NAME = "istanbul"
 def get_application_name():
     """Try to get the name of this application"""
 
-    # Walk through all the installed apps
-    for app in apps.get_app_configs():
-        # Check if this is a site-package
-        if "site-package" not in app.path:
-            # Get the name of this app
-            name = app.name
-            # Take the first part before the dot
-            project_name = name.split(".")[0]
-            return project_name
-    return "unknown"
+    sBack = "unknown"
+    if APPLICATION_NAME:
+        sBack = APPLICATION_NAME
+    else:
+        # Walk through all the installed apps
+        for app in apps.get_app_configs():
+            # Check if this is a site-package
+            if "site-package" not in app.path:
+                # Get the name of this app
+                name = app.name
+                # Take the first part before the dot
+                project_name = name.split(".")[0]
+                sBack = project_name
+                break
+    return sBack
 # Provide application-specific information
 PROJECT_NAME = get_application_name()
-APPLICATION_NAME = "BiTSEBol"
 app_uploader = "{}_uploader".format(PROJECT_NAME.lower())
 app_editor = "{}_editor".format(PROJECT_NAME.lower())
 app_userplus = "{}_userplus".format(PROJECT_NAME.lower())
@@ -1706,6 +1711,9 @@ class BasicDetails(DetailView):
         context = super(BasicDetails, self).get_context_data(**kwargs)
 
         oErr = ErrHandle()
+
+        # Normally: use basic buttons
+        context['use_basic_buttons'] = False if APPLICATION_NAME == "istanbul" else True
 
         # Check this user: is he allowed to UPLOAD data?
         context['authenticated'] = user_is_authenticated(self.request)

@@ -19,9 +19,11 @@
         style="text-decoration:none;">name</a></th>
     <th></th>
     </tr>
-    {% for it in installationtype_list%}
+    {% for it in installationtype_list %}
 
-        <td>{{it.name}}</td>
+        <td>
+            <a class="nostyle" href="{% url 'installationtype_details' it.pk %}">{{it.name}}</a>
+        </td>
         <td style="white-space:nowrap;">
             <a class = "btn btn-link btn-sm ml-auto" 
 href ="{% url 'utilities:delete_model' it.pk 'InstallationType' 'installations' %}"

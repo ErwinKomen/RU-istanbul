@@ -13,22 +13,22 @@
     {% csrf_token %}
 
 <div class="col-md-12 d-flex">
-    <h4 class="mt-2">{{page_name}}</h4>
+    <h4 class="mt-2"><a class="nostyle" href="{% url 'installation_details' form.instance.pk %}">{{page_name}}</a></h4>
 
     {% if view != "inline" %}
         {% if page_name == "Edit installation"%}
             <a class ="btn btn-link ml-auto" 
-				href="{% url 'installations:add_installation' %}"
+				        href="{% url 'installations:add_installation' %}"
                 role="button">
-					<i class="fa fa-plus"></i>
-			</a>
-        {% include 'utilities/detail_view_link.html' %}
+					    <i class="fa fa-plus"></i>
+			      </a>
+          {% include 'utilities/detail_view_link.html' %}
         {% endif %}
-        <a class ="btn btn-link ml-auto"
-            href="{% url 'utilities:list_view' 'Installation' 'installations'%}"
-            role="button">
-				<i class="fas fa-list"></i>
-		</a>
+          <a class ="btn btn-link ml-auto"
+              href="{% url 'utilities:list_view' 'Installation' 'installations'%}"
+              role="button">
+				  <i class="fas fa-list"></i>
+		    </a>
     {% endif %}
 </div>
 
@@ -214,7 +214,7 @@
 {% include 'utilities/tab_selector.html' %}
 
 <br>
-
+</form>
 {% endblock content %}
 
 

@@ -26,9 +26,9 @@
           <!-- Possibility to go back-->
           <div class="col-md-1">
             {% if backbutton %}
-              <a class="btn jumbo-1" 
+              <a class="btn jumbo-1 btn-link ml-auto" 
                  href="{{listview}}{% if params %}?{{params|safe}}{% endif %}"
-                 title="Return to the list of items">&lt;&lt;</a>
+                 title="Return to the list of items"><i class="fas fa-list"></i></a>
             {% endif %}
             <!-- Any additional buttons here in the topleft -->
             {% for buttonspec in topleftbuttons %}
@@ -344,18 +344,22 @@
           <div class="col-md-1">
             {% if history_button %}
               <!-- History button -->
-            <a class="view-mode btn jumbo-1"
-               data-toggle="modal" 
-               data-target="#modal-history">
-              <span class="glyphicon glyphicon-stats" title="Revision history"></span>
-            </a>
+              <a class="view-mode btn jumbo-1"
+                 data-toggle="modal"
+                 data-target="#modal-history">
+                <span class="glyphicon glyphicon-stats" title="Revision history"></span>
+              </a>
             {% endif %}
 
             {% if is_app_editor and admindetails and show_admin %}
               <!-- Edit button -->
               <a mode="edit" class="view-mode btn jumbo-1"
-                  onclick="ru.basic.goto_url('{{admindetails}}')">
+                 onclick="ru.basic.goto_url('{{admindetails}}')">
                 <span class="glyphicon glyphicon-pencil" title="Edit these data"></span>
+              </a>
+            {% elif is_app_userplus or is_app_editor or permission == "write" %}
+              <a class="btn btn-link ml-auto" href="{{editview}}" role="button">
+                 <i class="fas fa-edit"></i>
               </a>
             {% endif %}
           </div>

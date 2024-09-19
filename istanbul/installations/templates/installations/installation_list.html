@@ -22,9 +22,9 @@
     <th></th>
     </tr>
     {% for i in installation_list %}
-
-        <td>{{i.english_name}}</td>
-        <td>{{i.turkish_name}}</td>
+      <tr>
+        <td><a class="nostyle" href="{% url 'installation_details' i.pk %}">{{i.english_name}}</a></td>
+        <td><a class="nostyle" href="{% url 'installation_details' i.pk %}">{{i.turkish_name}}</a></td>
         <td style="white-space:nowrap;">
             <a class = "btn btn-link btn-sm ml-auto" 
 href ="{% url 'utilities:delete_model' i.pk 'Installation' 'installations' %}"
@@ -37,7 +37,7 @@ href ="{% url 'utilities:delete_model' i.pk 'Installation' 'installations' %}"
                     <i class="far fa-edit text-secondary"></i>
             </a>
         </td>
-    </tr>
+      </tr>
     {% endfor %}
 </table>
 </div>
