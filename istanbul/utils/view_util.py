@@ -27,7 +27,7 @@ def partial_year_to_date(form, instance, date_field, year_field):
     # If they are the same: don't change
     if value_date != value_year:
         # Check for changes
-        if value_date is None or value_date == "" or str(value_date.date.year).zfill(4) != value_year:
+        if value_date is None or value_date == "" or str(value_date.year).zfill(4) != value_year:
             # Adapt the form's instance value
             setattr(form.instance, date_field, value_year)
 

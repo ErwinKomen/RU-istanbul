@@ -8,7 +8,10 @@ from django.urls import reverse
 
 # From own applicatino
 from .models import System, Image, Installation, SystemInstallationRelation
-from .models import InstallationType
+from .models import InstallationType, Purpose
+from .models import Event, EventLiteratureRelation, Literature
+from .models import Person, EventPersonRelation
+from .models import Institution, EventInstitutionRelation
 from .forms import SystemForm, PersonForm, InstallationForm 
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
@@ -26,18 +29,18 @@ from basic.views import BasicDetails, add_rel_item, get_current_datetime
 
 
 
-# --------------------- System ----------------------------------------------
+# --------------------- Purpose ----------------------------------------------
 
-class SystemEdit(BasicDetails):
-    """Simple view mode of [System]"""
+class EventEdit(BasicDetails):
+    """Simple view mode of [Event]"""
 
-    model = System
-    mForm = SystemForm
-    prefix = "sys"
+    model = Event
+    mForm = EventForm
+    prefix = "evt"
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'System', 'app_name': 'installations' })
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Event', 'app_name': 'installations' })
         return None
 
     def add_to_context(self, context, instance):
@@ -47,34 +50,35 @@ class SystemEdit(BasicDetails):
 
         try:
             context['mainitems'] = [
-                {'type': 'plain', 'label': 'english name',  'value': instance.english_name},
-                {'type': 'plain', 'label': 'turkish name',  'value': instance.turkish_name},
-                {'type': 'plain', 'label': 'original name', 'value': instance.original_name},
-                {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name},
-                {'type': 'plain', 'label': 'description',   'value': instance.description},
-                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+                {'type': 'plain', 'label': 'name',          'value': instance.name                      },
+                {'type': 'plain', 'label': 'event type',    'value': instance.get_value('eventtype')    },
+                {'type': 'plain', 'label': 'start date',    'value': instance.get_value('startdate')    },
+                {'type': 'plain', 'label': 'end date',      'value': instance.get_value('enddate')      },
+                {'type': 'plain', 'label': 'date comments', 'value': instance.date_comments             },
+                {'type': 'plain', 'label': 'description',   'value': instance.description               },
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments                  },
             ]
-            context['title'] = "View system"
+            context['title'] = "View Event"
+            context['editview'] = reverse("installations:edit_event", kwargs={'pk': instance.id})
         except:
             msg = oErr.get_error_message()
-            oErr.DoError("SystemDetails/add_to_context")
+            oErr.DoError("EventDetails/add_to_context")
 
         # Return the context we have made
         return context
 
 
-class SystemDetails(SystemEdit):
+class EventDetails(EventEdit):
     rtype = "html"
 
     def add_to_context(self, context, instance):
         """Add to the existing context"""
 
         # First get the 'standard' context from TestsetEdit
-        context = super(SystemDetails, self).add_to_context(context, instance)
+        context = super(EventDetails, self).add_to_context(context, instance)
 
         oErr = ErrHandle()
         try:
-                
             # Lists of related objects
             related_objects = []
 
@@ -85,53 +89,218 @@ class SystemDetails(SystemEdit):
             sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
             sort_end = '</span>'
 
-            # List of Installations that link to this System
-            installations = dict(title="Installations connected to this System", prefix="inst")
-            if resizable: installations['gridclass'] = "resizable"
+            # ============ List of Literature that links to this Event ===========================================
+            literatures = dict(title="Literature connected to this Event", prefix="litr", 
+                               classes="collapse", label="Literature")
+            if resizable: literatures['gridclass'] = "resizable"
 
             rel_list = []
-            qs = SystemInstallationRelation.objects.filter(system=instance, installation__isnull=False).order_by('installation__english_name')
+            qs = EventLiteratureRelation.objects.filter(event=instance, literature__isnull=False).order_by('literature__code')
             for item in qs:
-                installation = item.installation
-                url = reverse("installation_details", kwargs={'pk': item.id})
+                literature = item.literature
+                url = reverse("literature_details", kwargs={'pk': literature.id})
+                # url_relation = reverse("eventliterature_details", kwargs={'pk': item.id})
+                url_relation = None
                 rel_item = []
                 
                 # Order number for this item
                 add_rel_item(rel_item, index, False, align="right")
                 index += 1
 
-                # Name of installation
-                add_rel_item(rel_item, installation.english_name, False, main=True, nowrap=False, link=url)
+                # Code for this literature
+                add_rel_item(rel_item, literature.code, False, main=False, nowrap=False, link=url)
 
-                # Start date of relation
-                add_rel_item(rel_item, item.start_date, False, main=False, nowrap=False, link=url)
+                # Page number of this code
+                add_rel_item(rel_item, item.page_number, False, main=False, nowrap=True, link=url_relation)
 
-                # End date of relation
-                add_rel_item(rel_item, item.end_date, False, main=False, nowrap=False, link=url)
+                ## Title of literature
+                #add_rel_item(rel_item, literature.title, False, main=False, nowrap=False, link=url)
 
-                # Part of value
-                add_rel_item(rel_item, item.is_part_of, False, main=False, nowrap=False, link=url)
+                # Excerpt on literature page
+                add_rel_item(rel_item, item.text, False, main=False, nowrap=False, link=url_relation)
 
                 # Add this line to the list
                 rel_list.append(dict(id=item.id, cols=rel_item))
 
-            installations['rel_list'] = rel_list
+            literatures['rel_list'] = rel_list
 
-            installations['columns'] = [
+            literatures['columns'] = [
                 '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
-                '{}<span>Installation</span>{}'.format(sort_start, sort_end), 
-                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
-                '{}<span>End date</span>{}'.format(sort_start_int, sort_end), 
-                '{}<span>Part of</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Code</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Page</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Excerpt</span>{}'.format(sort_start, sort_end), 
                 ]
-            related_objects.append(installations)
+            related_objects.append(literatures)
+
+            # ============ List of Persons that links to this Event ===========================================
+            persons = dict(title="Persons connected to this Event", prefix="pers", label="Persons", classes="collapse")
+            if resizable: persons['gridclass'] = "resizable"
+
+            rel_list = []
+            index = 1 
+            qs = EventPersonRelation.objects.filter(event=instance, person__isnull=False).order_by('person__name')
+            for item in qs:
+                person = item.person
+                url = reverse("person_details", kwargs={'pk': person.id})
+                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name for this literature
+                add_rel_item(rel_item, person.name, False, main=True, nowrap=True, link=url)
+
+                # Role for this person / event relation
+                add_rel_item(rel_item, item.role.name, False, main=False, nowrap=True, link=url_relation)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            persons['rel_list'] = rel_list
+
+            persons['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Name</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Role</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(persons)
+
+            # ============ List of Institutions that links to this Event ===========================================
+            institutions = dict(title="Institutions connected to this Event", prefix="inst", label="Institutions", classes="collapse")
+            if resizable: institutions['gridclass'] = "resizable"
+
+            rel_list = []
+            index = 1 
+            qs = EventInstitutionRelation.objects.filter(event=instance, institution__isnull=False).order_by('institution__english_name')
+            for item in qs:
+                institution = item.institution
+                url = reverse("institution_details", kwargs={'pk': institution.id})
+                # url_relation = reverse("eventinstitution_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name for this institution (English)
+                add_rel_item(rel_item, institution.english_name, False, main=True, nowrap=True, link=url)
+
+                # Role for this institution / event relation
+                add_rel_item(rel_item, item.get_value('role'), False, main=False, nowrap=True, link=url_relation)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            institutions['rel_list'] = rel_list
+
+            institutions['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Name</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Role</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(institutions)
 
             # Add all related objects to the context
             context['related_objects'] = related_objects
 
+            lHtml = []
+            if 'after_details' in context:
+                lHtml.append(context['after_details'])
+
+            # Figure out the list of images
+            lst_image = []
+            for obj in instance.images.all():
+                img_html, sTitle = obj.get_image_html()
+                lst_image.append(dict(img=img_html, title=sTitle, info=sTitle))
+            if len(lst_image) > 0:
+                context['default'] = lst_image[0]
+            context['pictures'] = lst_image[1:]
+
+            # COmbine and show the additions
+            lHtml.append(render_to_string('installations/event_addition.html', context, self.request))
+            context['after_details'] = "\n".join(lHtml)
+                
+
         except:
             msg = oErr.get_error_message()
-            oErr.DoError("SystemDetails/add_to_context")
+            oErr.DoError("EventDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- Image ----------------------------------------
+
+class ImageEdit(BasicDetails):
+    """Simple view mode of [System]"""
+
+    model = Image
+    mForm = ImageForm
+    prefix = "img"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Image', 'app_name': 'installations' })
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'title',             'value': instance.get_label()   },
+                {'type': 'plain', 'label': 'maker',             'value': instance.maker         },
+                {'type': 'plain', 'label': 'url',               'value': instance.url           },
+                {'type': 'plain', 'label': 'year',              'value': instance.year          },
+                {'type': 'plain', 'label': 'current location',  'value': instance.current_location      },
+                {'type': 'plain', 'label': 'coordinate',        'value': instance.get_value('coordinate')},
+                {'type': 'plain', 'label': 'description',       'value': instance.description   },
+                {'type': 'plain', 'label': 'comments',          'value': instance.comments      },
+                # {'type': 'plain', 'label': 'systems',           'value': instance.get_value('systems')      },
+            ]
+            context['title'] = "View Image"
+            context['editview'] = reverse("installations:edit_image", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ImageDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class ImageDetails(ImageEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context
+        context = super(ImageDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+            lHtml = []
+            if 'after_details' in context:
+                lHtml.append(context['after_details'])
+
+            # Note: there is only one image
+            img_html, sTitle = instance.get_image_html()
+            oImage = dict(img=img_html, title=sTitle, info=sTitle)
+            context['default'] = oImage
+            context['pictures'] = []
+
+            # COmbine and show the additions
+            lHtml.append(render_to_string('installations/image_addition.html', context, self.request))
+            context['after_details'] = "\n".join(lHtml)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ImageDetails/add_to_context")
 
         # Return the context we have made
         return context
@@ -171,7 +340,7 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
                 {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems') },
             ]
-            context['title'] = "View installation"
+            context['title'] = "View Installation"
             context['editview'] = reverse("installations:edit_installation", kwargs={'pk': instance.id})
         except:
             msg = oErr.get_error_message()
@@ -243,6 +412,7 @@ class InstallationTypeEdit(BasicDetails):
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments},
             ]
             context['title'] = "View installation type"
+            context['editview'] = reverse("installations:edit_installationtype", kwargs={'pk': instance.id})
         except:
             msg = oErr.get_error_message()
             oErr.DoError("InstallationTypeDetails/add_to_context")
@@ -274,3 +444,583 @@ class InstallationTypeDetails(InstallationTypeEdit):
 
         # Return the context we have made
         return context
+
+
+# --------------------- Institution ----------------------------------------
+
+class InstitutionEdit(BasicDetails):
+    """Simple view mode of [System]"""
+
+    model = Institution
+    mForm = InstitutionForm
+    prefix = "inst"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Institution', 'app_name': 'installations' })
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'english name',      'value': instance.english_name  },
+                {'type': 'plain', 'label': 'turkish name',      'value': instance.turkish_name  },
+                {'type': 'plain', 'label': 'original name',     'value': instance.original_name },
+                {'type': 'plain', 'label': 'ottoman name',      'value': instance.ottoman_name  },
+                {'type': 'plain', 'label': 'institution type',  'value': instance.get_value('instittype')    },
+                {'type': 'plain', 'label': 'religion',          'value': instance.get_value('religion')  },
+
+                {'type': 'plain', 'label': 'description',       'value': instance.description   },
+                {'type': 'plain', 'label': 'comments',          'value': instance.comments      },
+            ]
+            context['title'] = "View Institution"
+            context['editview'] = reverse("installations:edit_institution", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class InstitutionDetails(InstitutionEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(InstitutionDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # List of Events that link to this Institution
+            events = dict(title="Events connected to this Institution", prefix="evnt")
+            if resizable: events['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = EventInstitutionRelation.objects.filter(institution=instance, event__isnull=False).order_by(
+                    'event__start_date', 'event__end_date', 'event__name')
+            for item in qs:
+                event = item.event
+                url = reverse("event_details", kwargs={'pk': event.id})
+                # url_relation = reverse("eventinstitution_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of event
+                add_rel_item(rel_item, event.name, False, main=True, nowrap=False, link=url)
+
+                # start date
+                add_rel_item(rel_item, event.get_value('startdate'), False, main=False, nowrap=True, link=url)
+
+                # end date
+                add_rel_item(rel_item, event.get_value('enddate'), False, main=False, nowrap=True, link=url)
+
+                # Institution's role in this event
+                add_rel_item(rel_item, item.get_value('role'), False, main=False, nowrap=True, link=url_relation)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            events['rel_list'] = rel_list
+
+            events['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Event</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Institution role</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(events)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- Literature ------------------------------------
+
+class LiteratureEdit(BasicDetails):
+    """Simple view mode of [Literature]"""
+
+    model = Literature
+    mForm = LiteratureForm
+    prefix = "lit"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={
+            'model_name': 'Literature', 'app_name': 'installations'})
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'code',          'value': instance.code          },
+                {'type': 'plain', 'label': 'title',         'value': instance.title         },
+                {'type': 'plain', 'label': 'description',   'value': instance.description   },
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
+            ]
+            context['title'] = "View literature"
+            context['editview'] = reverse("installations:edit_literature", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LiteratureDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class LiteratureDetails(LiteratureEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(LiteratureDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # List of Events that link to this Literature
+            events = dict(title="Connections to this Literature", prefix="evnt")
+            if resizable: events['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = EventLiteratureRelation.objects.filter(literature=instance).exclude(
+                    event__isnull=True, text_type__isnull=True).order_by(
+                    'event__start_date', 'event__end_date', 'event__name')
+            for item in qs:
+                event = item.event
+                url = None
+                if not event is None: 
+                    reverse("event_details", kwargs={'pk': event.id})
+                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Texttype of relation
+                add_rel_item(rel_item, item.get_value('texttype'), False, main=False, nowrap=True, link=url)
+
+                # Name of event
+                add_rel_item(rel_item, item.get_value('eventname'), False, main=True, nowrap=False, link=url)
+
+                # start date
+                add_rel_item(rel_item, item.get_value('startdate'), False, main=False, nowrap=True, link=url)
+
+                # end date
+                add_rel_item(rel_item, item.get_value('enddate'), False, main=False, nowrap=True, link=url)
+
+                # Literature page range
+                add_rel_item(rel_item, item.get_value('pages'), False, main=False, nowrap=True, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            events['rel_list'] = rel_list
+
+            events['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Text type</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Event</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Pages</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(events)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LiteratureDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- Person ----------------------------------------------
+
+class PersonEdit(BasicDetails):
+    """Simple view mode of [Person]"""
+
+    model = Person
+    mForm = PersonForm
+    prefix = "per"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Person', 'app_name': 'installations' })
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.name                  },
+                {'type': 'plain', 'label': 'gender',        'value': instance.get_value('gender')   },
+                {'type': 'plain', 'label': 'birth year',    'value': instance.birth_year            },
+                {'type': 'plain', 'label': 'death year',    'value': instance.death_year            },
+                {'type': 'plain', 'label': 'start reign',   'value': instance.start_reign           },
+                {'type': 'plain', 'label': 'end reign',     'value': instance.end_reign             },
+                {'type': 'plain', 'label': 'religion',      'value': instance.get_value('religion') },
+
+                {'type': 'plain', 'label': 'description',   'value': instance.description           },
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments              },
+            ]
+            context['title'] = "View Person"
+            context['editview'] = reverse("installations:edit_person", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class PersonDetails(PersonEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(PersonDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # List of Events that link to this Person
+            events = dict(title="Events connected to this Person", prefix="evnt")
+            if resizable: events['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = EventPersonRelation.objects.filter(person=instance, event__isnull=False).order_by(
+                    'event__start_date', 'event__end_date', 'event__name')
+            for item in qs:
+                event = item.event
+                url = reverse("event_details", kwargs={'pk': event.id})
+                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of event
+                add_rel_item(rel_item, event.name, False, main=True, nowrap=False, link=url)
+
+                # start date
+                add_rel_item(rel_item, event.get_value('startdate'), False, main=False, nowrap=True, link=url)
+
+                # end date
+                add_rel_item(rel_item, event.get_value('enddate'), False, main=False, nowrap=True, link=url)
+
+                # Person's role in this event
+                add_rel_item(rel_item, item.get_value('role'), False, main=False, nowrap=True, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            events['rel_list'] = rel_list
+
+            events['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Event</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Person role</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(events)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- Purpose ----------------------------------------------
+
+class PurposeEdit(BasicDetails):
+    """Simple view mode of [Purpose]"""
+
+    model = Purpose
+    mForm = PurposeForm
+    prefix = "pur"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Purpose', 'app_name': 'installations' })
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.name},
+                {'type': 'plain', 'label': 'description',   'value': instance.description},
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+            ]
+            context['title'] = "View Purpose"
+            context['editview'] = reverse("installations:edit_system", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PurposeDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class PurposeDetails(PurposeEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(PurposeDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # List of Installations that link to this Purpose
+            installations = dict(title="Installations connected to this Purpose", prefix="inst")
+            if resizable: installations['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = instance.installation_set.all().order_by('english_name')
+            for item in qs:
+                installation = item
+                url = reverse("installation_details", kwargs={'pk': installation.id})
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of installation
+                add_rel_item(rel_item, installation.english_name, False, main=True, nowrap=False, link=url)
+
+                # Still exists
+                add_rel_item(rel_item, installation.get_value('stillexists'), False, main=False, nowrap=True, link=url)
+
+                # Installation type
+                add_rel_item(rel_item, installation.get_value('instaltype'), False, main=False, nowrap=True, link=url)
+
+                # Systems
+                add_rel_item(rel_item, installation.get_value('systems'), False, main=False, nowrap=True, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            installations['rel_list'] = rel_list
+
+            installations['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Installation</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Still exists</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Type</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Systems</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(installations)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PurposeDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- System ----------------------------------------------
+
+class SystemEdit(BasicDetails):
+    """Simple view mode of [System]"""
+
+    model = System
+    mForm = SystemForm
+    prefix = "sys"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'System', 'app_name': 'installations' })
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'english name',  'value': instance.english_name},
+                {'type': 'plain', 'label': 'turkish name',  'value': instance.turkish_name},
+                {'type': 'plain', 'label': 'original name', 'value': instance.original_name},
+                {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name},
+                {'type': 'plain', 'label': 'description',   'value': instance.description},
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+            ]
+            context['title'] = "View System"
+            context['editview'] = reverse("installations:edit_system", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class SystemDetails(SystemEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(SystemDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # List of Installations that link to this System
+            installations = dict(title="Installations connected to this System", prefix="inst")
+            if resizable: installations['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = SystemInstallationRelation.objects.filter(
+                system=instance, installation__isnull=False).order_by(
+                    'start_date', 'end_date', 'installation__english_name')
+            for item in qs:
+                installation = item.installation
+                url = reverse("installation_details", kwargs={'pk': installation.id})
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of installation
+                add_rel_item(rel_item, installation.english_name, False, main=True, nowrap=False, link=url)
+
+                # Start date of relation
+                add_rel_item(rel_item, item.start_date, False, main=False, nowrap=False, link=url)
+
+                # End date of relation
+                add_rel_item(rel_item, item.end_date, False, main=False, nowrap=False, link=url)
+
+                # Part of value
+                add_rel_item(rel_item, item.is_part_of, False, main=False, nowrap=False, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            installations['rel_list'] = rel_list
+
+            installations['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Installation</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>End date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Part of</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(installations)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+

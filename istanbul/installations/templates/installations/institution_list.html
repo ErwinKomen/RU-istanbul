@@ -22,12 +22,12 @@
     <th></th>
     </tr>
     {% for i in institution_list%}
-
-        <td>{{i.english_name}}</td>
-        <td>{{i.turkish_name}}</td>
+      <tr>
+        <td><a class="nostyle" href="{% url 'institution_details' i.pk %}">{{i.english_name}}</a></td>
+        <td><a class="nostyle" href="{% url 'institution_details' i.pk %}">{{i.turkish_name}}</a></td>
         <td style="white-space:nowrap;">
             <a class = "btn btn-link btn-sm ml-auto" 
-href ="{% url 'utilities:delete_model' i.pk 'Institution' 'installations' %}"
+                href ="{% url 'utilities:delete_model' i.pk 'Institution' 'installations' %}"
                 role="button">
                     <i class="fa fa-trash text-secondary"></i>
             </a>

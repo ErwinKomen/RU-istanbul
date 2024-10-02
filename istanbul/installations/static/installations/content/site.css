@@ -182,4 +182,13 @@ span.badge.signature:hover {
     cursor: wait;
 }
 
+/* installation details */
+.detail-button {
+    padding-top: 20px;
+    padding-bottom: 10px;
+}
 
+/* Size of image in modal view */
+.modal-dialog {
+    max-width: 800px;
+}

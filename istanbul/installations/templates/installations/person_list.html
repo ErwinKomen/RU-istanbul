@@ -29,7 +29,7 @@
     </tr>
     {% for person in person_list %}
 
-        <td>{{person.name}}</td>
+        <td><a class="nostyle" href="{% url 'person_details' person.pk %}">{{person.name}}</a></td>
         {% if person.birth_year %}
             <td>{{person.birth_year.year}}</td>
         {% else %}

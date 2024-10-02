@@ -71,7 +71,35 @@ var ru = (function ($, ru) {
                 } catch (ex) {
                     private_methods.errMsg("init_typeahead", ex);
                 }
+            },
+
+            /**
+             * show_picture
+             *   Make sure that the modal shows the correct picture and additional information
+             *
+             */
+            show_picture: function (elStart) {
+                var elImage = null,
+                    sImgText = "",
+                    elInfo = null;
+
+                try {
+                    // Determine the locations
+                    elImage = $(".modal-image").first();
+                    elInfo = $(".modal-info").first();
+
+                    // copy the image
+                    $(elImage).html($(elStart).find("img").first().parent().html());
+                    // Make sure the col-md-12 class is removed here
+                    $(elImage).find(".col-md-12").removeClass("col-md-12");
+
+                    // Copy the information
+                    $(elInfo).html($(elStart).attr("info"));
+                } catch (ex) {
+                    private_methods.errMsg("show_picture", ex);
+                }
             }
+
 
             // LAST POINT
         }

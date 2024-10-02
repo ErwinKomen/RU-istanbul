@@ -82,6 +82,26 @@ class Person(models.Model, info):
     class Meta:
         unique_together = [['name','birth_year','death_year']]
 
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+
+            if field == "gender":
+                if not self.gender is None:
+                    sBack = self.gender.name
+            elif field == "religion":
+                if not self.religion is None:
+                    sBack = self.religion.name
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Person/get_value")
+
+        return sBack
+
 
 class InstitutionType(models.Model, info):
     """An institution type"""
@@ -120,6 +140,26 @@ class Institution(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this institution"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+
+            if field == "instittype":
+                if not self.institution_type is None:
+                    sBack = self.institution_type.name
+            elif field == "religion":
+                if not self.religion is None:
+                    sBack = self.religion.name
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Institution/get_value")
+
+        return sBack
 
 
 class EventType(models.Model, info):
@@ -195,6 +235,31 @@ class Image(models.Model, info):
             msg = oErr.get_error_message()
             oErr.DoError("Image/get_image_html")
         return sBack, sTitle
+
+    def get_label(self):
+        """Get a representative label for this image"""
+
+        if self.title:
+            sBack = self.title
+        else:
+            sBack = "image_{}".format(self.id)
+        return sBack
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this image"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "coordinate":
+                if not self.latitude is None and not self.longitude is None:
+                    sBack = "{} {}".format(self.latitude, self.longitude)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Event/get_value")
+
+        return sBack
 
 
 class Style(models.Model, info):
@@ -290,6 +355,56 @@ class Event(models.Model, info):
 
         return sBack
 
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            #if field == "events":
+            #    # Sort the events by DATE if possible
+            #    for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
+            #        url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
+            #        label = Event.label(oItem)
+            #        sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+            #        sItem = "<div>{}</div>".format(sItem)
+            #        lst_value.append(sItem)
+            #    sBack = "\n".join(lst_value)
+            #elif field == "purposes":
+            #    for oItem in self.purposes.all().values('id','name').order_by('name'):
+            #        url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})
+            #        label = oItem.get("name")
+            #        sItem = "<span class='badge signature cl'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+            #        lst_value.append(sItem)
+            #    sBack = ", ".join(lst_value)
+            #elif field == "stillexists":
+            #    sBack = "Yes" if self.still_exists else "No"
+            #elif field == "systems":
+            #    ids = [x['system__id'] for x in SystemInstallationRelation.objects.filter(
+            #        installation=self, system__isnull=False).values('system__id')]
+            #    for oItem in System.objects.filter(id__in=ids).values('id', 'english_name').order_by('english_name'):
+            #        # OLD: url = reverse('installations:edit_system', kwargs={'pk': oItem['id']})
+            #        url = reverse('system_details', kwargs={'pk': oItem['id']})
+            #        label = oItem.get("english_name")
+            #        sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+            #        lst_value.append(sItem)
+            #    sBack = ", ".join(lst_value)
+            if field == "startdate":
+                if not self.start_date is None:
+                    sBack = self.start_date.year
+            elif field == "enddate":
+                if not self.end_date is None:
+                    sBack = self.end_date.year
+            elif field == "eventtype":
+                if not self.event_type is None:
+                    sBack = self.event_type.name
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Event/get_value")
+
+        return sBack
+
 
 class Purpose(models.Model, info):
     """A purpose (e.g. display, decoration, bathing)"""
@@ -367,7 +482,8 @@ class Installation(models.Model, info):
             if field == "events":
                 # Sort the events by DATE if possible
                 for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
-                    url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
+                    # url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
+                    url = reverse('event_details', kwargs={'pk': oItem['id']})
                     label = Event.label(oItem)
                     sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
                     sItem = "<div>{}</div>".format(sItem)
@@ -382,7 +498,8 @@ class Installation(models.Model, info):
             #    #    lst_value.append(sItem)
             elif field == "purposes":
                 for oItem in self.purposes.all().values('id','name').order_by('name'):
-                    url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})
+                    # url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})
+                    url = reverse('purpose_details', kwargs={'pk': oItem['id']})
                     label = oItem.get("name")
                     sItem = "<span class='badge signature cl'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
                     lst_value.append(sItem)
@@ -393,7 +510,8 @@ class Installation(models.Model, info):
                 ids = [x['system__id'] for x in SystemInstallationRelation.objects.filter(
                     installation=self, system__isnull=False).values('system__id')]
                 for oItem in System.objects.filter(id__in=ids).values('id', 'english_name').order_by('english_name'):
-                    url = reverse('installations:edit_system', kwargs={'pk': oItem['id']})
+                    # OLD: url = reverse('installations:edit_system', kwargs={'pk': oItem['id']})
+                    url = reverse('system_details', kwargs={'pk': oItem['id']})
                     label = oItem.get("english_name")
                     sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
                     lst_value.append(sItem)
@@ -501,6 +619,33 @@ class EventLiteratureRelation(models.Model, info):
     # [0-1] Link to literature
     literature = models.ForeignKey(Literature,**dargs)
 
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this event-literature relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "texttype" and self.text_type:
+                sBack = self.text_type.name
+            elif field == "pages" and self.page_number:
+                sBack = self.page_number
+            elif field == "eventname":
+                if self.event is None:
+                    sBack = "(No event)"
+                else:
+                    sBack = self.event.name
+            elif field == "startdate" and not self.event is None:
+                sBack = self.event.get_value("startdate")
+            elif field == "enddate" and not self.event is None:
+                sBack = self.event.get_value("enddate")
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventLiteratureRelation/get_value")
+
+        return sBack
+
 
 class EventInstitutionRelation(models.Model, info):
     """Relation between an event and an institution"""
@@ -512,7 +657,23 @@ class EventInstitutionRelation(models.Model, info):
     institution= models.ForeignKey(Institution, **dargs)
     # [0-1] Link to event role
     role = models.ForeignKey(EventRole, **dargs)
-    
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this event-institution relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "role" and self.role:
+                sBack = self.role.name
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventInstitutionRelation/get_value")
+
+        return sBack
+
 
 class EventPersonRelation(models.Model, info):
     """Relation between an event and a person"""
@@ -529,4 +690,20 @@ class EventPersonRelation(models.Model, info):
     def person_role(self):
         return self.person.name + ' ' + self.role.name
     
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this event-person relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "role" and self.role:
+                sBack = self.role.name
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventPersonRelation/get_value")
+
+        return sBack
+
 

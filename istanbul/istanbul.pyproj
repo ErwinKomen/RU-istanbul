@@ -176,6 +176,8 @@
     <Content Include="installations\templates\installations\figure_list.html" />
     <Content Include="installations\templates\installations\home.html" />
     <Content Include="installations\templates\installations\image_list.html" />
+    <Content Include="installations\templates\installations\event_addition.html" />
+    <Content Include="installations\templates\installations\image_addition.html" />
     <Content Include="installations\templates\installations\installation_addition.html" />
     <Content Include="installations\templates\installations\installation_list.html" />
     <Content Include="installations\templates\installations\installationtype_list.html" />

@@ -22,8 +22,8 @@
     </tr>
     {% for system in system_list %}
 
-        <td>{{system.english_name}}</td>
-        <td>{{system.turkish_name}}</td>
+        <td><a class="nostyle" href="{% url 'system_details' system.pk %}">{{system.english_name}}</a></td>
+        <td><a class="nostyle" href="{% url 'system_details' system.pk %}">{{system.turkish_name}}</a></td>
         <td style="white-space:nowrap;">
             <a class = "btn btn-link btn-sm ml-auto" 
 	href ="{% url 'utilities:delete_model' system.pk 'System' 'installations' %}"

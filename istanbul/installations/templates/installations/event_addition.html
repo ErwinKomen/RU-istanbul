@@ -23,14 +23,13 @@
     <div class="detail-button">
       <!-- Additional images -->
       {% if pictures|length == 0 %}
-        <button title="{% trans '(No additional pictures for this object)' %}" class="btn btn-normal jumbo-1">{% trans "(No pictures)" %}</button>
+        <button title="{% trans '(No additional pictures for this event)' %}" class="btn btn-normal jumbo-1">{% trans "(No pictures)" %}</button>
       {% else %}
         <button data-toggle="collapse" data-target="#pictures_table" class="btn btn-normal jumbo-3">
           {% trans "More pictures" %}
           <span style="color: yellow;">&nbsp;({{pictures|length}})</span>
         </button>
       {% endif %}
-
 
       <!-- Buttons for related objects -->
       {% for related in related_objects %}

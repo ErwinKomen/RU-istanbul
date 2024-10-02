@@ -15,13 +15,16 @@
 
 <table class="table table-hover">
     <tr>
-    <th><a href="?order_by=caption,{{order}},{{direction}},{{query}}"
+    <th><a href="?order_by=name,{{order}},{{direction}},{{query}}"
         style="text-decoration:none;">name</a></th>
+    <th><a href="?order_by=installationcount,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">installations</a></th>
     <th></th>
     </tr>
     {% for purpose in purpose_list %}
-
-        <td>{{purpose.name}}</td>
+    <tr>
+        <td><a class="nostyle" href="{% url 'purpose_details' purpose.pk %}">{{purpose.name}}</a></td>
+        <td>{{purpose.installation_set.count}} </td>
         <td style="white-space:nowrap;">
             <a class = "btn btn-link btn-sm ml-auto" 
 href ="{% url 'utilities:delete_model' purpose.pk 'Purpose' 'installations' %}"

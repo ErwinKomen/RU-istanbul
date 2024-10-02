@@ -13,7 +13,7 @@
     {% csrf_token %}
 
 <div class="col-md-12 d-flex">
-    <h4 class="mt-2">{{page_name}}</h4>
+    <h4 class="mt-2"><a class="nostyle" href="{% url 'purpose_details' form.instance.pk %}">{{page_name}}</a></h4>
 
     {% if view != "inline" %}
         {% if page_name == "Edit purpose"%}

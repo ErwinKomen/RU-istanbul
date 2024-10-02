@@ -5,6 +5,7 @@ from django.apps import apps
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
 from django.contrib import messages
+from django.db.models import Count
 from django.forms import modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -47,12 +48,23 @@ def list_view(request, model_name, app_name, max_entries=500):
             special_terms = special_terms, max_entries = max_entries)
         instances= s.filter()
         print('done filtering')
+
+        # Special processing for aggregate counts
+        if s and s.query:
+            if model_name == "Purpose" and "installationcount" in s.query.order.order_by:
+                instances = instances.annotate(installationcount=Count('installation__purposes'))
+            elif model_name == "Literature" and "eventcount" in s.query.order.order_by:
+                instances = instances.annotate(eventcount=Count('eventliteraturerelation'))
+        
         print('empty query:',s.query.empty)
         name = handle_model_page_name(model_name)
+        model = apps.get_model(app_name,model_name)
+        plural_name = model._meta.verbose_name_plural
         var = {model_name.lower() +'_list':instances,
             'page_name':name,
             'order':s.order.order_by,'direction':s.order.direction,
             'app_name':app_name,
+            'plural_name': plural_name,
             'query':s.query.query,'nentries':s.nentries,
             'search_fields':s.search_fields,
             'name':model_name.lower(),'extended_search':extended_search,
