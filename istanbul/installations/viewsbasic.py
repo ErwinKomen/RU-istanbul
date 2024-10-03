@@ -285,6 +285,102 @@ class ImageDetails(ImageEdit):
 
         oErr = ErrHandle()
         try:
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # List of Events that link to this Image
+            events = dict(title="Events connected to this Image", prefix="evnt", 
+                          classes="collapse",label="Events")
+            if resizable: events['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = instance.event_set.all().order_by('start_date', 'end_date', 'name')
+            for item in qs:
+                event = item
+                url = reverse("event_details", kwargs={'pk': event.id})
+                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of event
+                add_rel_item(rel_item, event.name, False, main=True, nowrap=False, link=url)
+
+                # start date
+                add_rel_item(rel_item, event.get_value('startdate'), False, main=False, nowrap=True, link=url)
+
+                # end date
+                add_rel_item(rel_item, event.get_value('enddate'), False, main=False, nowrap=True, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            events['rel_list'] = rel_list
+
+            events['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Event</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
+                ]
+            related_objects.append(events)
+
+            # List of Installations that link to this Image
+            installations = dict(title="Installations connected to this Image", prefix="inst",
+                            classes="collapse", label="Installations")
+            if resizable: installations['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = instance.installation_set.all().order_by('english_name')
+            for item in qs:
+                installation = item
+                url = reverse("installation_details", kwargs={'pk': installation.id})
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of installation
+                add_rel_item(rel_item, installation.english_name, False, main=True, nowrap=False, link=url)
+
+                # Still exists
+                add_rel_item(rel_item, installation.get_value('stillexists'), False, main=False, nowrap=True, link=url)
+
+                # Installation type
+                add_rel_item(rel_item, installation.get_value('instaltype'), False, main=False, nowrap=True, link=url)
+
+                # Systems
+                add_rel_item(rel_item, installation.get_value('systems'), False, main=False, nowrap=True, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            installations['rel_list'] = rel_list
+
+            installations['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Installation</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Still exists</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Type</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Systems</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(installations)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+            # ====================== After Details: image ==========================================
             lHtml = []
             if 'after_details' in context:
                 lHtml.append(context['after_details'])
