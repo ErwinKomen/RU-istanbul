@@ -74,6 +74,17 @@ app_editor = "{}_editor".format(PROJECT_NAME.lower())
 app_userplus = "{}_userplus".format(PROJECT_NAME.lower())
 app_user = "{}_user".format(PROJECT_NAME.lower())
 app_moderator = "{}_moderator".format(PROJECT_NAME.lower())
+app_developer = "{}_developer".format(PROJECT_NAME.lower())
+
+def get_application_context(request, context):
+    context['authenticated'] = user_is_authenticated(request)
+    context['is_app_user'] = user_is_ingroup(request, app_user)
+    context['is_app_userplus'] = user_is_ingroup(request, app_userplus)
+    context['is_app_editor'] = user_is_ingroup(request, app_editor)
+    context['is_app_uploader'] = user_is_ingroup(request, app_uploader)
+    context['is_app_moderator'] = user_is_superuser(request) or user_is_ingroup(request, app_moderator)
+    context['is_app_developer'] = user_is_superuser(request) or user_is_ingroup(request, app_developer)
+    return context
 
 def user_is_authenticated(request):
     # Is this user authenticated?

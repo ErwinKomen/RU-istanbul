@@ -15,6 +15,7 @@ import time
 
 # =================== IMPORT FROM OWN APPS ====================================
 from basic.utils import ErrHandle
+from basic.views import get_application_context
 from utils import view_util, help_util 
 from utils.view_util import Crud, Cruds, make_tabs, FormsetFactoryManager
 from utils.model_util import copy_complete, identifiers2instances 
@@ -70,8 +71,9 @@ def list_view(request, model_name, app_name, max_entries=500):
             'name':model_name.lower(),'extended_search':extended_search,
             'active_search_buttons':active_fields,
             'active_special_term_buttons':special_terms}
+        context = get_application_context(request, var)
         print(s.notes,000,'<----')
-        response = render(request, app_name+'/'+model_name.lower()+'_list.html',var)
+        response = render(request, app_name+'/'+model_name.lower()+'_list.html',context)
     except:
         msg = oErr.get_error_message()
         oErr.DoError("utilities/list_view")
@@ -154,8 +156,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
             'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
             'instance':instance}
         args.update(ffm.dict)
+        context = get_application_context(request, args)
         print('arg made, start rendering',delta(start))
-        response = render(request,app_name+'/add_' + model_name.lower() + '.html',args)
+        response = render(request,app_name+'/add_' + model_name.lower() + '.html',context)
     except:
         msg = oErr.get_error_message()
         oErr.DoError("edit_model")
@@ -197,7 +200,8 @@ def add_simple_model(request, name_space,model_name,app_name, page_name, pk = No
         page_name = 'Edit ' +model_name.lower() if pk else 'Add ' +model_name.lower()
         url = '/'.join(request.path.split('/')[:-1])+'/' if pk else request.path
         var = {'form':form, 'page_name':page_name, 'instances':instances, 'url':url}
-        response = render(request, 'utilities/add_simple_model.html',var)
+        context = get_application_context(request, var)
+        response = render(request, 'utilities/add_simple_model.html',context)
     except:
         msg = oErr.get_error_message()
         oErr.DoError("add_simple_model")
@@ -228,7 +232,8 @@ def delete_model(request, model_name, app_name, pk, close = False):
                 return HttpResponseRedirect(url)
         info = instance.info
         var = {'info':info,'page_name':'Delete '+model_name.lower()}
-        response = render(request, 'utilities/delete_model.html',var)
+        context = get_application_context(request, var)
+        response = render(request, 'utilities/delete_model.html',context)
     except:
         msg = oErr.get_error_message()
         oErr.DoError("delete_model")

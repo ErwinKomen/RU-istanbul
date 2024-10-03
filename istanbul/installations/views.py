@@ -22,7 +22,7 @@ from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
 from basic.utils import ErrHandle
-from basic.views import BasicDetails, add_rel_item, get_current_datetime
+from basic.views import BasicDetails, add_rel_item, get_current_datetime, get_application_context
 
 @permission_required('utilities.add_generic')
 def home(request):
@@ -42,6 +42,7 @@ def home(request):
         context = { 'title': 'Istanbul-su', 
                     'image':image,
                     'home_intro': home_intro }
+        context = get_application_context(request, context)
         # Show the home page
         response = render(request,template,context)
     except:
@@ -72,6 +73,7 @@ def contact(request):
             message="Mariëtte Verhoeven",
             year=get_current_datetime().year
             )
+        context = get_application_context(request, context)
         response = render(request, template, context)
     except:
         msg = oErr.get_error_message()
