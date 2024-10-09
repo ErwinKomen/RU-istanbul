@@ -24,7 +24,7 @@ from utilities.views import edit_model
 from basic.utils import ErrHandle
 from basic.views import BasicDetails, add_rel_item, get_current_datetime, get_application_context
 
-@permission_required('utilities.add_generic')
+# @permission_required('utilities.add_generic')
 def home(request):
     """Renders the home page."""
     assert isinstance(request, HttpRequest)

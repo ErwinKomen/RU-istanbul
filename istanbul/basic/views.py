@@ -98,6 +98,18 @@ def user_is_authenticated(request):
             response = user.is_authenticated
     return response
 
+def regard_as_authenticated(request):
+    """Depending on the settings, regard anyone as authenticated"""
+
+    bAllowAll = True
+    response = False
+    if bAllowAll:
+        response = True
+    else:
+        response = user_is_authenticated(request)
+    # Return the result
+    return response
+
 def user_is_ingroup(request, sGroup):
     # Is this user part of the indicated group?
     username = request.user.username
@@ -1445,7 +1457,9 @@ class BasicList(ListView):
         return None
 
     def get(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
+        # OLD: authorized = request.user.is_authenticated
+        authorized = regard_as_authenticated(request)
+        if not authorized:
             # Do not allow to get a good response
             response = redirect(reverse('nlogin'))
         else:
@@ -1530,7 +1544,8 @@ class BasicDetails(DetailView):
         # always do this initialisation to get the object
         self.initializations(request, pk, **kwargs)
 
-        if not request.user.is_authenticated:
+        # if not request.user.is_authenticated:
+        if not regard_as_authenticated(request):
             # Do not allow to get a good response
             if self.rtype == "json":
                 data['html'] = "(No authorization)"
@@ -1670,15 +1685,30 @@ class BasicDetails(DetailView):
 
     def is_invisible(self):
         bResult = False
-        if not self.request.user.is_authenticated:
-            bResult = True
-        elif not self.nonuser_visible:
-            # Is this an app-user?
-            user = self.request.user
-            is_app_user = user_is_ingroup(self.request, app_user)
-            if not is_app_user:
-                bResult = True
+        method = "old"
+        method = "new"
 
+        if method == "old":
+            if not self.request.user.is_authenticated:
+                bResult = True
+            elif not self.nonuser_visible:
+                # Is this an app-user?
+                user = self.request.user
+                is_app_user = user_is_ingroup(self.request, app_user)
+                if not is_app_user:
+                    bResult = True
+        else:
+            # New method: respect "nonuser_visible" more
+            if self.nonuser_visible:
+                bResult = False
+            elif not self.request.user.is_authenticated:
+                bResult = True
+            else:
+                # Is this an app-user?
+                user = self.request.user
+                is_app_user = user_is_ingroup(self.request, app_user)
+                if not is_app_user:
+                    bResult = True
         return bResult
         
     def custom_init(self, instance, **kwargs):

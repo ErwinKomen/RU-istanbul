@@ -20,9 +20,10 @@
     <th></th>
     </tr>
     {% for role in eventrole_list %}
-
+      <tr>
         <td>{{role.name}}</td>
         <td style="white-space:nowrap;">
+          {% if is_app_editor %}
             <a class = "btn btn-link btn-sm ml-auto" 
 href ="{% url 'utilities:delete_model' role.pk 'EventRole' 'installations' %}"
                 role="button">
@@ -33,8 +34,9 @@ href ="{% url 'utilities:delete_model' role.pk 'EventRole' 'installations' %}"
                 role="button">
                     <i class="far fa-edit text-secondary"></i>
             </a>
+          {% endif %}
         </td>
-    </tr>
+      </tr>
     {% endfor %}
 </table>
 </div>

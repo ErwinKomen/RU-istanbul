@@ -68,11 +68,12 @@
     {% block login %}
     {% endblock %}
 
-	{%block wide %}
+	{% block wide %}
 	{% endblock %}
 
 	{% if user.username == '' %}
 	{% else %}
+	{% endif %}
 			<div class="container-fluid">
 
 				<div class="row">
@@ -97,18 +98,20 @@
 
 			</div>
 
+			<script>
+					$(document).ready(function(){
+					window.setTimeout(function() {
+						$(".alert").fadeTo(500, 0)
+					}, 3000);
+			})
+			</script>
+
 		</body>
 		{% block afterbody %}
 		{% endblock %}
 	
-	{% endif %}
+<!-- This used to be the % endif % -->
 
-<script>
-    $(document).ready(function(){
-		window.setTimeout(function() {
-		  $(".alert").fadeTo(500, 0)
-		}, 3000);
-})
-</script>
+
 
 </html>

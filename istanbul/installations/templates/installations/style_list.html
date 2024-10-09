@@ -24,10 +24,12 @@
     <th></th>
     </tr>
     {% for style in style_list %}
+      <tr>
         <td>{{style.name}}</td>
         <td>{{style.color}}</td>
         <td>{{style.z_index}}</td>
         <td style="white-space:nowrap;">
+          {% if is_app_editor %}
             <a class = "btn btn-link btn-sm ml-auto" 
 href ="{% url 'utilities:delete_model' style.pk 'Style' 'installations' %}"
                 role="button">
@@ -38,6 +40,7 @@ href ="{% url 'utilities:delete_model' style.pk 'Style' 'installations' %}"
                 role="button">
                     <i class="far fa-edit text-secondary"></i>
             </a>
+          {% endif %}
         </td>
     </tr>
     {% endfor %}

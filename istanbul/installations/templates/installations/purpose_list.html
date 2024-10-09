@@ -26,8 +26,9 @@
         <td><a class="nostyle" href="{% url 'purpose_details' purpose.pk %}">{{purpose.name}}</a></td>
         <td>{{purpose.installation_set.count}} </td>
         <td style="white-space:nowrap;">
+          {% if is_app_editor %}
             <a class = "btn btn-link btn-sm ml-auto" 
-href ="{% url 'utilities:delete_model' purpose.pk 'Purpose' 'installations' %}"
+                href ="{% url 'utilities:delete_model' purpose.pk 'Purpose' 'installations' %}"
                 role="button">
                     <i class="fa fa-trash text-secondary"></i>
             </a>
@@ -36,6 +37,7 @@ href ="{% url 'utilities:delete_model' purpose.pk 'Purpose' 'installations' %}"
                 role="button">
                     <i class="far fa-edit text-secondary"></i>
             </a>
+          {% endif %}
         </td>
     </tr>
     {% endfor %}

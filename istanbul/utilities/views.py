@@ -87,19 +87,28 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
     assumes a 'add_{{model_name}}.html template and edit_{{model_name}} function
     and {{model_name}}Form
     '''
+
     start = time.time()
     names = formset_names
     oErr = ErrHandle()
     response = None
     try:
+        # Get the model form
         model = apps.get_model(app_name,model_name)
         modelform = view_util.get_modelform(name_space,model_name+'Form')
         print('get model and form',delta(start))
+
+        # Get the instance and the relevant CRUD
         instance= model.objects.get(pk=instance_id) if instance_id else None
         crud = Crud(instance) if instance and model_name != 'Location' else None
         print('get crud',delta(start))
+
+        # Get the initial context for authorization purposes
+        context = get_application_context(request, args)
+
+        # Process POST form - if this is a POST one
         ffm, form = None, None
-        if request.method == 'POST':
+        if request.method == 'POST' and context['is_app_editor']:
             focus, button = getfocus(request), getbutton(request)
             if button in 'delete,cancel,confirm_delete': 
                 return delete_model(request,model_name,app_name,instance_id)
@@ -143,21 +152,33 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
                 show_messages(request,'form_invalid', model_name, form)
 
         print('post part done',delta(start))
+
+        # Adapt forms (post-POST)
         if not form: form = modelform(instance=instance)
         if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
         print('(after post formset factory manager / form making done',delta(start))
+
+        # Create tabs
         tabs = make_tabs(model_name.lower(), focus_names = focus)
         print('tabs made',delta(start), tabs)
+
+        # Figure out correct page name
         name = handle_model_page_name(model_name)
         page_name = 'Edit ' +name if instance_id else 'Add ' +name
+
+        # Create helper
         helper = help_util.Helper(model_name=model_name)
         print('helper made',delta(start))
+
+        # Collect the context
         args = {'form':form,'page_name':page_name,'crud':crud,'model_name':model_name,
             'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
             'instance':instance}
         args.update(ffm.dict)
-        context = get_application_context(request, args)
+        # context = get_application_context(request, args)
+        context.update(args)
         print('arg made, start rendering',delta(start))
+
         response = render(request,app_name+'/add_' + model_name.lower() + '.html',context)
     except:
         msg = oErr.get_error_message()

@@ -21,12 +21,13 @@
     <th></th>
     </tr>
     {% for system in system_list %}
-
+      <tr>
         <td><a class="nostyle" href="{% url 'system_details' system.pk %}">{{system.english_name}}</a></td>
         <td><a class="nostyle" href="{% url 'system_details' system.pk %}">{{system.turkish_name}}</a></td>
         <td style="white-space:nowrap;">
+          {% if is_app_editor %}
             <a class = "btn btn-link btn-sm ml-auto" 
-	href ="{% url 'utilities:delete_model' system.pk 'System' 'installations' %}"
+	              href ="{% url 'utilities:delete_model' system.pk 'System' 'installations' %}"
                 role="button">
                     <i class="fa fa-trash text-secondary"></i>
             </a>
@@ -35,6 +36,7 @@
                 role="button">
                     <i class="far fa-edit text-secondary"></i>
             </a>
+          {% endif %}
         </td>
     </tr>
     {% endfor %}

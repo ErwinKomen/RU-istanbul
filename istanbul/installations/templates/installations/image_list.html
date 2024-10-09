@@ -32,6 +32,7 @@
         <td>{{image.year.year}}</td>
         <td>{{image.current_location}}</td>
         <td style="white-space:nowrap;">
+          {% if is_app_editor %}
             <a class = "btn btn-link btn-sm ml-auto" 
 href ="{% url 'utilities:delete_model' image.pk 'Image' 'installations' %}"
                 role="button">
@@ -42,6 +43,7 @@ href ="{% url 'utilities:delete_model' image.pk 'Image' 'installations' %}"
                 role="button">
                     <i class="far fa-edit text-secondary"></i>
             </a>
+          {% endif %}
         </td>
     </tr>
     {% endfor %}

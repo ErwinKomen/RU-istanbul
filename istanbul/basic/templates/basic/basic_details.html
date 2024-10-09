@@ -23,7 +23,7 @@
 
 {% block content %}
   <div>
-    {% if authenticated and permission %}
+    {% if authenticated or permission == "read" %}
       <!-- Upper part of the generic details view interface -->
       <div class="panel panel-default gold-head subform">
         <div class="row">&nbsp;</div>
