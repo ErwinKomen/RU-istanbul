@@ -37,9 +37,11 @@ urlpatterns = [
 	path('accounts/',include('accounts.urls')),
 	path('accounts/',include('django.contrib.auth.urls')),
 	path('utilities/',include('utilities.urls')),
-	path('installations/',include('installations.urls')),
+	path('installations/',include('installations.urls', namespace='inst_main')),
+	path('',include('installations.urls', namespace='inst_zero')),
+
+    # ================== Select 2 ================================
 	re_path(r'^select2/', include('django_select2.urls')),
-	path('',include('installations.urls')),
 
 	# ================== Views ===================================
 	re_path('event/edit(?:/(?P<pk>\d+))?/$', EventEdit.as_view(), name='event_edit'),

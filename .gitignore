@@ -367,3 +367,4 @@ FodyWeavers.xsd
 /istanbul-main
 /istanbul/.env
 /istanbul/static
+/istanbul/cms/

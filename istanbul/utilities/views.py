@@ -104,7 +104,7 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
         print('get crud',delta(start))
 
         # Get the initial context for authorization purposes
-        context = get_application_context(request, args)
+        context = get_application_context(request, {})
 
         # Process POST form - if this is a POST one
         ffm, form = None, None
