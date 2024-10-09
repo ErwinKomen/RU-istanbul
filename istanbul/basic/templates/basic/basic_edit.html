@@ -23,19 +23,21 @@
               <div>
                 {% if is_app_userplus or is_app_editor or permission == "write" %}
                   <!-- Edit button -->
-                  <a mode="edit" class="view-mode btn btn-xs jumbo-1"><span class="glyphicon glyphicon-pencil" title="Edit these data"></span></a>
+                  <a mode="edit" class="view-mode btn btn-xs jumbo-1">
+                    <span class="glyphicon glyphicon-pencil fa fa-pencil" title="Edit these data"></span>
+                  </a>
                 {% endif %}
 
                 <!-- Cancel button -->
                 <a mode="cancel" class="edit-mode btn btn-xs jumbo-2 hidden">
-                  <span class="glyphicon glyphicon-arrow-left" title="Cancel (do *NOT* save)"></span>
+                  <span class="glyphicon glyphicon-arrow-left fa fa-arrow-left" title="Cancel (do *NOT* save)"></span>
                 </a>
 
                 {% if is_app_userplus or is_app_editor or permission == "write"  %}
                   <!-- Save button -->
                   <a mode="save" class="edit-mode btn btn-xs jumbo-1 hidden" targetid=""
                      targeturl="{% if basic_form.instance.id %}{{editview}}{% else %}{{addview}}{% endif %}" >
-                    <span class="glyphicon glyphicon-ok" title="Save these data">&nbsp;Save</span>
+                    <span class="glyphicon glyphicon-ok fa fa-check" title="Save these data">&nbsp;Save</span>
                   </a>
                 {% endif %}
 
@@ -50,7 +52,7 @@
                     <!-- Put the delete button completely to the right-->
                     <a mode="skip" class="view-mode btn btn-xs jumbo-3 pull-right"
                        onclick="ru.basic.delete_confirm(this);">
-                      <span class="glyphicon glyphicon-remove" title="Delete this item"></span>
+                      <span class="glyphicon glyphicon-remove fa fa-trash" title="Delete this item"></span>
                     </a>
                   {% endif %}
                 {% endif %}

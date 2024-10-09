@@ -500,6 +500,8 @@ class CitemEdit(BasicDetails):
 
                 # Signal that we have select2
                 context['has_select2'] = True
+                # signal we can use basic buttons
+                context['use_basic_buttons'] = True
             else:
                 # Make sure user cannot delete
                 self.no_delete = True

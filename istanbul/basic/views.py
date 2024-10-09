@@ -36,6 +36,7 @@ from datetime import datetime
 from .utils import ErrHandle
 
 from basic.models import UserSearch
+from cms.view_utils import cms, cms_translate
 
 
 # Some constants that can be used
@@ -820,7 +821,8 @@ class BasicList(ListView):
     sort_order = ""
     col_wrap = ""
     param_list = []
-    extend_template = "layout.html"
+    # extend_template = "layout.html"
+    extend_template = "utilities/base.html"
     qs = None
     page_function = "ru.basic.search_paged_start"
 
@@ -1043,13 +1045,15 @@ class BasicList(ListView):
         context['filterhelp_contents'] = self.get_filterhelp()
 
         # Check if user may upload
-        context['is_authenticated'] = user_is_authenticated(self.request)
-        context['authenticated'] = context['is_authenticated'] 
-        context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader) or user_is_superuser(self.request)
-        context['is_app_user'] = user_is_ingroup(self.request, app_user)
-        context['is_app_userplus'] = user_is_ingroup(self.request, app_userplus)
-        context['is_app_moderator'] = user_is_superuser(self.request) or user_is_ingroup(self.request, app_moderator)
-        context['is_app_editor'] = user_is_ingroup(self.request, app_editor) and self.may_edit(context, None)
+        context = get_application_context(self.request, context)
+        context['is_authenticated'] = context['authenticated']
+        #context['is_authenticated'] = user_is_authenticated(self.request)
+        #context['authenticated'] = context['is_authenticated'] 
+        #context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader) or user_is_superuser(self.request)
+        #context['is_app_user'] = user_is_ingroup(self.request, app_user)
+        #context['is_app_userplus'] = user_is_ingroup(self.request, app_userplus)
+        #context['is_app_moderator'] = user_is_superuser(self.request) or user_is_ingroup(self.request, app_moderator)
+        #context['is_app_editor'] = user_is_ingroup(self.request, app_editor) and self.may_edit(context, None)
 
         # Process this visit and get the new breadcrumbs object
         prevpage = reverse('installations:home')
@@ -1757,12 +1761,13 @@ class BasicDetails(DetailView):
         context['use_basic_buttons'] = False if APPLICATION_NAME == "istanbul" else True
 
         # Check this user: is he allowed to UPLOAD data?
-        context['authenticated'] = user_is_authenticated(self.request)
-        context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader)
-        context['is_app_user'] = user_is_ingroup(self.request, app_user)
-        context['is_app_userplus'] = user_is_ingroup(self.request, app_userplus)
-        context['is_app_moderator'] = user_is_superuser(self.request) or user_is_ingroup(self.request, app_moderator)
-        context['is_app_editor'] = user_is_ingroup(self.request, app_editor) and self.may_edit(context, self.object)
+        context = get_application_context(self.request, context)
+        #context['authenticated'] = user_is_authenticated(self.request)
+        #context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader)
+        #context['is_app_user'] = user_is_ingroup(self.request, app_user)
+        #context['is_app_userplus'] = user_is_ingroup(self.request, app_userplus)
+        #context['is_app_moderator'] = user_is_superuser(self.request) or user_is_ingroup(self.request, app_moderator)
+        #context['is_app_editor'] = user_is_ingroup(self.request, app_editor) and self.may_edit(context, self.object)
 
         # context['prevpage'] = get_previous_page(self.request) # self.previous
         context['afternewurl'] = ""
@@ -2010,6 +2015,11 @@ class BasicDetails(DetailView):
                     if self.history_button:
                         # Retrieve history
                         context['history_contents'] = self.get_history(instance)
+
+            # Perform CMS operations on the mainitems
+            if 'mainitems' in context:
+                view_name = "{}_details".format(basic_name)
+                context['mainitems'] = cms_translate(view_name, context['mainitems'])
 
             # fill in the form values
             if frm and 'mainitems' in context:

@@ -31,6 +31,9 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     InstitutionEdit, InstitutionDetails, \
     ImageEdit, ImageDetails
 from accounts.views import RegisterView
+from cms.views import CitemDetails, CitemEdit,CitemListView, \
+    CpageDetails, CpageEdit, CpageListView, CpageAdd, \
+    ClocationAdd, ClocationDetails, ClocationEdit, ClocationListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -70,6 +73,21 @@ urlpatterns = [
 
 	re_path('system/edit(?:/(?P<pk>\d+))?/$', SystemEdit.as_view(), name='system_edit'),
 	re_path('system/details(?:/(?P<pk>\d+))?/$', SystemDetails.as_view(), name='system_details'),
+
+    # ================ CMS ========================================================================
+    re_path(r'^cpage/list', CpageListView.as_view(), name='cpage_list'),
+    re_path(r'^cpage/details(?:/(?P<pk>\d+))?/$', CpageDetails.as_view(), name='cpage_details'),
+    re_path(r'^cpage/edit(?:/(?P<pk>\d+))?/$', CpageEdit.as_view(), name='cpage_edit'),
+    re_path(r'^cpage/clocation/add(?:/(?P<pk>\d+))?/$', CpageAdd.as_view(), name='cpage_add_loc'),
+
+    re_path(r'^clocation/list', ClocationListView.as_view(), name='clocation_list'),
+    re_path(r'^clocation/details(?:/(?P<pk>\d+))?/$', ClocationDetails.as_view(), name='clocation_details'),
+    re_path(r'^clocation/edit(?:/(?P<pk>\d+))?/$', ClocationEdit.as_view(), name='clocation_edit'),
+    re_path(r'^clocation/citem/add(?:/(?P<pk>\d+))?/$', ClocationAdd.as_view(), name='clocation_add_item'),
+
+    re_path(r'^citem/list', CitemListView.as_view(), name='citem_list'),
+    re_path(r'^citem/details(?:/(?P<pk>\d+))?/$', CitemDetails.as_view(), name='citem_details'),
+    re_path(r'^citem/edit(?:/(?P<pk>\d+))?/$', CitemEdit.as_view(), name='citem_edit'),
 
     # Other stuff from EK
     re_path(r'^nlogin', nlogin, name='nlogin'),

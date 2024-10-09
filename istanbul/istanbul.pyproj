@@ -149,6 +149,8 @@
     <Content Include="basic\templates\basic\filter_help.html" />
     <Content Include="basic\templates\basic\formset_new.html" />
     <Content Include="basic\templates\basic\map_list_switch.html" />
+    <Content Include="basic\templates\basic\pagination.html" />
+    <Content Include="basic\templates\basic\paginationpost.html" />
     <Content Include="basic\__pycache__\admin.cpython-39.pyc" />
     <Content Include="basic\__pycache__\apps.cpython-39.pyc" />
     <Content Include="basic\__pycache__\forms.cpython-39.pyc" />

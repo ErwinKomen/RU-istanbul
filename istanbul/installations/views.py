@@ -23,26 +23,35 @@ from utilities.views import edit_model
 # EK: adding detail views
 from basic.utils import ErrHandle
 from basic.views import BasicDetails, add_rel_item, get_current_datetime, get_application_context
+from cms.views import add_cms_contents
 
 # @permission_required('utilities.add_generic')
 def home(request):
     """Renders the home page."""
+
     assert isinstance(request, HttpRequest)
     response = "-"
     oErr = ErrHandle()
     try:
         # Set the template
         template = "installations/home.html"
+
         # Get the image information
         f = 'Panorama of Constantinople, detail showing the Valens aqueduct'
         image = Image.objects.get(title = f)
+
         # Retrieve the moderator-specified introductin text
         home_intro = ""
+
         # Prepare the context
         context = { 'title': 'Istanbul-su', 
                     'image':image,
                     'home_intro': home_intro }
         context = get_application_context(request, context)
+
+        # Add context items from the CMS system
+        context = add_cms_contents('home', context)
+
         # Show the home page
         response = render(request,template,context)
     except:

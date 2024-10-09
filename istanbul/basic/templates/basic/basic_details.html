@@ -363,9 +363,12 @@
                 <span class="glyphicon glyphicon-pencil" title="Edit these data"></span>
               </a>
             {% elif is_app_userplus or is_app_editor or permission == "write" %}
+              {% if use_basic_buttons %}
+              {% else %}
               <a class="btn btn-link ml-auto" href="{{editview}}" role="button">
                  <i class="fas fa-edit"></i>
               </a>
+              {% endif %}
             {% endif %}
           </div>
         </div>
