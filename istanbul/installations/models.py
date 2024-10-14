@@ -418,6 +418,20 @@ class Purpose(models.Model, info):
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
 
+    def __str__(self):
+        sBack = ""
+        if self.name:
+            sBack = self.name
+        else:
+            sBack = self.description
+        return sBack
+
+    def get_name(self):
+        sBack = ""
+        if self.name:
+            sBack = self.name
+        return sBack
+
 
 class InstallationType(models.Model, info):
     """An installation type"""
@@ -472,7 +486,7 @@ class Installation(models.Model, info):
     def detail_url(self):
         return 'installations:detail_installation_view'
 
-    def get_value(self, field):
+    def get_value(self, field, sep=None):
         """Get the value(s) of 'field' associated with this installation"""
 
         sBack = ""
@@ -488,20 +502,25 @@ class Installation(models.Model, info):
                     sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
                     sItem = "<div>{}</div>".format(sItem)
                     lst_value.append(sItem)
-                sBack = "\n".join(lst_value)
-            #elif field == "images":
-            #    count = self.images.count()
-            #    sBack = "not yet implemented - there are {} image(s)".format(count)
-            #    #for oItem in self.images.all().values('').order_by('name'):
-            #    #    url = X
-            #    #    sItem = ""
-            #    #    lst_value.append(sItem)
+                if sep:
+                    sBack = sep.join(lst_value)
+                else:
+                    sBack = "\n".join(lst_value)
+            elif field == "eventpersons":
+                # Get all persons associated with installation via events
+                qs = Person.objects.filter(eventpersonrelations__event__installation=self)
+                for oItem in qs.values('id', 'name').order_by('name'):
+                    url = reverse('person_details', kwargs={'pk': oItem['id']})
+                    label = oItem.get('name')
+                    sItem = '<span class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
+                    lst_value.append(sItem)
+                sBack = ", ".join(lst_value)
             elif field == "purposes":
                 for oItem in self.purposes.all().values('id','name').order_by('name'):
                     # url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})
                     url = reverse('purpose_details', kwargs={'pk': oItem['id']})
                     label = oItem.get("name")
-                    sItem = "<span class='badge signature cl'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    sItem = '<span class="badge signature gr"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
             elif field == "stillexists":
@@ -513,12 +532,15 @@ class Installation(models.Model, info):
                     # OLD: url = reverse('installations:edit_system', kwargs={'pk': oItem['id']})
                     url = reverse('system_details', kwargs={'pk': oItem['id']})
                     label = oItem.get("english_name")
-                    sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    sItem = '<span class="badge signature ot"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
             elif field == "instaltype":
                 if not self.installation_type is None:
                     sBack = self.installation_type.name
+            elif field == "name":
+                if not self.english_name is None:
+                    sBack = self.english_name
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Installation/get_value")
@@ -680,11 +702,11 @@ class EventPersonRelation(models.Model, info):
 
     # ==================== Links to other objects ========================
     # [0-1] Link to event
-    event = models.ForeignKey(Event, **dargs)
+    event = models.ForeignKey(Event, **dargs, related_name="eventpersonrelations")
     # [0-1] Link to person
-    person= models.ForeignKey(Person, **dargs)
+    person= models.ForeignKey(Person, **dargs, related_name="eventpersonrelations")
     # [0-1] Link to event role
-    role = models.ForeignKey(EventRole, **dargs)
+    role = models.ForeignKey(EventRole, **dargs, related_name="eventpersonrelations")
 
     @property
     def person_role(self):

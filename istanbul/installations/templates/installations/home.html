@@ -11,7 +11,8 @@
 <div class="istanbul-banner" img="{% static 'installations/content/istanbul_logo.jpg' %}">
   <!-- to the database button -->
   <div class="istanbul-start">
-    <a href="{% url 'utilities:list_view' 'Installation' 'installations'%}"
+    <!-- url 'utilities:list_view' 'Installation' 'installations' -->
+    <a href="{% url 'installation_list'%}"
        class="btn btn-success btn-xlarge">To the database</a>
   </div>
 </div>

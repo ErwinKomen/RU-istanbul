@@ -12,7 +12,7 @@ from .models import InstallationType, Purpose
 from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
 from .models import Institution, EventInstitutionRelation
-from .forms import SystemForm, PersonForm, InstallationForm 
+from .forms import SystemForm, PersonForm, InstallationForm, InstallationSearchForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
 from .forms import systeminstallation_formset, installationsystem_formset
@@ -25,7 +25,7 @@ from .forms import partial_year_to_date
 
 # EK: adding detail views
 from basic.utils import ErrHandle
-from basic.views import BasicDetails, add_rel_item, get_current_datetime
+from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime
 
 
 
@@ -428,6 +428,7 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'original name', 'value': instance.original_name },
                 {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name  },
                 {'type': 'plain', 'label': 'events',        'value': instance.get_value('events')  },
+                {'type': 'plain', 'label': 'event persons', 'value': instance.get_value('eventpersons')  },
                 {'type': 'plain', 'label': 'purposes',      'value': instance.get_value('purposes')},
                 {'type': 'plain', 'label': 'still exists',  'value': instance.get_value('stillexists') },
                 {'type': 'plain', 'label': 'type',          'value': instance.get_value('instaltype')    },
@@ -479,6 +480,80 @@ class InstallationDetails(InstallationEdit):
 
         # Return the context we have made
         return context
+
+
+class InstallationList(BasicList):
+    """List and search view for Installation"""
+
+    model = Installation 
+    listform = InstallationSearchForm
+    prefix = "inst"
+    has_select2 = True
+    sg_name = "Installation"        # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Installations"   # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    order_cols = ['english_name', 'installation_type__name', '', '', '']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname', 'linkdetails': True,  'main': True},
+        {'name': 'Type',        'order': 'o=2', 'type': 'str', 'custom': 'instaltype'               },
+        {'name': 'Purposes',    'order': '',    'type': 'str', 'custom': 'purposes'                 },
+        {'name': 'Persons',     'order': '',    'type': 'str', 'custom': 'evpersons'                },
+        {'name': 'Events',      'order': '',    'type': 'str', 'custom': 'events'                   },
+        ]
+                   
+    filters = [ 
+        {"name": "Name",            "id": "filter_name",    "enabled": False},
+        {"name": "Type",            "id": "filter_itype",   "enabled": False},
+        {"name": "Purpose",         "id": "filter_purpose", "enabled": False},
+        {"name": "Person",          "id": "filter_person",  "enabled": False},
+        {"name": "Event",           "id": "filter_event",   "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'name',      'dbfield': 'english_name',      'keyS': 'english_name'},
+            {'filter': 'itype',     'fkfield': 'installation_type', 'keyFk': 'name', 'keyList': 'itypelist',    'infield': 'name'},
+            {'filter': 'purpose',   'fkfield': 'purposes',          'keyFk': 'name', 'keyList': 'purplist',     'infield': 'name'},
+            {'filter': 'person',    'fkfield': 'events__eventpersonrelations__person',   
+                                                                    'keyFk': 'name', 'keyList': 'perslist',     'infield': 'name'},
+            {'filter': 'event',     'fkfield': 'events',            'keyFk': 'name', 'keyList': 'eventlist',    'infield': 'name'},
+            ]
+         } 
+        ] 
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "saved":
+                # Get the correctly visible date
+                sBack = instance.get_saved()
+
+            elif custom == "instalname":
+                # Get the correctly visible date
+                sBack = instance.get_value("name")
+
+            elif custom == "instaltype":
+                sBack = instance.get_value("instaltype")
+
+            elif custom == "purposes":
+                sBack = instance.get_value("purposes")
+
+            elif custom == "evpersons":
+                sBack = instance.get_value("eventpersons")
+
+            elif custom == "events":
+                sBack = instance.get_value("events", ", ")
+            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationList/get_field_value")
+
+        return sBack, sTitle
 
 
 # --------------------- Installation Type ------------------------------------

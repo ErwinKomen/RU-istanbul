@@ -14,6 +14,7 @@
     <script src="{% static 'basic/scripts/basic.js' %}"></script>
     <script src="{% static 'basic/scripts/html2canvas.js' %}"></script>
   {% if has_select2 %}{{listForm.media.css}}{% endif %}
+  <title>{{title}}</title>
 {% endblock %}
 
 {% block content %}
@@ -146,7 +147,7 @@
 
           <!-- Filter tab -->
           {% if filters %}
-            <div class="inert {% if has_filter %}in{% else %}collapse{% endif %}" id="tab_filter">
+            <div class="inert {% if has_filter %}in{% else %}in{% endif %}" id="tab_filter">
               <div class="panel panel-default">
                 <!-- Filter interface -->
                 <div class="row" id="filter_badges">

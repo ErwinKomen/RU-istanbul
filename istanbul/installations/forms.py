@@ -21,6 +21,7 @@ from .widgets import EventWidget, EventsWidget, PersonWidget
 # From our own application
 from utils.select2 import  make_select2_attr
 from utils.view_util import partial_year_to_date
+from basic.utils import ErrHandle
 
 
 dattr = {'attrs':{'style':'width:100%'}}
@@ -82,6 +83,40 @@ class InstallationForm(forms.ModelForm):
 		fields += ',installation_type,events,purposes,description,comments'
 		fields += ',still_exists,images'
 		fields = fields.split(',')
+
+
+class InstallationSearchForm(forms.ModelForm):
+	english_name = forms.CharField(**dchar)
+	itypelist = forms.ModelChoiceField(
+		queryset = InstallationType.objects.all(),
+		widget = InstallationTypeWidget(**dselect2),
+		required = False)
+	eventlist = forms.ModelMultipleChoiceField(queryset = Event.objects.all(),widget = EventsWidget(**dselect2),required = False)
+	purplist = forms.ModelMultipleChoiceField(queryset = Purpose.objects.all(),widget = PurposesWidget(**dselect2),required = False)
+	perslist = forms.ModelMultipleChoiceField(required=False,queryset=Person.objects.all(),widget = PersonsWidget(**dselect2))
+
+	class Meta:
+		model = Installation
+		fields = ['english_name']
+
+   # def __init__(self, *args, **kwargs):
+   #     # Start by executing the standard handling
+   #     super(InstallationSearchForm, self).__init__(*args, **kwargs)
+
+   #     oErr = ErrHandle()
+   #     try:
+   #         ## Some fields are not required
+   #         #self.fields['name'].required = False
+   #         #self.fields['urlname'].required = False
+
+			## Set something
+			#pass
+   #     except:
+   #         msg = oErr.get_error_message()
+   #         oErr.DoError("InstallationSearchForm/init")
+
+   #     # We do not really return anything from the init
+   #     return None
 
 
 class PersonForm(forms.ModelForm):
