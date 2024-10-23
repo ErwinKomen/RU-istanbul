@@ -34,9 +34,9 @@ import re
 # ======= imports from my own application ======
 from istanbul.settings import APP_PREFIX, MEDIA_DIR, WRITABLE_DIR
 from basic.utils import ErrHandle
+from basic.views import get_application_context
 from cms.models import Citem, Cpage, Clocation
 from cms.forms import CitemForm, CpageForm, ClocationForm
-# from seeker.views_utils import passim_get_history, passim_action_add
 
 
 # ======= from RU-Basic ========================
@@ -61,7 +61,7 @@ def add_cms_contents(page, context):
             if not htmlid is None:
                 htmlcontent = "cms_{}".format(htmlid.replace("-", "_"))
                 # Get the contents value for this, translating it from markdown
-                sContents = obj.get_contents_markdown()
+                sContents = obj.get_contents_markdown(keep=True)
                 # Add it to the context
                 context[htmlcontent] = sContents
                 # allowing even empty onew
@@ -129,6 +129,30 @@ def cms_translate(page, mainitems):
     return mainitems
 
 
+# ============= Intro editing setting ==================
+
+def csettings(request):
+    """Define a cms oriented settings page"""
+
+    response = None
+    template_name = "cms/csettings.html"
+    oErr = ErrHandle()
+    try:
+        assert isinstance(request, HttpRequest)
+        context = dict(user=request.user)
+        context['page_name'] = 'Moderator'
+        intro = Citem.objects.filter(clocation__page__name='home', clocation__htmlid='introtext').first()
+        context['intro_id'] = intro.id
+        context['intro_text'] = intro.get_contents_markdown(keep=True)
+        context = get_application_context(request, context)
+
+        response = render(request,template_name, context)
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("csettings")
+
+    return response
+
 # ============= Cpage VIEWS ============================
 
 
@@ -141,6 +165,8 @@ class CpageEdit(BasicDetails):
     title = "Content page"
     history_button = False
     mainitems = []
+    restriction = []
+    no_delete = True
 
     stype_edi_fields = ['name', 'urlname']
         
@@ -153,6 +179,7 @@ class CpageEdit(BasicDetails):
         field_keys = ['name', 'urlname', None, None]
         try:
             may_add = user_is_ingroup(self.request, app_moderator) or user_is_ingroup(self.request, app_developer)
+            is_superuser = user_is_superuser(self.request)
             # Define the main items to show and edit
             context['mainitems'] = [
                 {'type': 'plain', 'label': "Page:",         'value': instance.name              },
@@ -174,6 +201,7 @@ class CpageEdit(BasicDetails):
                     # Add one more item that allows adding locations
                     oItem = dict(type="safe", label="", value=instance.get_actions() )
                     context['mainitems'].append(oItem)
+                    self.no_delete = False
 
                 # Signal that we have select2
                 context['has_select2'] = True
@@ -185,14 +213,7 @@ class CpageEdit(BasicDetails):
             oErr.DoError("CpageEdit/add_to_context")
 
         # Return the context we have made
-        return context
-    
-    #def action_add(self, instance, details, actiontype):
-    #    """User can fill this in to his/her liking"""
-    #    passim_action_add(self, instance, details, actiontype)
-
-    #def get_history(self, instance):
-    #    return passim_get_history(instance)
+        return context    
 
 
 class CpageDetails(CpageEdit):
@@ -300,6 +321,7 @@ class ClocationEdit(BasicDetails):
     title = "Content location"
     history_button = False
     mainitems = []
+    no_delete = True
 
     stype_edi_fields = ['name', 'htmlid', 'page']
         
@@ -312,6 +334,7 @@ class ClocationEdit(BasicDetails):
         field_keys = ['page', 'name', 'htmlid', None, None]
         try:
             may_add = user_is_ingroup(self.request, app_moderator) or user_is_ingroup(self.request, app_developer)
+            is_superuser = user_is_superuser(self.request)
             # Define the main items to show and edit
             context['mainitems'] = [
                 {'type': 'plain', 'label': "Page:",         'value': instance.get_page()      },
@@ -334,6 +357,7 @@ class ClocationEdit(BasicDetails):
                     # Add one more item that allows adding items
                     oItem = dict(type="safe", label="", value=instance.get_actions() )
                     context['mainitems'].append(oItem)
+                    self.no_delete = False
 
                 # Signal that we have select2
                 context['has_select2'] = True
@@ -347,13 +371,6 @@ class ClocationEdit(BasicDetails):
         # Return the context we have made
         return context
     
-    #def action_add(self, instance, details, actiontype):
-    #    """User can fill this in to his/her liking"""
-    #    passim_action_add(self, instance, details, actiontype)
-
-    #def get_history(self, instance):
-    #    return passim_get_history(instance)
-
 
 class ClocationDetails(ClocationEdit):
     """Just the HTML page"""
@@ -457,6 +474,7 @@ class CitemEdit(BasicDetails):
     prefix = 'citem'
     title = "Content item"
     history_button = False
+    no_delete = True
     mainitems = []
 
     stype_edi_fields = ['clocation', 'contents']
@@ -472,6 +490,7 @@ class CitemEdit(BasicDetails):
         try:
             # Get the location id
             clocation_id = instance.clocation.id
+            is_superuser = user_is_superuser(self.request)
             # Define the main items to show and edit
             context['mainitems'] = [
                 # -------- HIDDEN field values ---------------
@@ -479,7 +498,7 @@ class CitemEdit(BasicDetails):
                 # --------------------------------------------
                 {'type': 'plain', 'label': "Page:",         'value': instance.get_page()      },
                 {'type': 'line',  'label': "Identifier:",   'value': instance.get_htmlid()    },
-                {'type': 'line',  'label': "Location:",     'value': instance.get_location(True) },
+                {'type': 'line',  'label': "Location:",     'value': instance.get_location(True, is_superuser) },
                 {'type': 'line',  'label': "Original:",     'value': instance.get_original_markdown(retain=True)},
                 {'type': 'line',  'label': "Contents:",     'value': instance.get_contents_markdown(retain=True)},
                 {'type': 'line',  'label': "Saved:",        'value': instance.get_saved()       },
@@ -502,6 +521,8 @@ class CitemEdit(BasicDetails):
                 context['has_select2'] = True
                 # signal we can use basic buttons
                 context['use_basic_buttons'] = True
+                if is_superuser:
+                    self.no_delete = False
             else:
                 # Make sure user cannot delete
                 self.no_delete = True
@@ -512,17 +533,22 @@ class CitemEdit(BasicDetails):
         # Return the context we have made
         return context
     
-    #def action_add(self, instance, details, actiontype):
-    #    """User can fill this in to his/her liking"""
-    #    passim_action_add(self, instance, details, actiontype)
-
-    #def get_history(self, instance):
-    #    return passim_get_history(instance)
-
 
 class CitemDetails(CitemEdit):
     """Just the HTML page"""
     rtype = "html"
+
+
+class CitemSafe(CitemDetails):
+    """Resticted: only allow editing contents"""
+
+    restriction = ['contents']
+    no_delete = True
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse("citem_settings")
+        self.listviewtitle = "Moderator settings"
+        return None
 
 
 class CitemListView(BasicList):

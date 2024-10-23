@@ -31,9 +31,10 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     InstitutionEdit, InstitutionDetails, \
     ImageEdit, ImageDetails
 from accounts.views import RegisterView
-from cms.views import CitemDetails, CitemEdit,CitemListView, \
+from cms.views import CitemDetails, CitemEdit,CitemListView, CitemSafe, \
     CpageDetails, CpageEdit, CpageListView, CpageAdd, \
-    ClocationAdd, ClocationDetails, ClocationEdit, ClocationListView
+    ClocationAdd, ClocationDetails, ClocationEdit, ClocationListView, \
+    csettings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -90,6 +91,8 @@ urlpatterns = [
     re_path(r'^citem/list', CitemListView.as_view(), name='citem_list'),
     re_path(r'^citem/details(?:/(?P<pk>\d+))?/$', CitemDetails.as_view(), name='citem_details'),
     re_path(r'^citem/edit(?:/(?P<pk>\d+))?/$', CitemEdit.as_view(), name='citem_edit'),
+    re_path(r'^citem/safe(?:/(?P<pk>\d+))?/$', CitemSafe.as_view(), name='citem_safe'),
+    re_path(r'^citem/settings', csettings, name='citem_settings'),
 
     # Other stuff from EK
     re_path(r'^nlogin', nlogin, name='nlogin'),

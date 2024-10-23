@@ -167,6 +167,7 @@
     <Content Include="cms\migrations\__pycache__\0003_auto_20240124_1207.cpython-39.pyc" />
     <Content Include="cms\migrations\__pycache__\__init__.cpython-35.pyc" />
     <Content Include="cms\migrations\__pycache__\__init__.cpython-39.pyc" />
+    <Content Include="cms\templates\cms\csettings.html" />
     <Content Include="cms\__pycache__\admin.cpython-35.pyc" />
     <Content Include="cms\__pycache__\admin.cpython-39.pyc" />
     <Content Include="cms\__pycache__\apps.cpython-39.pyc" />

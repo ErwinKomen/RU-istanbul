@@ -306,7 +306,7 @@ class Citem(models.Model):
             oErr.DoError("Citem/get_contents")
         return sBack
 
-    def get_contents_markdown(self, stripped=False, retain=False):
+    def get_contents_markdown(self, stripped=False, retain=False, keep=False):
         sBack = "-"
         oErr = ErrHandle()
         try:
@@ -316,6 +316,10 @@ class Citem(models.Model):
                 if not self.contents is None:
                     sBack = self.contents
                 sBack = striphtml(markdown(sBack, safe_mode='escape', extensions=['tables']))
+            elif keep:
+                if not self.contents is None:
+                    sBack = self.contents
+                sBack = mark_safe(markdown(sBack, safe_mode='escape', extensions=['tables']))
             else:
                 sBack = self.get_contents()
                 sBack = adapt_markdown(sBack)
@@ -338,13 +342,13 @@ class Citem(models.Model):
             sBack = self.clocation.get_htmlid()
         return sBack
 
-    def get_location(self, bHtml=False):
+    def get_location(self, bHtml=False, is_superuser=False):
         """Get the location name"""
 
         sBack = "-"
         if not self.clocation is None:
             sBack = self.clocation.get_location()
-            if bHtml:
+            if bHtml and is_superuser:
                 html = []
                 url = reverse('clocation_details', kwargs={'pk': self.clocation.id})
                 html.append("<span class='badge signature gr'><a href='{}'>{}</a></span>".format(url, sBack))
