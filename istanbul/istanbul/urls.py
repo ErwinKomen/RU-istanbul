@@ -19,7 +19,7 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from . import settings
 from . import views
-from installations.views import nlogin  #, \
+from installations.views import nlogin, login_as_user  #, \
 #    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
 from installations.viewsbasic import SystemDetails, SystemEdit, \
     InstallationDetails, InstallationEdit, InstallationList, \
@@ -93,6 +93,8 @@ urlpatterns = [
     # Other stuff from EK
     re_path(r'^nlogin', nlogin, name='nlogin'),
     path('register', RegisterView.as_view(), name='signup'),
+    re_path(r'^login/user/(?P<user_id>\w[\w\d_\-]+)$', login_as_user, name='login_as'),
+
 ]
 
 if settings.DEBUG:

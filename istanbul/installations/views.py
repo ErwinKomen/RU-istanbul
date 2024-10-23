@@ -2,8 +2,10 @@
 Views for the installations app
 """
 from django.shortcuts import render
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required, permission_required
-from django.http import HttpRequest
+from django.contrib.auth.models import User
+from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 
@@ -68,6 +70,25 @@ def nlogin(request):
                     'year':     timezone.now().year,}
     context['is_app_uploader'] = False
     return render(request,'basic/basic_nlogin.html', context)
+
+def login_as_user(request, user_id):
+    assert isinstance(request, HttpRequest)
+
+    # Find out who I am
+    supername = request.user.username
+    super = User.objects.filter(username__iexact=supername).first()
+    if super == None:
+        return nlogin(request)
+
+    # Make sure that I am superuser
+    if super.is_staff and super.is_superuser:
+        user = User.objects.filter(username__iexact=user_id).first()
+        if user != None:
+            # Perform the login
+            login(request, user)
+            return HttpResponseRedirect(reverse("installations:home"))
+
+    return home(request)
 
 def contact(request):
     """Renders the contact page."""
