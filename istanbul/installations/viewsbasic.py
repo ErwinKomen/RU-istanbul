@@ -55,6 +55,8 @@ class EventEdit(BasicDetails):
                 {'type': 'plain', 'label': 'start date',    'value': instance.get_value('startdate')    },
                 {'type': 'plain', 'label': 'end date',      'value': instance.get_value('enddate')      },
                 {'type': 'plain', 'label': 'date comments', 'value': instance.date_comments             },
+                {'type': 'plain', 'label': 'installations', 'value': instance.get_value('installations')},
+                {'type': 'plain', 'label': 'persons',       'value': instance.get_value('persons')      },
                 {'type': 'plain', 'label': 'description',   'value': instance.description               },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments                  },
             ]
@@ -78,6 +80,8 @@ class EventDetails(EventEdit):
         context = super(EventDetails, self).add_to_context(context, instance)
 
         oErr = ErrHandle()
+        bShowPersons = False
+        bShowInstallations = False
         try:
             # Lists of related objects
             related_objects = []
@@ -133,43 +137,44 @@ class EventDetails(EventEdit):
             related_objects.append(literatures)
 
             # ============ List of Persons that links to this Event ===========================================
-            persons = dict(title="Persons connected to this Event", prefix="pers", label="Persons", classes="collapse")
-            if resizable: persons['gridclass'] = "resizable"
+            if bShowPersons:
+                persons = dict(title="Persons connected to this Event", prefix="pers", label="Persons", classes="collapse")
+                if resizable: persons['gridclass'] = "resizable"
 
-            rel_list = []
-            index = 1 
-            qs = EventPersonRelation.objects.filter(event=instance, person__isnull=False).order_by('person__name')
-            for item in qs:
-                person = item.person
-                url = reverse("person_details", kwargs={'pk': person.id})
-                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
-                url_relation = None
-                rel_item = []
+                rel_list = []
+                index = 1 
+                qs = EventPersonRelation.objects.filter(event=instance, person__isnull=False).order_by('person__name')
+                for item in qs:
+                    person = item.person
+                    url = reverse("person_details", kwargs={'pk': person.id})
+                    # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+                    url_relation = None
+                    rel_item = []
                 
-                # Order number for this item
-                add_rel_item(rel_item, index, False, align="right")
-                index += 1
+                    # Order number for this item
+                    add_rel_item(rel_item, index, False, align="right")
+                    index += 1
 
-                # Name for this literature
-                add_rel_item(rel_item, person.name, False, main=True, nowrap=True, link=url)
+                    # Name for this literature
+                    add_rel_item(rel_item, person.name, False, main=True, nowrap=True, link=url)
 
-                # Role for this person / event relation
-                add_rel_item(rel_item, item.role.name, False, main=False, nowrap=True, link=url_relation)
+                    # Role for this person / event relation
+                    add_rel_item(rel_item, item.role.name, False, main=False, nowrap=True, link=url_relation)
 
-                # Add this line to the list
-                rel_list.append(dict(id=item.id, cols=rel_item))
+                    # Add this line to the list
+                    rel_list.append(dict(id=item.id, cols=rel_item))
 
-            persons['rel_list'] = rel_list
+                persons['rel_list'] = rel_list
 
-            persons['columns'] = [
-                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
-                '{}<span>Name</span>{}'.format(sort_start, sort_end), 
-                '{}<span>Role</span>{}'.format(sort_start, sort_end), 
-                ]
-            related_objects.append(persons)
+                persons['columns'] = [
+                    '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                    '{}<span>Name</span>{}'.format(sort_start, sort_end), 
+                    '{}<span>Role</span>{}'.format(sort_start, sort_end), 
+                    ]
+                related_objects.append(persons)
 
             # ============ List of Institutions that links to this Event ===========================================
-            institutions = dict(title="Institutions connected to this Event", prefix="inst", label="Institutions", classes="collapse")
+            institutions = dict(title="Institutions connected to this Event", prefix="instit", label="Institutions", classes="collapse")
             if resizable: institutions['gridclass'] = "resizable"
 
             rel_list = []
@@ -206,6 +211,56 @@ class EventDetails(EventEdit):
 
             # Add all related objects to the context
             context['related_objects'] = related_objects
+
+            # ============ List of Installations that links to this Event ===========================================
+            if bShowInstallations:
+                installations = dict(title="Installations connected to this Event", prefix="instal", label="Installations", classes="collapse")
+                if resizable: installations['gridclass'] = "resizable"
+
+                rel_list = []
+                index = 1 
+                qs = instance.installation_set.all().order_by('english_name')
+                for item in qs:
+                    installation = item
+                    url = reverse("installation_details", kwargs={'pk': installation.id})
+                    # url_relation = reverse("eventinstallation_details", kwargs={'pk': item.id})
+                    url_relation = None
+                    rel_item = []
+                
+                    # Order number for this item
+                    add_rel_item(rel_item, index, False, align="right")
+                    index += 1
+
+                    # Name of installation (English)
+                    add_rel_item(rel_item, installation.english_name, False, main=True, nowrap=False, link=url)
+
+                    # Still exists
+                    add_rel_item(rel_item, installation.get_value('stillexists'), False, main=False, nowrap=True, link=url)
+
+                    # Installation type
+                    add_rel_item(rel_item, installation.get_value('instaltype'), False, main=False, nowrap=True, link=url)
+
+                    # Systems
+                    add_rel_item(rel_item, installation.get_value('systems'), False, main=False, nowrap=True, link=url)
+
+                    # Add this line to the list
+                    rel_list.append(dict(id=item.id, cols=rel_item))
+
+                installations['rel_list'] = rel_list
+
+                installations['columns'] = [
+                    '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                    '{}<span>Installation</span>{}'.format(sort_start, sort_end), 
+                    '{}<span>Still exists</span>{}'.format(sort_start_int, sort_end), 
+                    '{}<span>Type</span>{}'.format(sort_start_int, sort_end), 
+                    '{}<span>Systems</span>{}'.format(sort_start, sort_end), 
+                    ]
+                related_objects.append(installations)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+            # ============================ END OF RELATED OBJECTS ================================================
 
             lHtml = []
             if 'after_details' in context:
@@ -495,11 +550,11 @@ class InstallationList(BasicList):
     order_cols = ['english_name', 'installation_type__name', '', '', '']
     order_default = order_cols
     order_heads = [
-        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname', 'linkdetails': True,  'main': True},
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname',  'linkdetails': True,  'main': True},
         {'name': 'Type',        'order': 'o=2', 'type': 'str', 'custom': 'instaltype'               },
         {'name': 'Purposes',    'order': '',    'type': 'str', 'custom': 'purposes'                 },
-        {'name': 'Persons',     'order': '',    'type': 'str', 'custom': 'evpersons'                },
-        {'name': 'Events',      'order': '',    'type': 'str', 'custom': 'events'                   },
+        {'name': 'Persons',     'order': '',    'type': 'str', 'custom': 'evpersons',   'allowwrap': True},
+        {'name': 'Events',      'order': '',    'type': 'str', 'custom': 'events',      'allowwrap': True},
         ]
                    
     filters = [ 
@@ -544,10 +599,10 @@ class InstallationList(BasicList):
                 sBack = instance.get_value("purposes")
 
             elif custom == "evpersons":
-                sBack = instance.get_value("eventpersons")
+                sBack = instance.get_value("eventpersons", options={'skiprole': True})
 
             elif custom == "events":
-                sBack = instance.get_value("events", ", ")
+                sBack = instance.get_value("events", ", ", options={'skipname': instance.english_name})
             
         except:
             msg = oErr.get_error_message()

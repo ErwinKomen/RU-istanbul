@@ -143,7 +143,9 @@ def detail_installation_view(request,pk):
     events=installation.events.all().order_by('start_date')
     epr = []
     for event in events:
-        for x in event.eventpersonrelation_set.all():
+        # OLD: qs = event.eventpersonrelation_set.all()
+        qs = event.eventpersonrelations.all()
+        for x in qs:
             epr.append(x)
     args = {'installation':installation,'events':events,
         'event_person_relation':epr}

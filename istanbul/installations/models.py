@@ -327,9 +327,11 @@ class Event(models.Model, info):
 
     @property
     def personrelations(self):
-        return self.eventpersonrelation_set.all()
+        # OLD: qs = self.eventpersonrelation_set.all()
+        qs = self.eventpersonrelations.all()
+        return qs
 
-    def label(oItem):
+    def label(oItem, options = {}):
         """Construct a label from the three strings"""
 
         sBack = ""
@@ -337,7 +339,14 @@ class Event(models.Model, info):
         start_date = None
         end_date = None
         try:
-            name = oItem.get('name')
+            skipname = options.get("skipname")
+            if skipname:
+                # Try to filter it out
+                name = oItem.get('name')
+                name = name.replace("{} - ".format(skipname), "")
+                name = name.replace(skipname, "")
+            else:
+                name = oItem.get('name')
             if oItem.get('start_date'):
                 start_date = oItem.get('start_date').year
             if oItem.get('end_date'):
@@ -349,47 +358,21 @@ class Event(models.Model, info):
                 sBack += ' -'
             if end_date: 
                 sBack += ' ' + str(end_date)
+            # Possible modification
+            sBack = sBack.strip()
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Event/label")
 
         return sBack
 
-    def get_value(self, field):
+    def get_value(self, field, options = {}):
         """Get the value(s) of 'field' associated with this installation"""
 
         sBack = ""
         lst_value = []
         oErr = ErrHandle()
         try:
-            #if field == "events":
-            #    # Sort the events by DATE if possible
-            #    for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
-            #        url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
-            #        label = Event.label(oItem)
-            #        sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
-            #        sItem = "<div>{}</div>".format(sItem)
-            #        lst_value.append(sItem)
-            #    sBack = "\n".join(lst_value)
-            #elif field == "purposes":
-            #    for oItem in self.purposes.all().values('id','name').order_by('name'):
-            #        url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})
-            #        label = oItem.get("name")
-            #        sItem = "<span class='badge signature cl'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
-            #        lst_value.append(sItem)
-            #    sBack = ", ".join(lst_value)
-            #elif field == "stillexists":
-            #    sBack = "Yes" if self.still_exists else "No"
-            #elif field == "systems":
-            #    ids = [x['system__id'] for x in SystemInstallationRelation.objects.filter(
-            #        installation=self, system__isnull=False).values('system__id')]
-            #    for oItem in System.objects.filter(id__in=ids).values('id', 'english_name').order_by('english_name'):
-            #        # OLD: url = reverse('installations:edit_system', kwargs={'pk': oItem['id']})
-            #        url = reverse('system_details', kwargs={'pk': oItem['id']})
-            #        label = oItem.get("english_name")
-            #        sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
-            #        lst_value.append(sItem)
-            #    sBack = ", ".join(lst_value)
             if field == "startdate":
                 if not self.start_date is None:
                     sBack = self.start_date.year
@@ -399,6 +382,37 @@ class Event(models.Model, info):
             elif field == "eventtype":
                 if not self.event_type is None:
                     sBack = self.event_type.name
+            elif field == "installations":
+                # Sort the installations by their English name, if possible
+                for oItem in self.installation_set.all().values('id', 'english_name').order_by('english_name'):
+                    url = reverse('installation_details', kwargs={'pk': oItem['id']})
+                    label = Installation.label(oItem)
+                    sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    sItem = "<div>{}</div>".format(sItem)
+                    lst_value.append(sItem)
+                sBack = ", ".join(lst_value)
+            elif field == "persons":
+                # Get all persons associated with this event
+                qs = Person.objects.filter(eventpersonrelations__event=self)
+                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign').order_by('name'):
+                    url = reverse('person_details', kwargs={'pk': oItem['id']})
+                    label = oItem.get('name')
+
+                    # Get the person's role in this event
+                    eventrole = EventPersonRelation.objects.filter(person_id=oItem['id'], event=self).first()
+                    if not eventrole is None:
+                        role = eventrole.role.name
+                        label = "{} - <i>{}</i>".format(label, role)
+                    
+                    # Get appropriate dates
+                    start_reign = oItem.get('start_reign')
+                    end_reign = oItem.get('end_reign')
+                    if start_reign and end_reign:
+                        empire = '<i class="fa fa-empire"></i>'
+                        label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
+                    sItem = '<span class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
+                    lst_value.append(sItem)
+                sBack = ", ".join(lst_value)
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Event/get_value")
@@ -486,7 +500,7 @@ class Installation(models.Model, info):
     def detail_url(self):
         return 'installations:detail_installation_view'
 
-    def get_value(self, field, sep=None):
+    def get_value(self, field, sep=None, options={}):
         """Get the value(s) of 'field' associated with this installation"""
 
         sBack = ""
@@ -498,9 +512,9 @@ class Installation(models.Model, info):
                 for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
                     # url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
                     url = reverse('event_details', kwargs={'pk': oItem['id']})
-                    label = Event.label(oItem)
+                    label = Event.label(oItem, options)
                     sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
-                    sItem = "<div>{}</div>".format(sItem)
+                    # sItem = "<div>{}</div>".format(sItem)
                     lst_value.append(sItem)
                 if sep:
                     sBack = sep.join(lst_value)
@@ -509,9 +523,28 @@ class Installation(models.Model, info):
             elif field == "eventpersons":
                 # Get all persons associated with installation via events
                 qs = Person.objects.filter(eventpersonrelations__event__installation=self)
-                for oItem in qs.values('id', 'name').order_by('name'):
+                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign').order_by('name'):
                     url = reverse('person_details', kwargs={'pk': oItem['id']})
                     label = oItem.get('name')
+
+                    # Get the person's roles in all events associated with this installation
+                    if not options.get("skiprole", False):
+                        lst_role = []
+                        for event in self.events.all():
+                            eventrole = EventPersonRelation.objects.filter(person_id=oItem['id'], event=event).first()
+                            if not eventrole is None:
+                                rolename = eventrole.role.name
+                                if not rolename in lst_role:
+                                    lst_role.append(rolename)
+                        if len(lst_role) > 0:
+                            label = "{} - <i>{}</i>".format(label, ", ".join(lst_role))
+
+                    # If this is an emperor, get the reign dates
+                    start_reign = oItem.get('start_reign')
+                    end_reign = oItem.get('end_reign')
+                    if start_reign and end_reign:
+                        empire = '<i class="fa fa-empire"></i>'
+                        label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
                     sItem = '<span class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
@@ -544,6 +577,22 @@ class Installation(models.Model, info):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Installation/get_value")
+
+        return sBack
+
+    def label(oItem):
+        """Construct a label from an optional number of strings"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        start_date = None
+        end_date = None
+        try:
+            name = oItem.get('english_name')
+            sBack = name
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Installation/label")
 
         return sBack
 

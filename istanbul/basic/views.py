@@ -1206,6 +1206,7 @@ class BasicList(ListView):
                 if 'main' in head and head['main']:
                     fobj['styles'] = "width: 100%;"
                     fobj['main'] = True
+                    classes.append("tdnowrap")
                     if self.delete_line:
                         classes.append("ms editable")
                 elif 'options' in head and len(head['options']) > 0:
