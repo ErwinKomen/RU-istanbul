@@ -1,0 +1,15 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %}
+
+
+{% block head %}
+<title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+<h2>No permission</h2>
+<p>
+  Dear user, you have no permission to perform the action that you wanted to do.
+</p>
+
+{% endblock content %}

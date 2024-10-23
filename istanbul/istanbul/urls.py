@@ -19,7 +19,7 @@ from django.contrib.staticfiles.urls import static
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from . import settings
 from . import views
-from installations.views import nlogin, login_as_user  #, \
+from installations.views import nlogin, login_as_user, npermission  #, \
 #    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
 from installations.viewsbasic import SystemDetails, SystemEdit, \
     InstallationDetails, InstallationEdit, InstallationList, \
@@ -42,6 +42,7 @@ urlpatterns = [
 	path('utilities/',include('utilities.urls')),
 	path('installations/',include('installations.urls', namespace='inst_main')),
 	path('',include('installations.urls', namespace='inst_zero')),
+	path('npermission/', npermission, name='npermission'),
 
     # ================== Select 2 ================================
 	re_path(r'^select2/', include('django_select2.urls')),

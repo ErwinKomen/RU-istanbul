@@ -8,7 +8,7 @@ from django.contrib import messages
 from django.db.models import Count
 from django.forms import modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 import json
 import time
@@ -106,80 +106,86 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
         # Get the initial context for authorization purposes
         context = get_application_context(request, {})
 
-        # Process POST form - if this is a POST one
-        ffm, form = None, None
-        if request.method == 'POST' and context['is_app_editor']:
-            focus, button = getfocus(request), getbutton(request)
-            if button in 'delete,cancel,confirm_delete': 
-                return delete_model(request,model_name,app_name,instance_id)
-            copy_instance = copy_complete(instance) if button == 'saveas' and instance else False
-            form = modelform(request.POST, request.FILES, instance=instance)
-            print('made form in post',delta(start))
+        # Do not allow non-editors to ADD a new item
+        if instance_id is None and not context['is_app_editor']:
+            # This is a non-editor attempting to create a new instance: do not allow this
+            response = redirect(reverse('npermission'))
+        else:
+
+            # Process POST form - if this is a POST one
+            ffm, form = None, None
+            if request.method == 'POST' and context['is_app_editor']:
+                focus, button = getfocus(request), getbutton(request)
+                if button in 'delete,cancel,confirm_delete': 
+                    return delete_model(request,model_name,app_name,instance_id)
+                copy_instance = copy_complete(instance) if button == 'saveas' and instance else False
+                form = modelform(request.POST, request.FILES, instance=instance)
+                print('made form in post',delta(start))
         
-            if form.is_valid() or copy_instance:
-                print('form is valid: ',form.cleaned_data,type(form))
+                if form.is_valid() or copy_instance:
+                    print('form is valid: ',form.cleaned_data,type(form))
 
-                # Allow the user to add something before actually saving
-                if not before_save is None:
-                    before_save(form, instance)
+                    # Allow the user to add something before actually saving
+                    if not before_save is None:
+                        before_save(form, instance)
 
-                # Determine what the instance will be
-                if not button == 'saveas':
-                    instance = form.save()
+                    # Determine what the instance will be
+                    if not button == 'saveas':
+                        instance = form.save()
+                    else:
+                        instance = copy_instance
+                    if view == 'complete':
+                        ffm = FormsetFactoryManager(name_space,names,request,instance)
+                        valid = ffm.save()
+                        print('formset factory manager / form making done',delta(start))
+                        if valid:
+                            print('validated form',delta(start))
+                            show_messages(request,button, model_name)
+                            if button== 'add_another':
+                                return HttpResponseRedirect(
+                                    reverse(app_name+':add_'+model_name.lower()))
+                            elif button == 'show_view':
+                                return HttpResponseRedirect(
+                                    reverse("{}:{}-detail".format(app_name, model_name.lower()), kwargs={'pk': instance.pk}))
+                                    # reverse(app_name+':detail_'+model_name.lower()))
+                            return HttpResponseRedirect(reverse(
+                                app_name+':edit_'+model_name.lower(), 
+                                kwargs={'pk':instance.pk,'focus':focus}))
+                        else: print('ERROR',ffm.errors)
+                    else: return HttpResponseRedirect('/utilities/close/')
                 else:
-                    instance = copy_instance
-                if view == 'complete':
-                    ffm = FormsetFactoryManager(name_space,names,request,instance)
-                    valid = ffm.save()
-                    print('formset factory manager / form making done',delta(start))
-                    if valid:
-                        print('validated form',delta(start))
-                        show_messages(request,button, model_name)
-                        if button== 'add_another':
-                            return HttpResponseRedirect(
-                                reverse(app_name+':add_'+model_name.lower()))
-                        elif button == 'show_view':
-                            return HttpResponseRedirect(
-                                reverse("{}:{}-detail".format(app_name, model_name.lower()), kwargs={'pk': instance.pk}))
-                                # reverse(app_name+':detail_'+model_name.lower()))
-                        return HttpResponseRedirect(reverse(
-                            app_name+':edit_'+model_name.lower(), 
-                            kwargs={'pk':instance.pk,'focus':focus}))
-                    else: print('ERROR',ffm.errors)
-                else: return HttpResponseRedirect('/utilities/close/')
-            else:
-                print('form invalid:',form.non_field_errors()[0])
-                show_messages(request,'form_invalid', model_name, form)
+                    print('form invalid:',form.non_field_errors()[0])
+                    show_messages(request,'form_invalid', model_name, form)
 
-        print('post part done',delta(start))
+            print('post part done',delta(start))
 
-        # Adapt forms (post-POST)
-        if not form: form = modelform(instance=instance)
-        if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
-        print('(after post formset factory manager / form making done',delta(start))
+            # Adapt forms (post-POST)
+            if not form: form = modelform(instance=instance)
+            if not ffm: ffm = FormsetFactoryManager(name_space,names,instance=instance)
+            print('(after post formset factory manager / form making done',delta(start))
 
-        # Create tabs
-        tabs = make_tabs(model_name.lower(), focus_names = focus)
-        print('tabs made',delta(start), tabs)
+            # Create tabs
+            tabs = make_tabs(model_name.lower(), focus_names = focus)
+            print('tabs made',delta(start), tabs)
 
-        # Figure out correct page name
-        name = handle_model_page_name(model_name)
-        page_name = 'Edit ' +name if instance_id else 'Add ' +name
+            # Figure out correct page name
+            name = handle_model_page_name(model_name)
+            page_name = 'Edit ' +name if instance_id else 'Add ' +name
 
-        # Create helper
-        helper = help_util.Helper(model_name=model_name)
-        print('helper made',delta(start))
+            # Create helper
+            helper = help_util.Helper(model_name=model_name)
+            print('helper made',delta(start))
 
-        # Collect the context
-        args = {'form':form,'page_name':page_name,'crud':crud,'model_name':model_name,
-            'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
-            'instance':instance}
-        args.update(ffm.dict)
-        # context = get_application_context(request, args)
-        context.update(args)
-        print('arg made, start rendering',delta(start))
+            # Collect the context
+            args = {'form':form,'page_name':page_name,'crud':crud,'model_name':model_name,
+                'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
+                'instance':instance}
+            args.update(ffm.dict)
+            # context = get_application_context(request, args)
+            context.update(args)
+            print('arg made, start rendering',delta(start))
 
-        response = render(request,app_name+'/add_' + model_name.lower() + '.html',context)
+            response = render(request,app_name+'/add_' + model_name.lower() + '.html',context)
     except:
         msg = oErr.get_error_message()
         oErr.DoError("edit_model")

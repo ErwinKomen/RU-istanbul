@@ -13,7 +13,7 @@
     {% csrf_token %}
 
 <div class="col-md-12 d-flex">
-    <h4 class="mt-2"><a class="nostyle" href="{% url 'literature_details' form.instance.pk %}">{{page_name}}</a></h4>
+    {% include 'installations/add_heading.html' with detailsname="literature_details" %}
 
     {% if view != "inline" %}
         {% if page_name == "Edit literature"%}
@@ -224,7 +224,7 @@
 {% include 'utilities/tab_selector.html' %}
 
 <br>
-
+</form>
 {% endblock content %}
 
 

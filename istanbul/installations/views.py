@@ -111,6 +111,16 @@ def contact(request):
         response = msg
     return response
 
+def npermission(request):
+    """Render page that the user has no permission"""
+    assert isinstance(request, HttpRequest)
+    context =  {    'title':    'No permission', 
+                    'message':  'Radboud University istanbul-su utility.',
+                    'year':     timezone.now().year,}
+    context['is_app_uploader'] = False
+    return render(request,'utilities/npermission.html', context)
+
+
 
 # --------------------- System ----------------------------------------------
 def edit_system(request, pk = None, focus = '', view = 'complete'):
