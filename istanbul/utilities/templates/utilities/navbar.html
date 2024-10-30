@@ -68,12 +68,14 @@
     <ul class="navbar-nav navbar-right">
       <li><a class="nav-link"  title="Show contact details" href="{% url 'installations:contact' %}">Contact</a></li>
 
-      {% if user.is_staff and is_app_moderator %}
+      {% if user.is_staff and is_app_admin %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'admin:index' %}">
             admin
           </a>
         </li>
+      {% endif %}
+      {% if user.is_staff and is_app_moderator %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'citem_settings' %}">
             settings

@@ -69,6 +69,7 @@ def nlogin(request):
                     'message':  'Radboud University istanbul-su utility.',
                     'year':     timezone.now().year,}
     context['is_app_uploader'] = False
+    context = get_application_context(request)
     return render(request,'basic/basic_nlogin.html', context)
 
 def login_as_user(request, user_id):

@@ -610,6 +610,11 @@ class InstallationList(BasicList):
 
         return sBack, sTitle
 
+    def add_to_context(self, context, initial):
+        # All people (including non-users) should see the listview
+        context['authenticated'] = True
+        return context
+
 
 # --------------------- Installation Type ------------------------------------
 

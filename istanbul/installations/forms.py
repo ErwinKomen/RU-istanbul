@@ -24,7 +24,7 @@ from utils.view_util import partial_year_to_date
 from basic.utils import ErrHandle
 
 
-dattr = {'attrs':{'style':'width:100%'}}
+dattr = {'attrs':{'style':'width:100%', 'class': 'searching'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
 dtext = {'widget':forms.Textarea(attrs={'style':'width:100%','rows':3}),
@@ -98,25 +98,6 @@ class InstallationSearchForm(forms.ModelForm):
 	class Meta:
 		model = Installation
 		fields = ['english_name']
-
-   # def __init__(self, *args, **kwargs):
-   #     # Start by executing the standard handling
-   #     super(InstallationSearchForm, self).__init__(*args, **kwargs)
-
-   #     oErr = ErrHandle()
-   #     try:
-   #         ## Some fields are not required
-   #         #self.fields['name'].required = False
-   #         #self.fields['urlname'].required = False
-
-			## Set something
-			#pass
-   #     except:
-   #         msg = oErr.get_error_message()
-   #         oErr.DoError("InstallationSearchForm/init")
-
-   #     # We do not really return anything from the init
-   #     return None
 
 
 class PersonForm(forms.ModelForm):

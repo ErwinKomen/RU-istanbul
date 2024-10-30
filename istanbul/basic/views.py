@@ -74,6 +74,7 @@ app_uploader = "{}_uploader".format(PROJECT_NAME.lower())
 app_editor = "{}_editor".format(PROJECT_NAME.lower())
 app_userplus = "{}_userplus".format(PROJECT_NAME.lower())
 app_user = "{}_user".format(PROJECT_NAME.lower())
+app_admin = "{}_admin".format(PROJECT_NAME.lower())
 app_moderator = "{}_moderator".format(PROJECT_NAME.lower())
 app_developer = "{}_developer".format(PROJECT_NAME.lower())
 
@@ -83,6 +84,7 @@ def get_application_context(request, context):
     context['is_app_userplus'] = user_is_ingroup(request, app_userplus)
     context['is_app_editor'] = user_is_ingroup(request, app_editor)
     context['is_app_uploader'] = user_is_ingroup(request, app_uploader)
+    context['is_app_admin'] = user_is_superuser(request) or user_is_ingroup(request, app_admin)
     context['is_app_moderator'] = user_is_superuser(request) or user_is_ingroup(request, app_moderator)
     context['is_app_developer'] = user_is_superuser(request) or user_is_ingroup(request, app_developer)
     return context
@@ -1561,6 +1563,8 @@ class BasicDetails(DetailView):
                 return redirect(self.redirectpage)
             else:
                 response = redirect(reverse('nlogin'))
+        elif self.add and not user_is_authenticated(request):
+            response = redirect(reverse('npermission'))
         else:
             # Double check if this is a user and he/she may see it
             if self.is_invisible():
