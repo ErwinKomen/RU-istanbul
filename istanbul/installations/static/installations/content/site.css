@@ -192,3 +192,22 @@ span.badge.signature:hover {
 .modal-dialog {
     max-width: 800px;
 }
+
+/* Footer display */
+body > div > footer {
+  height: 18px;
+  padding-top: 2px;
+  background: black;
+  color: white;
+  font-size: x-small;
+  position: fixed;
+  bottom: 0px;
+  width: 100%;
+  text-align: center;
+}
+body > div > footer a {
+  color: lightblue;
+  position: relative;
+  z-index: 1000;
+}
+

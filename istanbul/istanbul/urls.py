@@ -22,7 +22,7 @@ from . import views
 from installations.views import nlogin, login_as_user, npermission  #, \
 #    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
 from installations.viewsbasic import SystemDetails, SystemEdit, \
-    InstallationDetails, InstallationEdit, InstallationList, \
+    InstallationDetails, InstallationEdit, InstallationList, InstallationMap, \
     InstallationTypeDetails, InstallationTypeEdit, \
     PersonEdit, PersonDetails, \
     PurposeEdit, PurposeDetails, \
@@ -58,6 +58,7 @@ urlpatterns = [
 	re_path('installation/edit(?:/(?P<pk>\d+))?/$', InstallationEdit.as_view(), name='installation_edit'),
 	re_path('installation/details(?:/(?P<pk>\d+))?/$', InstallationDetails.as_view(), name='installation_details'),
 	re_path('installation/list/$', InstallationList.as_view(), name='installation_list'),
+	re_path('installation/map/$', InstallationMap.as_view(), name='installation_map'),
 
 	re_path('instaltype/edit(?:/(?P<pk>\d+))?/$', InstallationTypeEdit.as_view(), name='installationtype_edit'),
 	re_path('instaltype/details(?:/(?P<pk>\d+))?/$', InstallationTypeDetails.as_view(), name='installationtype_details'),

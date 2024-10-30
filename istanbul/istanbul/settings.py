@@ -102,6 +102,7 @@ INSTALLED_APPS = [
 	'colorfield',
     'basic',
     'cms',
+    'mapview',
 ]
 
 # Middleware framework

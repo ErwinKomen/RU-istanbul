@@ -154,7 +154,11 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
                         else: print('ERROR',ffm.errors)
                     else: return HttpResponseRedirect('/utilities/close/')
                 else:
-                    print('form invalid:',form.non_field_errors()[0])
+                    nfe = form.non_field_errors()
+                    if len(nfe) == 0:
+                        # Use form.errors instead
+                        nfe = [ "{}: {}".format(k, v) for k,v in form.errors.items() ]
+                    print('form invalid:',nfe)
                     show_messages(request,'form_invalid', model_name, form)
 
             print('post part done',delta(start))

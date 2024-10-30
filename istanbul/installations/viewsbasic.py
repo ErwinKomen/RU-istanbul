@@ -2,9 +2,12 @@
 Views for the installations app - based on the 'basic' app
 """
 
+from django.db.models import Q, Prefetch, Count, F
 from django.http import HttpRequest
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.translation import gettext as _, gettext_lazy
+import copy
 
 # From own applicatino
 from .models import System, Image, Installation, SystemInstallationRelation
@@ -26,6 +29,7 @@ from .forms import partial_year_to_date
 # EK: adding detail views
 from basic.utils import ErrHandle
 from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime
+from mapview.views import MapView
 
 
 
@@ -611,9 +615,141 @@ class InstallationList(BasicList):
         return sBack, sTitle
 
     def add_to_context(self, context, initial):
-        # All people (including non-users) should see the listview
-        context['authenticated'] = True
+        """Additional details that have to do with the mapview"""
+
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            # Provide the link to the mapview url
+            context['mapviewurl'] = reverse('installation_map')
+            # Signal that 'basicmap' should be used (used in `basic_list.html`)
+            context['basicmap'] = True
+
+            # Figure out how many locations there are
+            lst_installations = self.qs.values('id')
+            sLocationCount = Image.objects.filter(installation__in=lst_installations).order_by('id').distinct().count()
+            context['mapcount'] = sLocationCount
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationList/add_to_context")
         return context
+
+
+class InstallationMap(MapView):
+    """Mapview that leans on the InstallationList listview"""
+
+    model = Installation    # This is the basic model of the related listview
+    modEntry = Image        # Each point on the map is a Location of which an image exists
+    use_object = False      # We are **not** grouping around one language
+    prefix = "map"          # Needs to differ from the ``InstallationList`` prefix
+    param_list = ""
+    frmSearch = InstallationSearchForm
+
+    def initialize(self):
+        super(InstallationMap, self).initialize()
+
+        oErr = ErrHandle()
+        try:
+            # Entries with a 'form' value
+            self.entry_list = []
+
+            # Get the location's details: name, id, x-coordinate, y-coordinate
+            self.add_entry('locname',       'str', 'title')
+            self.add_entry('location_id',   'str', 'id')
+            # labels 'point_x' and 'point_y' must be used for the coordinates
+            self.add_entry('point_x',       'str', 'latitude')
+            self.add_entry('point_y',       'str', 'longitude')
+            # The key grouping elements for this image location
+            self.add_entry('trefwoord',     'str', 'installation__still_exists')
+            self.add_entry('info',          'str', 'title')
+
+            # Get a version of the current listview
+            lv = InstallationList()
+            lv.initializations()
+            # Get the list of [Installation] elements
+            qs_installation = lv.get_queryset(self.request)
+            # Figure out what the list of installations will be
+            lst_installation = qs_installation.values('id')
+
+            # Get a full queryset of the images for these installations
+            qs_loc = Image.objects.filter(Q(installation__in=lst_installation))
+
+            # Essential: make sure that self.qs gets filled
+            self.qs = qs_loc
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationMap/initialize")
+        return None
+
+    def group_entries(self, lst_this):
+        """Allow changing the list of entries"""
+
+        oErr = ErrHandle()
+        exclude_fields = ['point', 'point_x', 'point_y', 'pop_up', 'locatie', 'country', 'city']
+        try:
+
+            # We need to create a new list, based on the 'point' parameter
+            set_point = {}
+            for oEntry in lst_this:
+                # Regular stuff
+                point = oEntry['point']
+                if not point in set_point:
+                    # Create a new entry
+                    set_point[point] = dict(
+                        count=0, items=[], point=point,
+                        trefwoord=str(oEntry['trefwoord']),
+                        locatie=oEntry['locname'],
+                        locid=oEntry['location_id'],
+                        info=oEntry['info']
+                        )
+                # Retrieve the item from the set
+                oPoint = set_point[point]
+                # Add this entry
+                oPoint['count'] += 1
+                oPoint['items'].append( { k:v for k,v in oEntry.items() if not k in exclude_fields } )
+
+            # Review them again
+            lst_back = []
+            for point, oEntry in set_point.items():
+                # Create the popup
+                oEntry['pop_up'] = self.get_group_popup(oEntry)
+                # Add it to the list we return
+                lst_back.append(oEntry)
+
+            total_count = len(lst_back)
+            # Return the new list
+            lst_this = copy.copy(lst_back)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationMap/group_entries")
+
+        return lst_this
+
+    def get_group_popup(self, oPoint):
+        """Create a popup from the 'key' values defined in [initialize()]"""
+
+        oErr = ErrHandle()
+        pop_up = ""
+        try:
+            # Figure out what the link would be to this list of items
+            url = reverse('image_details', kwargs={'pk': oPoint['locid']})
+            # Create the popup
+            pop_up = '<p class="h4" title="{}">{}</p>'.format(oPoint['locatie'], oPoint['locatie'][:20])
+            pop_up += '<hr style="border: 1px solid green" />'
+            popup_title_1 = _("Show")
+            popup_title_2 = _("objects in the list")
+            sLanguage = "exists" if oPoint['trefwoord'] == "True" else "extinct"
+            pop_up += '<p style="font-size: large;"><a href="{}" title="{} {} {}"><span style="color: purple;">{}</span> in: {} {}</a></p>'.format(
+                url, popup_title_1, oPoint['count'],popup_title_2, oPoint['count'], oPoint['trefwoord'], sLanguage)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationMap/get_group_popup")
+        return pop_up
+
 
 
 # --------------------- Installation Type ------------------------------------

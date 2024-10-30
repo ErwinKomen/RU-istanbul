@@ -3,8 +3,8 @@
     <ul>
       <li class="list-switch">
         <a class="switch-item"
-           {% if mode == "map" %}onclick="ru.btchub.progress.goto_view(this, 'list');" style="cursor: pointer;" {% endif %}>
-          <span class="glyphicon glyphicon-menu-hamburger"></span>
+           {% if mode == "map" %}onclick="ru.istanbul.goto_view(this, 'list');" style="cursor: pointer;" {% endif %}>
+          <span class="glyphicon glyphicon-menu-hamburger fa fa-bars"></span>
           <strong>&nbsp;List</strong>
           <span class="count">({{entrycount}})</span>
         </a>
@@ -13,10 +13,10 @@
         <a class="switch-item"
            {% if mode == "list" %}
              targeturl="{{mapviewurl}}"
-             onclick="ru.btchub.progress.goto_view(this, 'map');"
+             onclick="ru.istanbul.goto_view(this, 'map');"
              style="cursor: pointer;"
            {% endif %}>
-          <span class="glyphicon glyphicon-map-marker"></span>&nbsp;
+          <span class="glyphicon glyphicon-map-marker fa fa-map-marker"></span>&nbsp;
           <strong>Map</strong>
           <span class="count">({{mapcount}})</span>
         </a>

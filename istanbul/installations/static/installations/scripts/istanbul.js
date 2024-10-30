@@ -74,6 +74,67 @@ var ru = (function ($, ru) {
             },
 
             /**
+             * goto_view
+             *   Open the mapview or the listview
+             *
+             */
+            goto_view: function (elStart, sView) {
+                var height = 0,
+                    footer_pos = 0,
+                    width = 0,
+                    top = 25,
+                    options = {},
+                    id_mapview = "#basicmap",
+                    id_listview = "#basiclist_top";
+                try {
+                    switch (sView) {
+                        case "map":   // Open the map-view
+                            $(id_listview).addClass("hidden");
+                            $(id_mapview).removeClass("hidden");
+                            $(".map-tree-switch").addClass("map-active");
+                            $(".map-list-switch").addClass("map-active");
+
+                            // Calculate and set the height
+                            if ($("footer").length === 0) {
+                                footer_pos = $("div[class=col-1]").last().position().top;
+                            } else {
+                                footer_pos = $("footer").position().top;
+                            }
+                            height = footer_pos - $(".werkstuk-map").position().top - 85;
+                            width = $(id_mapview).width();
+                            top = $("nav").height() - 15;
+                            $(".werkstuk-map").css("height", height + "px");
+                            $(".werkstuk-map").css("width", width + "px");
+                            // $(".werkstuk-map").css("top", "-" + top + "px");
+
+                            // And copy the generic search value
+                            // $("#generic_search").val($("#generic-search-input").val());
+
+                            // Initiate showing a map
+                            // ru.mapview.language_map(elStart);
+                            options['filter'] = "basiclist_filter";
+                            options['map'] = "werkstuk_map";
+                            options['title'] = "map_view_title";
+                            ru.mapview.list_to_map(elStart);
+                            break;
+                        case "tree":  // Open the treeview
+                            $(id_mapview).addClass("hidden");
+                            $(id_listview).removeClass("hidden");
+                            $(".map-tree-switch").removeClass("map-active");
+                            break;
+                        case "list":  // Open the listview
+                            $(id_mapview).addClass("hidden");
+                            $(id_listview).removeClass("hidden");
+                            $(".map-list-switch").removeClass("map-active");
+                            break;
+                    }
+
+                } catch (ex) {
+                    private_methods.errMsg("goto_view", ex);
+                }
+            },
+
+            /**
              * show_picture
              *   Make sure that the modal shows the correct picture and additional information
              *
