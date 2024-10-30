@@ -45,6 +45,9 @@ urlpatterns = [
 	path('add_religion/',views.edit_religion, name = 'add_religion'),
 	path('add_religion/<str:view>',views.edit_religion, name = 'add_religion'),
 
+	path('add_location/',views.edit_location, name = 'add_location'),
+	path('add_location/<str:view>',views.edit_location, name = 'add_location'),
+
 	path('add_event/',views.edit_event, name = 'add_event'),
 	path('add_event/<str:view>', views.edit_event, name = 'add_event'),
 
@@ -99,6 +102,9 @@ urlpatterns = [
 
 	path('edit_religion/<int:pk>', views.edit_religion, name = 'edit_religion'),
 	path('edit_religion/<int:pk>/<str:focus>', views.edit_religion, name = 'edit_religion'),
+
+	path('edit_location/<int:pk>', views.edit_location, name = 'edit_location'),
+	path('edit_location/<int:pk>/<str:focus>', views.edit_location, name = 'edit_location'),
 
 	path('edit_image/<int:pk>', views.edit_image, name = 'edit_image'),
 	path('edit_image/<int:pk>/<str:focus>', views.edit_image, name = 'edit_image'),

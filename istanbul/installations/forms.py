@@ -8,6 +8,7 @@ from .models import Purpose,InstallationType,Installation,Literature
 from .models import SystemInstallationRelation,TextType
 from .models import EventLiteratureRelation, EventRole, InstitutionType
 from .models import EventInstitutionRelation,EventPersonRelation
+from .models import Location, LocType
 
 
 from .widgets import SystemWidget, ReligionWidget, GenderWidget, PersonsWidget
@@ -17,6 +18,7 @@ from .widgets import EventTypeWidget,StyleWidget,FigureWidget
 from .widgets import InstallationTypeWidget,InstallationWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
+from .widgets import LocTypeWidget
 
 # From our own application
 from utils.select2 import  make_select2_attr
@@ -129,6 +131,31 @@ class PersonForm(forms.ModelForm):
 		partial_year_to_date(self, instance, "death_year", "death_year")
 		# Perform the actual saving
 		response = super(PersonForm, self).save(commit=commit)
+		# Return the save response
+		return response
+
+
+class LocationForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	loctype = forms.ModelChoiceField(
+		queryset = LocType.objects.all(),
+		widget = LocTypeWidget(**dselect2),
+		required = False)
+	x_coordinate = forms.CharField(required=False, 
+		widget=forms.TextInput(attrs={'style':'width:50%', 'placeholder': 'Provide the x-coordinate (latitude)'}))
+	y_coordinate = forms.CharField(required=False, 
+		widget=forms.TextInput(attrs={'style':'width:50%', 'placeholder': 'Provide the y-coordinate (longitude)'}))
+
+	class Meta:
+		model = Location
+		fields = 'name,loctype,x_coordinate,y_coordinate'
+		fields = fields.split(',')
+
+	def save(self, commit=True, *args, **kwargs):
+		# Get the instance
+		instance = self.instance
+		# Perform the actual saving
+		response = super(LocationForm, self).save(commit=commit)
 		# Return the save response
 		return response
 

@@ -1,0 +1,54 @@
+{% extends "utilities/base.html" %}
+
+{% block head %}
+    <title>{{page_name}}</title>
+{% endblock %}
+
+
+{% block content %}
+{% include 'utilities/list_search_bar.html' %}
+
+{% if location_list %}
+<br>
+
+<div class="d-flex">
+
+<table class="table table-hover">
+    <tr>
+      <th><a href="?order_by=name,{{order}},{{direction}},{{query}}"
+          style="text-decoration:none;">name</a></th>
+      <th><a href="?order_by=loctype__name,{{order}},{{direction}},{{query}}"
+          style="text-decoration:none;">type</a></th>
+      <th><a href="?order_by=x_coordinate,{{order}},{{direction}},{{query}}"
+          style="text-decoration:none;">coordinate</a></th>
+      <th></th>
+    </tr>
+    {% for location in location_list %}
+      <tr>
+        <td><a class="nostyle" href="{% url 'location_details' location.pk %}">{{location.name}}</a></td>
+        <td>{{location.get_loctype}}</td>
+        <td>{{location.get_coordinate}}</td>
+        <td style="white-space:nowrap;">
+          {% if is_app_editor %}
+            <a class = "btn btn-link btn-sm ml-auto" 
+	              href ="{% url 'utilities:delete_model' location.pk 'Location' 'installations' %}"
+                role="button">
+                    <i class="fa fa-trash text-secondary"></i>
+            </a>
+            <a class = "btn btn-link btn-sm ml-auto"
+                href ="{% url 'installations:edit_location' location.pk %}"
+                role="button">
+                    <i class="far fa-edit text-secondary"></i>
+            </a>
+          {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+</div>
+
+{% else %}
+    <p>no locations are available</p>
+{% endif %}
+
+{% endblock content %}

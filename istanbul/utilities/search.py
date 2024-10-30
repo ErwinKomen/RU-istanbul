@@ -491,6 +491,7 @@ def get_foreign_keydict():
 	m += ',person:name,religion:name,event_type:name,institution_type:name'
 	m += ',eventtype:name,figure:name,style:name,event:name'
 	m += ',installationtype:name,eventrole:name,texttype:name'
+	m += ',loctype:name,location:name'
 	return make_dict(m)
 
 

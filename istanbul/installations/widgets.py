@@ -1,7 +1,7 @@
 from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,Style,Figure,Event
 from .models import Purpose,InstallationType,Installation,Literature
-from .models import TextType, EventRole
+from .models import TextType, EventRole, LocType
 
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -50,6 +50,17 @@ class GenderWidget(ModelSelect2Widget):
     
     def get_queryset(self):
         return Gender.objects.all().order_by('name')
+
+
+class LocTypeWidget(ModelSelect2Widget):
+    model = LocType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return LocType.objects.all().order_by('name')
 
 
 class PersonWidget(ModelSelect2Widget):

@@ -208,6 +208,7 @@
     <Content Include="installations\templates\installations\add_literature.html" />
     <Content Include="installations\templates\installations\add_person.html" />
     <Content Include="installations\templates\installations\add_purpose.html" />
+    <Content Include="installations\templates\installations\add_location.html" />
     <Content Include="installations\templates\installations\add_religion.html" />
     <Content Include="installations\templates\installations\add_style.html" />
     <Content Include="installations\templates\installations\add_system.html" />
@@ -229,6 +230,7 @@
     <Content Include="installations\templates\installations\institution_list.html" />
     <Content Include="installations\templates\installations\literature_list.html" />
     <Content Include="installations\templates\installations\nlogin.html" />
+    <Content Include="installations\templates\installations\location_list.html" />
     <Content Include="installations\templates\installations\person_list.html" />
     <Content Include="installations\templates\installations\purpose_list.html" />
     <Content Include="installations\templates\installations\religion_list.html" />

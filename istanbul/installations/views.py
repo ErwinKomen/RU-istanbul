@@ -14,6 +14,7 @@ from .models import System, Image, Installation, SystemInstallationRelation
 from .forms import SystemForm, PersonForm, InstallationForm 
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
+from .forms import LocationForm
 from .forms import systeminstallation_formset, installationsystem_formset
 from .forms import eventliterature_formset, literatureevent_formset
 from .forms import eventperson_formset, personevent_formset
@@ -166,6 +167,14 @@ def edit_person(request, pk = None, focus = '', view = 'complete'):
     names = 'personevent_formset'
     return edit_model(request, __name__, 'Person','installations',pk,
         formset_names = names, focus = focus, view = view, before_save=before_save)
+
+# --------------------- Location ----------------------------------------------
+def edit_location(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Location] instance"""
+
+    names = ''
+    return edit_model(request, __name__, 'Location','installations',pk,
+        formset_names = names, focus = focus, view = view)
 
 # --------------------- Institution -----------------------------------------
 def edit_institution(request, pk = None, focus = '', view = 'complete'):

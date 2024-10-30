@@ -26,6 +26,7 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     InstallationTypeDetails, InstallationTypeEdit, \
     PersonEdit, PersonDetails, \
     PurposeEdit, PurposeDetails, \
+    LocationEdit, LocationDetails, \
     LiteratureEdit, LiteratureDetails, \
     EventEdit, EventDetails, \
     InstitutionEdit, InstitutionDetails, \
@@ -77,6 +78,9 @@ urlpatterns = [
 
 	re_path('system/edit(?:/(?P<pk>\d+))?/$', SystemEdit.as_view(), name='system_edit'),
 	re_path('system/details(?:/(?P<pk>\d+))?/$', SystemDetails.as_view(), name='system_details'),
+
+	re_path('location/edit(?:/(?P<pk>\d+))?/$', LocationEdit.as_view(), name='location_edit'),
+	re_path('location/details(?:/(?P<pk>\d+))?/$', LocationDetails.as_view(), name='location_details'),
 
     # ================ CMS ========================================================================
     re_path(r'^cpage/list', CpageListView.as_view(), name='cpage_list'),

@@ -15,6 +15,7 @@ from .models import InstallationType, Purpose
 from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
 from .models import Institution, EventInstitutionRelation
+from .models import Location, LocType
 from .forms import SystemForm, PersonForm, InstallationForm, InstallationSearchForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
@@ -24,6 +25,7 @@ from .forms import eventperson_formset, personevent_formset
 from .forms import eventinstitution_formset, institutionevent_formset
 from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
+from .forms import LocationForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -625,7 +627,7 @@ class InstallationList(BasicList):
             # Provide the link to the mapview url
             context['mapviewurl'] = reverse('installation_map')
             # Signal that 'basicmap' should be used (used in `basic_list.html`)
-            context['basicmap'] = True
+            context['basicmap'] = False # True
 
             # Figure out how many locations there are
             lst_installations = self.qs.values('id')
@@ -1166,6 +1168,46 @@ class PersonDetails(PersonEdit):
 
         # Return the context we have made
         return context
+
+
+# --------------------- Location ----------------------------------------------
+
+class LocationEdit(BasicDetails):
+    """Simple view mode of [Location]"""
+
+    model = Location
+    mForm = LocationForm
+    prefix = "loc"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Location', 'app_name': 'installations' })
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.name          },
+                {'type': 'plain', 'label': 'type',          'value': instance.get_loctype() },
+                {'type': 'plain', 'label': 'longitude',     'value': instance.x_coordinate  },
+                {'type': 'plain', 'label': 'latitude',      'value': instance.y_coordinate  },
+            ]
+            context['title'] = "View Location"
+            context['editview'] = reverse("installations:edit_location", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LocationDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class LocationDetails(LocationEdit):
+    rtype = "html"
 
 
 # --------------------- Purpose ----------------------------------------------

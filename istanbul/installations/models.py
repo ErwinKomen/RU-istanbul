@@ -19,6 +19,46 @@ from utils.model_util import info
 # Default arguments for *OPTIONAL* ForeignKey
 dargs = {'on_delete':models.SET_NULL,'blank':True,'null':True}
 
+MAXPARAMLEN = 255
+
+# ========================== Helper classes =================================
+
+
+class LocType(models.Model):
+    """Type of location/settlement"""
+
+    # [1] Description of this location type (settlement type)
+    name = models.CharField("Name", max_length=MAXPARAMLEN)
+
+    def __str__(self):
+        return self.name
+
+
+class Location(models.Model):
+    """The location name and coordinates (to be used e.g. by Image, Installation, Event)"""
+
+    # [1] Name of this location (village)
+    name = models.CharField("Name", max_length=MAXPARAMLEN)
+    # [1] Coordinates (latitude, longitude)
+    x_coordinate = models.CharField("X-coordinate (latitude)", max_length=MAXPARAMLEN, default="unknown")
+    y_coordinate = models.CharField("Y-coordinate (longitude)", max_length=MAXPARAMLEN, default="unknown")
+    # [0-1] Type of settlement: city, hamlet, no data / NA (=not available), town, village, 
+    loctype = models.ForeignKey(LocType, null=True, blank=True, on_delete=models.SET_NULL, related_name="loctype_locations")
+
+    def __str__(self):
+        return self.name
+
+    def get_coordinate(self):
+        sBack = "{}-{}".format(self.x_coordinate, self.y_coordinate)
+        return sBack
+
+    def get_loctype(self):
+        sBack = "-"
+        if not self.loctype is None:
+            sBack = self.loctype.name
+        return sBack
+
+
 # ========================== Main classes ===================================
 
 class Religion(models.Model, info):
