@@ -417,7 +417,7 @@ def make_search_list(filters, oFields, search_list, qd, lstExclude, bUseContains
                         else:
                             val = oFields[keyS]
                             enable_filter(filter_type, head_id)
-                            if isinstance(val, int):
+                            if isinstance(val, int) or "__gte" in dbfield or "__lte" in dbfield:
                                 s_q = Q(**{"{}".format(dbfield): val})
                             elif bUseContains:
                                 s_q = Q(**{"{}__icontains".format(dbfield): val})
@@ -1390,7 +1390,6 @@ class BasicList(ListView):
                             qs = self.model.objects.filter(filter).exclude(*lstExclude).distinct()
                         else:
                             qs = self.model.objects.filter(filter).distinct()
-
                     # Only set the [bFilter] value if there is an overt specified filter
                     for filter in self.filters:
                         if filter['enabled'] and ('head_id' not in filter or filter['head_id'] != 'filter_other'):

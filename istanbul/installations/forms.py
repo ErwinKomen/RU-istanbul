@@ -18,7 +18,7 @@ from .widgets import EventTypeWidget,StyleWidget,FigureWidget
 from .widgets import InstallationTypeWidget,InstallationWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
-from .widgets import LocTypeWidget, LocationWidget
+from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
 
 # From our own application
 from utils.select2 import  make_select2_attr
@@ -104,6 +104,11 @@ class InstallationSearchForm(forms.ModelForm):
 	eventlist = forms.ModelMultipleChoiceField(queryset = Event.objects.all(),widget = EventsWidget(**dselect2),required = False)
 	purplist = forms.ModelMultipleChoiceField(queryset = Purpose.objects.all(),widget = PurposesWidget(**dselect2),required = False)
 	perslist = forms.ModelMultipleChoiceField(required=False,queryset=Person.objects.all(),widget = PersonsWidget(**dselect2))
+	systemlist = forms.ModelMultipleChoiceField(queryset = System.objects.all(),widget = SystemsWidget(**dselect2),required = False)
+	start_date = forms.CharField(label="Date start", required=False, 
+			widget=forms.TextInput(attrs={'placeholder': 'Starting from...',  'style': 'width: 30%;', 'class': 'searching'}))
+	end_date = forms.CharField(label="Date end", required=False, 
+			widget=forms.TextInput(attrs={'placeholder': 'Until (including)...',  'style': 'width: 30%;', 'class': 'searching'}))
 
 	class Meta:
 		model = Installation

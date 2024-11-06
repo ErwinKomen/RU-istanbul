@@ -567,11 +567,13 @@ class InstallationList(BasicList):
         ]
                    
     filters = [ 
-        {"name": "Name",            "id": "filter_name",    "enabled": False},
-        {"name": "Type",            "id": "filter_itype",   "enabled": False},
-        {"name": "Purpose",         "id": "filter_purpose", "enabled": False},
-        {"name": "Person",          "id": "filter_person",  "enabled": False},
-        {"name": "Event",           "id": "filter_event",   "enabled": False},
+        {"name": "Name",            "id": "filter_name",        "enabled": False},
+        {"name": "Type",            "id": "filter_itype",       "enabled": False},
+        {"name": "Purpose",         "id": "filter_purpose",     "enabled": False},
+        {"name": "Person",          "id": "filter_person",      "enabled": False},
+        {"name": "Event",           "id": "filter_event",       "enabled": False},
+        {"name": "System",          "id": "filter_system",      "enabled": False},
+        {"name": "Event dates",     "id": "filter_daterange",   "enabled": False},
         ]
     searches = [
         {'section': '', 'filterlist': [
@@ -579,8 +581,12 @@ class InstallationList(BasicList):
             {'filter': 'itype',     'fkfield': 'installation_type', 'keyFk': 'name', 'keyList': 'itypelist',    'infield': 'name'},
             {'filter': 'purpose',   'fkfield': 'purposes',          'keyFk': 'name', 'keyList': 'purplist',     'infield': 'name'},
             {'filter': 'person',    'fkfield': 'events__eventpersonrelations__person',   
-                                                                    'keyFk': 'name', 'keyList': 'perslist',     'infield': 'name'},
+             'keyFk': 'name', 'keyList': 'perslist',     'infield': 'name'},
+            {'filter': 'daterange', 'dbfield': 'events__start_date__gte',   'keyS': 'start_date'},
+            {'filter': 'daterange', 'dbfield': 'events__end_date__lte',     'keyS': 'end_date'},
             {'filter': 'event',     'fkfield': 'events',            'keyFk': 'name', 'keyList': 'eventlist',    'infield': 'name'},
+            {'filter': 'system',    'fkfield': 'systeminstallationrelation__system',   
+             'keyFk': 'english_name', 'keyList': 'systemlist',   'infield': 'english_name'},
             ]
          } 
         ] 
