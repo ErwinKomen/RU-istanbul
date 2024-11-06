@@ -320,7 +320,7 @@ class ImageEdit(BasicDetails):
                 {'type': 'plain', 'label': 'url',               'value': instance.url           },
                 {'type': 'plain', 'label': 'year',              'value': instance.year          },
                 {'type': 'plain', 'label': 'current location',  'value': instance.current_location      },
-                {'type': 'plain', 'label': 'coordinate',        'value': instance.get_value('coordinate')},
+                # {'type': 'plain', 'label': 'coordinate',        'value': instance.get_value('coordinate')},
                 {'type': 'plain', 'label': 'description',       'value': instance.description   },
                 {'type': 'plain', 'label': 'comments',          'value': instance.comments      },
                 # {'type': 'plain', 'label': 'systems',           'value': instance.get_value('systems')      },
@@ -356,45 +356,46 @@ class ImageDetails(ImageEdit):
             sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
             sort_end = '</span>'
 
-            # List of Events that link to this Image
-            events = dict(title="Events connected to this Image", prefix="evnt", 
-                          classes="collapse",label="Events")
-            if resizable: events['gridclass'] = "resizable"
+            # NOTE: the following was removed due to issue #22
+            ## List of Events that link to this Image
+            #events = dict(title="Events connected to this Image", prefix="evnt", 
+            #              classes="collapse",label="Events")
+            #if resizable: events['gridclass'] = "resizable"
 
-            rel_list = []
-            qs = instance.event_set.all().order_by('start_date', 'end_date', 'name')
-            for item in qs:
-                event = item
-                url = reverse("event_details", kwargs={'pk': event.id})
-                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
-                url_relation = None
-                rel_item = []
+            #rel_list = []
+            #qs = instance.event_set.all().order_by('start_date', 'end_date', 'name')
+            #for item in qs:
+            #    event = item
+            #    url = reverse("event_details", kwargs={'pk': event.id})
+            #    # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+            #    url_relation = None
+            #    rel_item = []
                 
-                # Order number for this item
-                add_rel_item(rel_item, index, False, align="right")
-                index += 1
+            #    # Order number for this item
+            #    add_rel_item(rel_item, index, False, align="right")
+            #    index += 1
 
-                # Name of event
-                add_rel_item(rel_item, event.name, False, main=True, nowrap=False, link=url)
+            #    # Name of event
+            #    add_rel_item(rel_item, event.name, False, main=True, nowrap=False, link=url)
 
-                # start date
-                add_rel_item(rel_item, event.get_value('startdate'), False, main=False, nowrap=True, link=url)
+            #    # start date
+            #    add_rel_item(rel_item, event.get_value('startdate'), False, main=False, nowrap=True, link=url)
 
-                # end date
-                add_rel_item(rel_item, event.get_value('enddate'), False, main=False, nowrap=True, link=url)
+            #    # end date
+            #    add_rel_item(rel_item, event.get_value('enddate'), False, main=False, nowrap=True, link=url)
 
-                # Add this line to the list
-                rel_list.append(dict(id=item.id, cols=rel_item))
+            #    # Add this line to the list
+            #    rel_list.append(dict(id=item.id, cols=rel_item))
 
-            events['rel_list'] = rel_list
+            #events['rel_list'] = rel_list
 
-            events['columns'] = [
-                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
-                '{}<span>Event</span>{}'.format(sort_start, sort_end), 
-                '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
-                '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
-                ]
-            related_objects.append(events)
+            #events['columns'] = [
+            #    '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+            #    '{}<span>Event</span>{}'.format(sort_start, sort_end), 
+            #    '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
+            #    '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
+            #    ]
+            #related_objects.append(events)
 
             # List of Installations that link to this Image
             installations = dict(title="Installations connected to this Image", prefix="inst",

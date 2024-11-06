@@ -285,10 +285,10 @@ class Image(models.Model, info):
     current_location= models.CharField(max_length=300,blank=True,null=True)
     # [0-1] Name of the collection this belongs to
     collection = models.CharField(max_length=300,blank=True,null=True)
-    # [1] Image location latitude coordinate
-    latitude = models.DecimalField(**gpsargs)
-    # [1] Image location longitude coordinate
-    longitude = models.DecimalField(**gpsargs)
+    ## [1] Image location latitude coordinate
+    #latitude = models.DecimalField(**gpsargs)
+    ## [1] Image location longitude coordinate
+    #longitude = models.DecimalField(**gpsargs)
 
     # =========== Standard fields ========================================
     # [1] Description of this object (may be '')
@@ -342,9 +342,10 @@ class Image(models.Model, info):
         lst_value = []
         oErr = ErrHandle()
         try:
-            if field == "coordinate":
-                if not self.latitude is None and not self.longitude is None:
-                    sBack = "{} {}".format(self.latitude, self.longitude)
+            iTemp = 1
+            #if field == "coordinate":
+            #    if not self.latitude is None and not self.longitude is None:
+            #        sBack = "{} {}".format(self.latitude, self.longitude)
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Event/get_value")

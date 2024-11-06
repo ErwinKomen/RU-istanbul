@@ -313,14 +313,14 @@ class ImageForm(forms.ModelForm):
 	current_location= forms.CharField(**dchar)
 	collection = forms.CharField(**dchar)
 	description = forms.CharField(**dtext)
-	latitude = forms.DecimalField(**dgps)
-	longitude = forms.DecimalField(**dgps)
+	#latitude = forms.DecimalField(**dgps)
+	#longitude = forms.DecimalField(**dgps)
 	comments = forms.CharField(**dtext)
 
 	class Meta:
 		model = Image
 		fields = 'image_file,maker,year,title,url,current_location'
-		fields += ',collection,description,comments,latitude,longitude'
+		fields += ',collection,description,comments'		# ,latitude,longitude'
 		fields = fields.split(',')
 
 	def save(self, commit=True, *args, **kwargs):
