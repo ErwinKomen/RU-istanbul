@@ -18,7 +18,7 @@ from .widgets import EventTypeWidget,StyleWidget,FigureWidget
 from .widgets import InstallationTypeWidget,InstallationWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
-from .widgets import LocTypeWidget
+from .widgets import LocTypeWidget, LocationWidget
 
 # From our own application
 from utils.select2 import  make_select2_attr
@@ -47,11 +47,15 @@ class SystemForm(forms.ModelForm):
 	turkish_name = forms.CharField(**dchar)
 	description = forms.CharField(**dtext)
 	comments = forms.CharField(**dtext)
+	location = forms.ModelChoiceField(
+		queryset = Location.objects.all(),
+		widget = LocationWidget(**dselect2),
+		required = False)
 
 	class Meta:
 		model = System
 		fields = 'original_name,ottoman_name,english_name,turkish_name'
-		fields += ',description,comments'
+		fields += ',description,comments,location'
 		fields = fields.split(',')
 
 
@@ -68,6 +72,10 @@ class InstallationForm(forms.ModelForm):
 		queryset = Event.objects.all(),
 		widget = EventsWidget(**dselect2),
 		required = False)
+	location = forms.ModelChoiceField(
+		queryset = Location.objects.all(),
+		widget = LocationWidget(**dselect2),
+		required = False)
 	purposes = forms.ModelMultipleChoiceField(
 		queryset = Purpose.objects.all(),
 		widget = PurposesWidget(**dselect2),
@@ -83,7 +91,7 @@ class InstallationForm(forms.ModelForm):
 		model = Installation
 		fields = 'original_name,ottoman_name,english_name,turkish_name'
 		fields += ',installation_type,events,purposes,description,comments'
-		fields += ',still_exists,images'
+		fields += ',still_exists,images,location'
 		fields = fields.split(',')
 
 

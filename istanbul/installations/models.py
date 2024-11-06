@@ -2,6 +2,7 @@
 Main models for the istanbul-su application
 """
 import os
+from pickle import NONE
 from re import X
 from django.db import models
 from django.urls import reverse
@@ -58,6 +59,29 @@ class Location(models.Model):
             sBack = self.loctype.name
         return sBack
 
+    def get_value(self, html=False):
+        """Get the value of the location"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            lst_loc = []
+            # Start with the coordinates
+            lst_loc.append("[{},{}]".format(self.x_coordinate, self.y_coordinate))
+            if html:
+                # Possibly add a location type
+                if not self.loctype is None:
+                    lst_loc.append(self.loctype.name)
+                # Add the name of the location
+                if not self.name is None and self.name != "":
+                    lst_loc.append("(={})".format(self.name))
+            sBack = " ".join(lst_loc)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Location/get_value")
+
+        return sBack
+
 
 # ========================== Main classes ===================================
 
@@ -84,10 +108,36 @@ class System(models.Model, info):
         unique=True)
     # [0-1] Name of the system in the Turkish language
     turkish_name = models.CharField(max_length=1000,blank=True,null=True)
+
+    # ==================== Links to other objects ========================
+    # [0-1] Location of the system 
+    location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL, related_name="locationsystems")
+
+    # ============= Standard fields ======================================
     # [1] Description of the system (can be just '')
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def get_value(self, field, sep=None, options={}):
+        """Get the value(s) of 'field' associated with this system"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "name":
+                if not self.english_name is None:
+                    sBack = self.english_name
+            elif field == "location":
+                # Get the location details
+                if not self.location is None:
+                    sBack = self.location.get_value(html=True)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("System/get_value")
+
+        return sBack
 
 
 class Gender(models.Model, info):
@@ -521,6 +571,8 @@ class Installation(models.Model, info):
     # ==================== Links to other objects ========================
     # [0-1] Type of installation
     installation_type = models.ForeignKey(InstallationType,**dargs)
+    # [0-1] Location of the system 
+    location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL, related_name="locationinstallations")
 
     # ==================== Many-to-many fields ===========================
     # [0-1] Images related to this installation
@@ -614,6 +666,10 @@ class Installation(models.Model, info):
             elif field == "name":
                 if not self.english_name is None:
                     sBack = self.english_name
+            elif field == "location":
+                # Get the location details
+                if not self.location is None:
+                    sBack = self.location.get_value(html=True)
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Installation/get_value")

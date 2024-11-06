@@ -488,15 +488,16 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'turkish name',  'value': instance.turkish_name  },
                 {'type': 'plain', 'label': 'original name', 'value': instance.original_name },
                 {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name  },
-                {'type': 'plain', 'label': 'events',        'value': instance.get_value('events')  },
-                {'type': 'plain', 'label': 'event persons', 'value': instance.get_value('eventpersons')  },
-                {'type': 'plain', 'label': 'purposes',      'value': instance.get_value('purposes')},
-                {'type': 'plain', 'label': 'still exists',  'value': instance.get_value('stillexists') },
-                {'type': 'plain', 'label': 'type',          'value': instance.get_value('instaltype')    },
+                {'type': 'plain', 'label': 'events',        'value': instance.get_value('events')       },
+                {'type': 'plain', 'label': 'event persons', 'value': instance.get_value('eventpersons') },
+                {'type': 'plain', 'label': 'purposes',      'value': instance.get_value('purposes')     },
+                {'type': 'plain', 'label': 'still exists',  'value': instance.get_value('stillexists')  },
+                {'type': 'plain', 'label': 'type',          'value': instance.get_value('instaltype')   },
+                {'type': 'plain', 'label': 'location',      'value': instance.get_value('location')     },
                 # {'type': 'plain', 'label': 'images',        'value': instance.get_value('images')  },
                 {'type': 'plain', 'label': 'description',   'value': instance.description   },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
-                {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems') },
+                {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems')      },
             ]
             context['title'] = "View Installation"
             context['editview'] = reverse("installations:edit_installation", kwargs={'pk': instance.id})
@@ -1344,6 +1345,7 @@ class SystemEdit(BasicDetails):
                 {'type': 'plain', 'label': 'turkish name',  'value': instance.turkish_name},
                 {'type': 'plain', 'label': 'original name', 'value': instance.original_name},
                 {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name},
+                {'type': 'plain', 'label': 'location',      'value': instance.get_value('location')     },
                 {'type': 'plain', 'label': 'description',   'value': instance.description},
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments},
             ]

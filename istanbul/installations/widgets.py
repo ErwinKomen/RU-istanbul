@@ -1,7 +1,7 @@
 from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,Style,Figure,Event
 from .models import Purpose,InstallationType,Installation,Literature
-from .models import TextType, EventRole, LocType
+from .models import TextType, EventRole, LocType, Location
 
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -245,6 +245,20 @@ class LiteratureWidget(ModelSelect2Widget):
     
     def get_queryset(self):
         return Literature.objects.all().order_by('code')
+
+
+class LocationWidget(ModelSelect2Widget):
+    model = Location
+    search_fields = ['name__icontains', 'loctype__name__icontains', 'x_coordinate', 'y_coordinate']
+
+    def label_from_instance(self,obj):
+        sName = "-" if obj.name is None else obj.name
+        sType = "" if obj.loctype is None else " ({})".format(obj.loctype.name)
+        sLabel = "{}: [{},{}]{}".format(sName, obj.x_coordinate, obj.y_coordinate, sType)
+        return sLabel
+    
+    def get_queryset(self):
+        return Location.objects.all().order_by('name', 'x_coordinate', 'y_coordinate')
 
 
 class TextTypeWidget(ModelSelect2Widget):

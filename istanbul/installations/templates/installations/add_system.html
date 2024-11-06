@@ -45,37 +45,47 @@
             <tr class="d-flex">
                 <th class="col-2">english name</th>
                 <td class="col-8">
-					{{form.english_name}} 
-					{{from.english_name.error}}
-				</td>
+					      {{form.english_name}} 
+					      {{from.english_name.error}}
+				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">turkish name</th>
                 <td class="col-8">
-					{{form.turkish_name}} 
-					{{from.turkish_name.error}}
-				</td>
+					      {{form.turkish_name}} 
+					      {{from.turkish_name.error}}
+				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">original name</th>
                 <td class="col-8">
-					{{form.original_name}} 
-					{{from.original_name.error}}
-				</td>
+					      {{form.original_name}} 
+					      {{from.original_name.error}}
+				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">ottoman name</th>
                 <td class="col-8">
-					{{form.ottoman_name}} 
-					{{from.ottoman_name.error}}
-				</td>
+					      {{form.ottoman_name}} 
+					      {{from.ottoman_name.error}}
+				      </td>
+            <tr class="d-flex">
+                <th class="col-2">location</th>
+                <td class="col-8">
+                  {{form.location}}
+                  {{from.location.error}}
+                </td>
+				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						        href ="{% url 'installations:add_location' 'inline' %}"
+						        role="button"><i class="fa fa-plus"></i></a>
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">description</th>
                 <td class="col-8">
-					{{form.description}} 
-					{{form.description.error}}
-				</td>
+					      {{form.description}} 
+					      {{form.description.error}}
+				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">comments</th>
