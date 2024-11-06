@@ -474,7 +474,8 @@ class InstallationEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Installation', 'app_name': 'installations' })
+        # OLD: self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Installation', 'app_name': 'installations' })
+        self.listview = reverse('installation_list')
         return None
 
     def add_to_context(self, context, instance):
