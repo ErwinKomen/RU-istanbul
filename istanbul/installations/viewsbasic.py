@@ -636,7 +636,8 @@ class InstallationList(BasicList):
             # Provide the link to the mapview url
             context['mapviewurl'] = reverse('installation_map')
             # Signal that 'basicmap' should be used (used in `basic_list.html`)
-            context['basicmap'] = False # True
+            # context['basicmap'] = False # True
+            context['basicmap'] = True
 
             # Figure out how many locations there are
             lst_installations = self.qs.values('id')
@@ -653,7 +654,8 @@ class InstallationMap(MapView):
     """Mapview that leans on the InstallationList listview"""
 
     model = Installation    # This is the basic model of the related listview
-    modEntry = Image        # Each point on the map is a Location of which an image exists
+    # modEntry = Location        # Each point on the map is defined by a Location object
+    modEntry = Installation # Each point on the map is defined by a Location object
     use_object = False      # We are **not** grouping around one language
     prefix = "map"          # Needs to differ from the ``InstallationList`` prefix
     param_list = ""
@@ -668,14 +670,16 @@ class InstallationMap(MapView):
             self.entry_list = []
 
             # Get the location's details: name, id, x-coordinate, y-coordinate
-            self.add_entry('locname',       'str', 'title')
-            self.add_entry('location_id',   'str', 'id')
+            # self.add_entry('locname',       'str', 'location__name')
+            self.add_entry('locname',       'str', 'english_name')
+            self.add_entry('location_id',   'str', 'location__id')
             # labels 'point_x' and 'point_y' must be used for the coordinates
-            self.add_entry('point_x',       'str', 'latitude')
-            self.add_entry('point_y',       'str', 'longitude')
-            # The key grouping elements for this image location
-            self.add_entry('trefwoord',     'str', 'installation__still_exists')
-            self.add_entry('info',          'str', 'title')
+            self.add_entry('point_x',       'str', 'location__x_coordinate')
+            self.add_entry('point_y',       'str', 'location__y_coordinate')
+            # The key grouping elements for this location
+            self.add_entry('trefwoord',     'str', 'installation_type__name')
+            self.add_entry('info',          'str', 'english_name')
+
 
             # Get a version of the current listview
             lv = InstallationList()
@@ -685,8 +689,8 @@ class InstallationMap(MapView):
             # Figure out what the list of installations will be
             lst_installation = qs_installation.values('id')
 
-            # Get a full queryset of the images for these installations
-            qs_loc = Image.objects.filter(Q(installation__in=lst_installation))
+            # Get all the installations selected (or is this the same as qs_installation?)
+            qs_loc = Installation.objects.filter(id__in=lst_installation)
 
             # Essential: make sure that self.qs gets filled
             self.qs = qs_loc
@@ -695,6 +699,54 @@ class InstallationMap(MapView):
             msg = oErr.get_error_message()
             oErr.DoError("InstallationMap/initialize")
         return None
+
+    def add_geojson(self, lst_this):
+        """Possibly add to the list with geojson items"""
+
+        oErr = ErrHandle()
+        exclude_fields = ['point', 'point_x', 'point_y', 'pop_up', 'locatie', 'country', 'city']
+        try:
+            # Walk the Installation qs
+            for installation in self.qs:
+                # Get all the geojson images connected with this one
+                for geo in installation.images.filter(geojson__isnull=False):
+                    # Get the JSON for this image
+                    geojson = geo.geojson
+                    info = ""
+                    if not geojson is None:
+                        # Get the name
+                        info = geojson.get("name")
+                        # Get the first point
+                        bHavePoint = False
+                        for oFt in geojson['features']:
+                            geometry = oFt.get("geometry")
+                            if not geometry is None:
+                                coordinates = geometry.get("coordinates")
+                                if not coordinates is None and len(coordinates) > 0:
+                                    point_x = coordinates[0][1]
+                                    point_y = coordinates[0][0]
+                                    bHavePoint = True
+                            break
+                    if bHavePoint:
+                        # Add an entry to lst_this
+                        oEntry = dict(
+                            locname=installation.english_name,
+                            point_x = point_x,
+                            point_y = point_y,
+                            point = "{}, {}".format(point_x, point_y),
+                            pop_up = "(no popup specified)",
+                            trefwoord = installation.get_value("instaltype"),
+                            location_id = None,
+                            info = info,
+                            geojson = geojson
+                            )
+                        lst_this.append(oEntry)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationMap/add_geojson")
+
+        return lst_this
 
     def group_entries(self, lst_this):
         """Allow changing the list of entries"""
@@ -715,7 +767,8 @@ class InstallationMap(MapView):
                         trefwoord=str(oEntry['trefwoord']),
                         locatie=oEntry['locname'],
                         locid=oEntry['location_id'],
-                        info=oEntry['info']
+                        info=oEntry['info'],
+                        geojson=oEntry.get('geojson')
                         )
                 # Retrieve the item from the set
                 oPoint = set_point[point]
@@ -746,16 +799,18 @@ class InstallationMap(MapView):
         oErr = ErrHandle()
         pop_up = ""
         try:
-            # Figure out what the link would be to this list of items
-            url = reverse('image_details', kwargs={'pk': oPoint['locid']})
-            # Create the popup
-            pop_up = '<p class="h4" title="{}">{}</p>'.format(oPoint['locatie'], oPoint['locatie'][:20])
-            pop_up += '<hr style="border: 1px solid green" />'
-            popup_title_1 = _("Show")
-            popup_title_2 = _("objects in the list")
-            sLanguage = "exists" if oPoint['trefwoord'] == "True" else "extinct"
-            pop_up += '<p style="font-size: large;"><a href="{}" title="{} {} {}"><span style="color: purple;">{}</span> in: {} {}</a></p>'.format(
-                url, popup_title_1, oPoint['count'],popup_title_2, oPoint['count'], oPoint['trefwoord'], sLanguage)
+            if not oPoint['locid'] is None:
+                # Figure out what the link would be to this list of items
+                url = reverse('location_details', kwargs={'pk': oPoint['locid']})
+                # Create the popup
+                pop_up = '<p class="h4" title="{}">{}</p>'.format(oPoint['locatie'], oPoint['locatie'][:20])
+                pop_up += '<hr style="border: 1px solid green" />'
+                popup_title_1 = _("Show")
+                popup_title_2 = _("objects in the list")
+                # sLanguage = "exists" if oPoint['trefwoord'] == "True" else "extinct"
+                sLanguage = oPoint['info']
+                pop_up += '<p style="font-size: large;"><a href="{}" title="{} {} {}"><span style="color: purple;">{}</span> in: {} {}</a></p>'.format(
+                    url, popup_title_1, oPoint['count'],popup_title_2, oPoint['count'], oPoint['trefwoord'], sLanguage)
         except:
             msg = oErr.get_error_message()
             oErr.DoError("InstallationMap/get_group_popup")

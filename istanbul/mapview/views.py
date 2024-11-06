@@ -15,8 +15,7 @@ from django.db.models import Q
 from django.db.models.functions import Lower
 from django.http import JsonResponse
 import fnmatch
-
-
+import json
 import sys
 
 class ErrHandle:
@@ -204,6 +203,8 @@ class MapView(DetailView):
                     # Retrieve all the necessary entries
                     lst_entry = self.qs.order_by(*self.order_by).values(*value_list)
 
+                # Possibility to add to the entry list
+
                 # Create a new list that uses the 'key's from entry_list
                 lst_back = []
                 for item in lst_entry:
@@ -222,9 +223,12 @@ class MapView(DetailView):
                         oEntry['pop_up'] = self.get_popup(oEntry)
                         lst_back.append(oEntry)
 
+                lst_back = self.add_geojson(lst_back)
+                # sBack = json.dumps(lst_back, indent=2)
+                
                 # Possibly perform grouping
                 lst_back = self.group_entries(lst_back)
-
+                
                 # Add the data
                 data['entries'] = lst_back
                 if self.use_object:
@@ -246,4 +250,8 @@ class MapView(DetailView):
 
         return lst_this
 
+    def add_geojson(self, lst_this):
+        """Add geojson points to the list"""
+
+        return lst_this
 

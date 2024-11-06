@@ -731,11 +731,13 @@ var ru = (function ($, ru) {
           entries = null,
           point = null,
           points = [],
+          geometries = [],    // Geojson geometries
           id_filter = null,
           map_id = null,
           polyline = null,
           map_title = null,
           i = 0,
+          j = 0,
           idx = 0,
           label = "",           // This is, so far, only used for a modal-form
           targeturl = ""; //,
@@ -813,8 +815,14 @@ var ru = (function ($, ru) {
                       if (entries[i].point !== null && entries[i].point !== "") {
                         // Add point to the array of points to find out the bounds
                         points.push(entries[i].point.split(",").map(Number));
-                        // Create a marker for this point
-                        private_methods.make_marker(entries[i]);
+                        // Is this geojson or not?
+                        if (entries[i].geojson !== undefined && entries[i].geojson !== null) {
+                          // Probably  geojson
+                          geometries.push(entries[i].geojson);
+                        } else {
+                          // Create a marker for this point
+                          private_methods.make_marker(entries[i]);
+                        }
                       }
                     }
                     if (points.length > 0) {
@@ -828,6 +836,13 @@ var ru = (function ($, ru) {
                       mapview_tiles.addTo(main_map_object);
                       // https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet to handle overlapping markers
                       loc_oms = new OverlappingMarkerSpiderfier(main_map_object, { keepSpiderfied: true });
+
+                      // Handle geojson
+                      if (geometries.length > 0) {
+                        for (j = 0; j < geometries.length; j++) {
+                          L.geoJSON(geometries[j]).addTo(main_map_object);
+                        }
+                      }
 
                       // Convert layerdict into layerlist
                       for (key in loc_layerDict) {

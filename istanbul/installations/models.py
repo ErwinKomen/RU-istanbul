@@ -2,6 +2,7 @@
 Main models for the istanbul-su application
 """
 import os
+import json
 from pickle import NONE
 from re import X
 from django.db import models
@@ -290,11 +291,43 @@ class Image(models.Model, info):
     ## [1] Image location longitude coordinate
     #longitude = models.DecimalField(**gpsargs)
 
+    # If this is a .geojson image, then load its contents here
+    geojson = models.JSONField(blank=True, null=True)
+
     # =========== Standard fields ========================================
     # [1] Description of this object (may be '')
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+
+        oErr = ErrHandle()
+        try:
+            # Try to load a possible geojson field
+            if not self.image_file is None and not self.image_file.file is None:
+                filename = self.image_file.file.name
+                if filename.endswith(".geojson"):
+                    oGeojson = None
+                    try:
+                        with open(filename, "r") as f:
+                            oGeojson = json.load(f)
+                        # Chek if all went file
+                        if not oGeojson is None:
+                            self.geojson = oGeojson
+                    except:
+                        msg = oErr.get_error_message()
+                        print("Image/save fails to extract geojson: {}".format(msg))
+
+            # Now attempt the actual saving
+            response = super(Image, self).save(force_insert, force_update, using, update_fields)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Image/save")
+            response = None
+
+        # Return the response when saving
+        return response
 
     def get_image_html(self, tooltip=None):
         """Get the HTML <img> code for this one"""
