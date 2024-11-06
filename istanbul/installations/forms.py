@@ -208,10 +208,10 @@ class EventForm(forms.ModelForm):
 		widget = EventTypeWidget(**dselect2),
 		required = False)
 	date_comments = forms.CharField(**dtext)
-	images = forms.ModelMultipleChoiceField(
-		queryset = Image.objects.all(),
-		widget = ImagesWidget(**dselect2),
-		required = False)
+	#images = forms.ModelMultipleChoiceField(
+	#	queryset = Image.objects.all(),
+	#	widget = ImagesWidget(**dselect2),
+	#	required = False)
 	figure = forms.ModelChoiceField(
 		queryset = Figure.objects.all(),
 		widget = FigureWidget(**dselect2),
@@ -221,7 +221,7 @@ class EventForm(forms.ModelForm):
 
 	class Meta:
 		model = Event
-		fields = 'name,start_date,end_date,date_comments,images'
+		fields = 'name,start_date,end_date,date_comments' #,images'
 		fields += ',figure,description,comments,event_type'
 		fields = fields.split(',')
 

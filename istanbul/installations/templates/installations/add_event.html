@@ -45,83 +45,70 @@
             <tr class="d-flex">
                 <th class="col-2">name</th>
                 <td class="col-8">
-					{{form.name}} 
-					{{from.name.error}}
-				</td>
+					        {{form.name}} 
+					        {{from.name.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">event type</th>
                 <td class="col-8">
-					{{form.event_type}} 
-					{{from.event_type.error}}
-				</td>
-				<td>
+					        {{form.event_type}} 
+					        {{from.event_type.error}}
+				        </td>
+				        <td>
                     <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
                         href ="{% url 'installations:add_eventtype'  'inline' %}" 
 						role="button">
                         <i class="fa fa-plus"></i></a>
-				</td>
+				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">start date</th>
                 <td class="col-8">
-					{{form.start_date}} 
-					{{from.start_date.error}}
-				</td>
+					        {{form.start_date}} 
+					        {{from.start_date.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">end date</th>
                 <td class="col-8">
-					{{form.end_date}} 
-					{{from.end_date.error}}
-				</td>
+					        {{form.end_date}} 
+					        {{from.end_date.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">date comments</th>
                 <td class="col-8">
-					{{form.date_comments}} 
-					{{from.date_comments.error}}
-				</td>
-            </tr>
-            <tr class="d-flex">
-                <th class="col-2">images</th>
-                <td class="col-8">
-					{{form.images}} 
-					{{from.images.error}}
-				</td>
-				<td>
-                    <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-                        href ="{% url 'installations:add_image'  'inline' %}" 
-						role="button">
-                        <i class="fa fa-plus"></i></a>
-				</td>
+					        {{form.date_comments}} 
+					        {{from.date_comments.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">figure</th>
                 <td class="col-8">
-					{{form.figure}} 
-					{{from.figure.error}}
-				</td>
-				<td>
+					        {{form.figure}} 
+					        {{from.figure.error}}
+				        </td>
+				        <td>
                     <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
                         href ="{% url 'installations:add_figure'  'inline' %}" 
 						role="button">
                         <i class="fa fa-plus"></i></a>
-				</td>
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">description</th>
                 <td class="col-8">
-					{{form.description}} 
-					{{form.description.error}}
-				</td>
+					        {{form.description}} 
+					        {{form.description.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">comments</th>
                 <td class="col-8">
-					{{form.comments}} 
-					{{form.comments.error}}
-				</td>
+					        {{form.comments}} 
+					        {{form.comments.error}}
+				        </td>
             </tr>
         </table>
     </div>

@@ -402,9 +402,9 @@ class Event(models.Model, info):
     # [0-1] Figure related to this event
     figure = models.ForeignKey(Figure,**dargs)
 
-    # ==================== Many-to-many fields ===========================
-    # [0-1] Images related to this event
-    images = models.ManyToManyField(Image,blank=True,default= None)
+    ## ==================== Many-to-many fields ===========================
+    ## [0-1] Images related to this event
+    #images = models.ManyToManyField(Image,blank=True,default= None)
 
     # =========== Standard fields ========================================
     # [1] Description of this object (may be '')

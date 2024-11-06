@@ -272,14 +272,14 @@ class EventDetails(EventEdit):
             if 'after_details' in context:
                 lHtml.append(context['after_details'])
 
-            # Figure out the list of images
-            lst_image = []
-            for obj in instance.images.all():
-                img_html, sTitle = obj.get_image_html()
-                lst_image.append(dict(img=img_html, title=sTitle, info=sTitle))
-            if len(lst_image) > 0:
-                context['default'] = lst_image[0]
-            context['pictures'] = lst_image[1:]
+            ## Figure out the list of images
+            #lst_image = []
+            #for obj in instance.images.all():
+            #    img_html, sTitle = obj.get_image_html()
+            #    lst_image.append(dict(img=img_html, title=sTitle, info=sTitle))
+            #if len(lst_image) > 0:
+            #    context['default'] = lst_image[0]
+            #context['pictures'] = lst_image[1:]
 
             # COmbine and show the additions
             lHtml.append(render_to_string('installations/event_addition.html', context, self.request))

@@ -21,15 +21,6 @@
   <div class="col-md-9">
     <!-- List of buttons to show details -->
     <div class="detail-button">
-      <!-- Additional images -->
-      {% if pictures|length == 0 %}
-        <button title="{% trans '(No additional pictures for this event)' %}" class="btn btn-normal jumbo-1">{% trans "(No pictures)" %}</button>
-      {% else %}
-        <button data-toggle="collapse" data-target="#pictures_table" class="btn btn-normal jumbo-3">
-          {% trans "More pictures" %}
-          <span style="color: yellow;">&nbsp;({{pictures|length}})</span>
-        </button>
-      {% endif %}
 
       <!-- Buttons for related objects -->
       {% for related in related_objects %}
@@ -47,16 +38,6 @@
     </div>
 
 
-    {% if pictures|length > 0 %}
-      <div id="pictures_table" class="collapse stalla-more">
-        {% for oPict in pictures %}
-          <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
-               onclick="ru.istanbul.show_picture(this);">
-            {{oPict.img|safe}}
-          </div>
-        {% endfor %}
-      </div>
-    {% endif %}
   </div>
 </div>
 
