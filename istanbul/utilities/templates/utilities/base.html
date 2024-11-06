@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang='en'>
-    <head>
+<head>
 	<meta charset="utf-8">
 	<!-- Latest compiled and minified CSS -->
 	{% load static %}
@@ -33,51 +33,53 @@
 
 	{% block head %}
 	{% endblock %}
-    </head>
+</head>
 
-    <body>
-    {% block navbar %}
+<body>
+	{% block navbar %}
 	{% if view == "inline" %}
 	{% else %}
-        {% include 'utilities/navbar.html' %}
+	{% include 'utilities/navbar.html' %}
 	{% endif %}
-    {% endblock %}
-
-	{% block messages %}
-		{% if messages %}
-			{% for message in messages %}
-			<div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"
-			style="height:0;line-height:0">
-				<button type="button" class="close" 
-					data-dismiss="alert" aria-label="Close"> 
-				</button>
-				<p class= "mb-0 mt-0"><small>{{ message | safe }}</small></p>
-			</div>
-			{% endfor %}
-		{% else %}
-			<div class="alert alert-light mb-0" role="alert" 
-				style="height:0;line-height:0">
-				<button type="button" class="close" 
-					data-dismiss="alert" aria-label="Close"> 
-				</button>
-				<p class= "mb-0 mt-0"><small></small></p>
-			</div>
-		{% endif %}
-    {% endblock %}
-
-    {% block login %}
-    {% endblock %}
-
-	{% block wide %}
 	{% endblock %}
 
-	{% if user.username == '' %}
-	{% else %}
-	{% endif %}
+	<div class="main-container">
+		{% block messages %}
+		{% if messages %}
+		{% for message in messages %}
+			<!-- Messages -->
+			<div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"
+						style="height:0;line-height:0">
+				<button type="button" class="close"
+								data-dismiss="alert" aria-label="Close">
+				</button>
+				<p class="mb-0 mt-0"><small>{{ message | safe }}</small></p>
+			</div>
+		{% endfor %}
+		{% else %}
+			<div class="alert alert-light mb-0" role="alert"
+						style="height:0;line-height:0">
+				<button type="button" class="close"
+								data-dismiss="alert" aria-label="Close">
+				</button>
+				<p class="mb-0 mt-0"><small></small></p>
+			</div>
+		{% endif %}
+		{% endblock %}
+
+		{% block login %}
+		{% endblock %}
+
+		{% block wide %}
+		{% endblock %}
+
+		{% if user.username == '' %}
+		{% else %}
+		{% endif %}
 			<div class="container-fluid">
 
 				<div class="row">
-					<div class="col-1"> 
+					<div class="col-1">
 						{% block left %}
 
 
@@ -97,26 +99,27 @@
 				</div>
 
 			</div>
-			<div>
-				<footer>
-					<span>Istanbul-su v1.1.0 &copy; 2023-{% now 'Y' %} </span>
-					&nbsp;&nbsp;&nbsp;&nbsp;
-					<span>Developed at: <a href="http://www.ru.nl/humanitieslab/">Radboud University Nijmegen, TSG</a></span>
-				</footer>
-			</div>
+	</div>
+	<div>
+		<footer>
+			<span>Istanbul-su v1.1.0 &copy; 2023-{% now 'Y' %} </span>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<span>Developed at: <a href="http://www.ru.nl/humanitieslab/">Radboud University Nijmegen, TSG</a></span>
+		</footer>
+	</div>
 
-			{% block endcontent %}{% endblock %}
-			<script>
-					$(document).ready(function(){
-					window.setTimeout(function() {
-						$(".alert").fadeTo(500, 0)
-					}, 3000);
-			})
-			</script>
+	{% block endcontent %}{% endblock %}
+	<script>
+		$(document).ready(function () {
+			window.setTimeout(function () {
+				$(".alert").fadeTo(500, 0)
+			}, 3000);
+		})
+	</script>
 
-		</body>
-		{% block afterbody %}
-		{% endblock %}
+</body>
+{% block afterbody %}
+{% endblock %}
 	
 <!-- This used to be the % endif % -->
 
