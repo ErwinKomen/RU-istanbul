@@ -1,5 +1,7 @@
 {% load static %}
-<link rel="stylesheet" href="{% static 'mapview/content/fontawesome-5-all.css' %}" />
+{% if not fontawesome_already %}
+  <link rel="stylesheet" href="{% static 'mapview/content/fontawesome-5-all.css' %}" />
+{% endif %}
 <link rel="stylesheet" href="{% static 'mapview/content/leaflet.css' %}" type="text/css" />
 <link rel="stylesheet" href="{% static 'mapview/content/ru.mapview.css' %}" type="text/css" />
 <script src="{% static 'mapview/scripts/leaflet-src.js' %}"></script>

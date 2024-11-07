@@ -822,6 +822,7 @@ class BasicList(ListView):
     lst_typeaheads = []
     sort_order = ""
     col_wrap = ""
+    fontawesome_already = False
     param_list = []
     # extend_template = "layout.html"
     extend_template = "utilities/base.html"
@@ -1065,6 +1066,8 @@ class BasicList(ListView):
         context['usebasket'] = self.basketview
 
         context['permission'] = self.permission
+
+        context['fontawesome_already'] = self.fontawesome_already
 
         # Add the search url
         if self.usersearch_id == "":

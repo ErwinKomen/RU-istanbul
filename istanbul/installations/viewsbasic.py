@@ -556,6 +556,7 @@ class InstallationList(BasicList):
     sg_name = "Installation"        # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
     plural_name = "Installations"   # As displayed
     new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
     order_cols = ['english_name', 'installation_type__name', '', '', '']
     order_default = order_cols
     order_heads = [
@@ -643,6 +644,8 @@ class InstallationList(BasicList):
             lst_installations = self.qs.values('id')
             sLocationCount = Image.objects.filter(installation__in=lst_installations).order_by('id').distinct().count()
             context['mapcount'] = sLocationCount
+
+            context['fontawesome_already'] = True
 
         except:
             msg = oErr.get_error_message()

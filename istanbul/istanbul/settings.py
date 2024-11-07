@@ -100,9 +100,9 @@ INSTALLED_APPS = [
 	'easyaudit',
 	'django_select2',
 	'colorfield',
+    'mapview',
     'basic',
     'cms',
-    'mapview',
 ]
 
 # Middleware framework

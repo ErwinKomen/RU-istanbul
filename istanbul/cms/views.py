@@ -251,6 +251,7 @@ class CpageListView(BasicList):
     sg_name = "Content page"     # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
     plural_name = "Content pages"
     new_button = False
+    fontawesome_already = True      # Already have fontawesome
     order_cols = ['name', 'urlname', '', 'saved', 'created']
     order_default = order_cols
     order_heads = [
@@ -407,6 +408,7 @@ class ClocationListView(BasicList):
     sg_name = "Content location"     # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
     plural_name = "Content locations"
     new_button = False
+    fontawesome_already = True      # Already have fontawesome
     order_cols = ['page__name', 'name', 'htmlid', '', 'saved', 'created']
     order_default = order_cols
     order_heads = [
@@ -561,6 +563,7 @@ class CitemListView(BasicList):
     sg_name = "Content item"     # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
     plural_name = "Content items"
     new_button = False
+    fontawesome_already = True      # Already have fontawesome
     order_cols = ['clocation__page__name', 'clocation__htmlid', 'clocation__name', 'contents', 'saved', 'created']
     order_default = order_cols
     order_heads = [
