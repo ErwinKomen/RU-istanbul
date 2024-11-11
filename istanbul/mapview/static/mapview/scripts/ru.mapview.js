@@ -83,6 +83,56 @@ var ru = (function ($, ru) {
         }
       },
 
+      /**
+       * make_geo
+       * 
+       * @param {entry}   entry object
+       * @returns {bool}
+       */
+      make_geo: function (entry) {
+        var point,    // Latitude, longitude array
+          trefwoord = "",
+          popup = "",
+          idx = -1,
+          marker;
+
+        try {
+          // Validate
+          if (entry.point === null || entry.point === "") { return false; }
+          // Get the trefwoord
+          trefwoord = entry.trefwoord;
+          if (loc_trefwoord.indexOf(trefwoord) < 0) {
+            // Add it
+            loc_trefwoord.push(trefwoord);
+            // Set the color table
+            idx = loc_trefwoord.indexOf(trefwoord);
+            loc_colorDict[trefwoord] = loc_colors[idx % 10];
+          }
+          // Get to the point
+          point = entry.point.split(",").map(Number);
+
+          // Set the geometrical entry
+          marker = L.geoJSON(entry.geojson) //.addTo(main_map_object);
+
+          // Create marker for this point
+          //marker = L.marker(point, { icon: private_methods.make_icon(trefwoord) });
+
+          // Add a popup to the marker
+          //popup = entry.woord + "\n (" + entry.kloeke + ": " + entry.stad + ")";
+          popup = entry.pop_up;
+          marker.bindPopup(popup, { maxWidth: 200, closeButton: false });
+
+          // Add to OMS
+          if (loc_oms !== null) { loc_oms.addMarker(marker); }
+          // Add marker to the trefwoord collectionlayer
+          if (loc_layerDict[trefwoord] === undefined) {
+            loc_layerDict[trefwoord] = [];
+          }
+          loc_layerDict[trefwoord].push(marker);
+        } catch (ex) {
+          private_methods.errMsg("make_geo", ex);
+        }
+      },
  
       /**
        * make_marker
@@ -736,6 +786,7 @@ var ru = (function ($, ru) {
           map_id = null,
           polyline = null,
           map_title = null,
+          trefwoord = "",
           i = 0,
           j = 0,
           idx = 0,
@@ -795,7 +846,7 @@ var ru = (function ($, ru) {
 
           // Post the data to the server
           $.post(targeturl, data, function (response) {
-            var key, layername, kvalue;
+            var key, layername, kvalue, oGeo;
 
             // Sanity check
             if (response !== undefined) {
@@ -818,7 +869,8 @@ var ru = (function ($, ru) {
                         // Is this geojson or not?
                         if (entries[i].geojson !== undefined && entries[i].geojson !== null) {
                           // Probably  geojson
-                          geometries.push(entries[i].geojson);
+                          // geometries.push(entries[i].geojson);
+                          private_methods.make_geo(entries[i]);
                         } else {
                           // Create a marker for this point
                           private_methods.make_marker(entries[i]);
@@ -837,12 +889,12 @@ var ru = (function ($, ru) {
                       // https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet to handle overlapping markers
                       loc_oms = new OverlappingMarkerSpiderfier(main_map_object, { keepSpiderfied: true });
 
-                      // Handle geojson
-                      if (geometries.length > 0) {
-                        for (j = 0; j < geometries.length; j++) {
-                          L.geoJSON(geometries[j]).addTo(main_map_object);
-                        }
-                      }
+                      //// Handle geojson
+                      //if (geometries.length > 0) {
+                      //  for (j = 0; j < geometries.length; j++) {
+                      //    L.geoJSON(geometries[j]).addTo(main_map_object);
+                      //  }
+                      //}
 
                       // Convert layerdict into layerlist
                       for (key in loc_layerDict) {

@@ -641,8 +641,11 @@ class InstallationList(BasicList):
             context['basicmap'] = True
 
             # Figure out how many locations there are
-            lst_installations = self.qs.values('id')
-            sLocationCount = Image.objects.filter(installation__in=lst_installations).order_by('id').distinct().count()
+            lst_installations = self.qs.filter(location__isnull=False).values('id')
+            # sLocationCount = Image.objects.filter(installation__in=lst_installations).order_by('id').distinct().count()
+            # Also get the number of installations that have a geojson image
+            lst_geojson = Image.objects.filter(installation__in=lst_installations, geojson__isnull=False).order_by('id').values('id')
+            sLocationCount = len(lst_installations) + len(lst_geojson)
             context['mapcount'] = sLocationCount
 
             context['fontawesome_already'] = True
@@ -731,6 +734,9 @@ class InstallationMap(MapView):
                                     bHavePoint = True
                             break
                     if bHavePoint:
+                        sTrefwoord = installation.get_value("instaltype")
+                        if sTrefwoord is None or sTrefwoord == "":
+                            sTrefwoord = "geojson"
                         # Add an entry to lst_this
                         oEntry = dict(
                             locname=installation.english_name,
@@ -738,7 +744,7 @@ class InstallationMap(MapView):
                             point_y = point_y,
                             point = "{}, {}".format(point_x, point_y),
                             pop_up = "(no popup specified)",
-                            trefwoord = installation.get_value("instaltype"),
+                            trefwoord = sTrefwoord,
                             location_id = None,
                             info = info,
                             geojson = geojson
