@@ -241,7 +241,13 @@
     <Content Include="mapview\static\mapview\content\fontawesome-5-all.css" />
     <Content Include="mapview\static\mapview\content\leaflet.css" />
     <Content Include="mapview\static\mapview\content\ru.mapview.css" />
+    <Content Include="mapview\static\mapview\content\images\layers-2x.png" />
+    <Content Include="mapview\static\mapview\content\images\layers.png" />
+    <Content Include="mapview\static\mapview\content\images\marker-icon-2x.png" />
+    <Content Include="mapview\static\mapview\content\images\marker-icon.png" />
+    <Content Include="mapview\static\mapview\content\images\marker-shadow.png" />
     <Content Include="mapview\static\mapview\scripts\leaflet-src.js" />
+    <Content Include="mapview\static\mapview\scripts\Leaflet.Editable.js" />
     <Content Include="mapview\static\mapview\scripts\oms.min.js" />
     <Content Include="mapview\static\mapview\scripts\ru.mapview.js" />
     <Content Include="mapview\static\mapview\webfonts\fa-brands-400.eot" />
@@ -324,6 +330,7 @@
     <Folder Include="mapview\static\" />
     <Folder Include="mapview\static\mapview\" />
     <Folder Include="mapview\static\mapview\content\" />
+    <Folder Include="mapview\static\mapview\content\images\" />
     <Folder Include="mapview\static\mapview\scripts\" />
     <Folder Include="mapview\static\mapview\webfonts\" />
     <Folder Include="mapview\templates\" />

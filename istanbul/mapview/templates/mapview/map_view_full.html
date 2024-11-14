@@ -1,14 +1,35 @@
 {% load static %}
 {% if not fontawesome_already %}
-  <link rel="stylesheet" href="{% static 'mapview/content/fontawesome-5-all.css' %}" />
+<link rel="stylesheet" href="{% static 'mapview/content/fontawesome-5-all.css' %}" />
 {% endif %}
 <link rel="stylesheet" href="{% static 'mapview/content/leaflet.css' %}" type="text/css" />
 <link rel="stylesheet" href="{% static 'mapview/content/ru.mapview.css' %}" type="text/css" />
 <script src="{% static 'mapview/scripts/leaflet-src.js' %}"></script>
+<script src="{% static 'mapview/scripts/Leaflet.Editable.js' %}"></script>
 <script src="{% static 'mapview/scripts/oms.min.js' %}"></script>
 <script src="{% static 'mapview/scripts/ru.mapview.js' %}"></script>
 
 <!-- Full view of a map (no size resriction) -->
-<div id="map_main" >
+<div id="map_main">
   <!-- THis is where the waiting symbol or the actual map will appear-->
 </div>
+
+
+<!-- Hidden form to create Location -->
+<div class="hidden" id="create_location">
+  <form targeturl="{% url 'location_details' %}">
+    {% csrf_token %}
+    <input name="loc-n-name" type="text" value="Map created" />
+    <input name="marker_loc" id="marker_loc" type="text" value="" />
+  </form>
+</div>
+
+<!-- Hidden form to create Image -->
+<div class="hidden" id="create_image">
+  <form targeturl="{% url 'image_details' %}">
+    {% csrf_token %}
+    <input name="image_polygon" id="image_polygon" type="text" value="" />
+  </form>
+</div>
+
+

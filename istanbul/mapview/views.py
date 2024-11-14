@@ -236,6 +236,9 @@ class MapView(DetailView):
                 else:
                     data['label'] = self.label
 
+                # Add anything to the data
+                data = self.add_to_data(data)
+
                 # Set the status to okay
                 data['status'] = 'ok'
 
@@ -254,4 +257,8 @@ class MapView(DetailView):
         """Add geojson points to the list"""
 
         return lst_this
+
+    def add_to_data(self, data):
+        """Add any necessary details to the data"""
+        return data
 

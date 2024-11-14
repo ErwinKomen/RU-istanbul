@@ -3,6 +3,7 @@ Main models for the istanbul-su application
 """
 import os
 import json
+import uuid
 from pickle import NONE
 from re import X
 from django.db import models
@@ -15,6 +16,7 @@ from partial_date import PartialDate
 
 # From own application
 from basic.utils import ErrHandle
+from istanbul.settings import MEDIA_ROOT
 from utils.model_util import info
 
 
@@ -35,8 +37,14 @@ class LocType(models.Model):
     def __str__(self):
         return self.name
 
+    def get_item(loc_name):
+        obj = LocType.objects.filter(name__iexact=loc_name).first()
+        if obj is None:
+            obj = LocType.objects.create(name=loc_name)
+        return obj
 
-class Location(models.Model):
+
+class Location(models.Model, info):
     """The location name and coordinates (to be used e.g. by Image, Installation, Event)"""
 
     # [1] Name of this location (village)
@@ -286,10 +294,6 @@ class Image(models.Model, info):
     current_location= models.CharField(max_length=300,blank=True,null=True)
     # [0-1] Name of the collection this belongs to
     collection = models.CharField(max_length=300,blank=True,null=True)
-    ## [1] Image location latitude coordinate
-    #latitude = models.DecimalField(**gpsargs)
-    ## [1] Image location longitude coordinate
-    #longitude = models.DecimalField(**gpsargs)
 
     # If this is a .geojson image, then load its contents here
     geojson = models.JSONField(blank=True, null=True)
@@ -305,7 +309,7 @@ class Image(models.Model, info):
         oErr = ErrHandle()
         try:
             # Try to load a possible geojson field
-            if not self.image_file is None and not self.image_file.file is None:
+            if not self.image_file is None and not self.image_file.name is None:
                 filename = self.image_file.file.name
                 if filename.endswith(".geojson"):
                     oGeojson = None
@@ -318,6 +322,16 @@ class Image(models.Model, info):
                     except:
                         msg = oErr.get_error_message()
                         print("Image/save fails to extract geojson: {}".format(msg))
+            elif not self.geojson is None:
+                # This is a new image that has not been saved to a file yet
+                # Create a unique ID for this image
+                basename = "map_{}.geojson".format(uuid.uuid4())
+                filename = os.path.abspath(os.path.join(MEDIA_ROOT, "IMAGES", basename))
+                # Now write it
+                with open(filename, "w") as f:
+                    json.dump(self.geojson, f, indent=2)
+                # Add the filename to the field
+                self.image_file.name = os.path.join("IMAGES", basename)
 
             # Now attempt the actual saving
             response = super(Image, self).save(force_insert, force_update, using, update_fields)
@@ -368,6 +382,37 @@ class Image(models.Model, info):
             sBack = "image_{}".format(self.id)
         return sBack
 
+    def get_point(self):
+        """Try to get the first point from the geojson"""
+
+        oPoint = None
+        oErr = ErrHandle()
+        try:
+            if not self.geojson is None:
+                # Get the first point
+                bHavePoint = False
+                for oFt in self.geojson['features']:
+                    geometry = oFt.get("geometry")
+                    if not geometry is None:
+                        coordinates = geometry.get("coordinates")
+                        if not coordinates is None and len(coordinates) > 0:
+                            # Look for the nearest actual point
+                            point = coordinates[0]
+                            if isinstance(point[0], list):
+                                point = point[0]
+                                if isinstance(point[0], list):
+                                    point = point[0]
+                            point_x = point[1]
+                            point_y = point[0]
+                            oPoint = dict(x_coordinate=point_x, y_coordinate=point_y)
+                            bHavePoint = True
+                    break
+                
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Image/get_point")
+        return oPoint
+
     def get_value(self, field):
         """Get the value(s) of 'field' associated with this image"""
 
@@ -381,7 +426,7 @@ class Image(models.Model, info):
             #        sBack = "{} {}".format(self.latitude, self.longitude)
         except:
             msg = oErr.get_error_message()
-            oErr.DoError("Event/get_value")
+            oErr.DoError("Image/get_value")
 
         return sBack
 
@@ -726,6 +771,38 @@ class Installation(models.Model, info):
 
         return sBack
 
+    # UNDESIRABLE: to add a piont stolen from the Geojson
+    #def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+
+    #    oErr = ErrHandle()
+    #    try:
+    #        # If an installation is saved, doesn't have a location, but does have a geojson, take that
+    #        if self.location is None:
+    #            # There is no location: check for images
+    #            obj = self.images.filter(geojson__isnull=False).first()
+    #            if not obj is None:
+    #                # There is a GEOJSON image: take its first point
+    #                point = obj.get_point()
+    #                if not point is None:
+    #                    # Add a location based on this point
+    #                    sName = "GeoJson point from image id={}".format(obj.id)
+    #                    loc = Location.objects.create(
+    #                        name=sName,
+    #                        x_coordinate=point.get("x_coordinate"),
+    #                        y_coordinate=point.get("y_coordinate"),
+    #                        loctype = LocType.get_item("geojson point"))
+    #                    # Now set my location 
+    #                    self.location = loc
+
+    #        # Now attempt the actual saving
+    #        response = super(Installation, self).save(force_insert, force_update, using, update_fields)
+    #    except:
+    #        msg = oErr.get_error_message()
+    #        oErr.DoError("Installation/save")
+    #        response = None
+
+    #    # Return the response when saving
+    #    return response
 
 class Literature(models.Model, info):
     """Literature reference as well as source text"""

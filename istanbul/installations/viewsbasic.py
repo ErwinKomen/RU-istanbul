@@ -8,6 +8,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext as _, gettext_lazy
 import copy
+import json
 
 # From own applicatino
 from .models import System, Image, Installation, SystemInstallationRelation
@@ -30,7 +31,7 @@ from .forms import partial_year_to_date
 
 # EK: adding detail views
 from basic.utils import ErrHandle
-from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime
+from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime, get_application_context
 from mapview.views import MapView
 
 
@@ -333,6 +334,31 @@ class ImageEdit(BasicDetails):
 
         # Return the context we have made
         return context
+
+    def before_save(self, form, instance):
+        """After adding a new Location"""
+
+        bResult = True
+        msg = ""
+        oErr = ErrHandle()
+        try:
+            # Try to retrieve the marker location
+            image_polygon = self.qd.get("image_polygon")
+            if not image_polygon is None and image_polygon != "":
+                # This is a stringified json
+                oFeature = json.loads(image_polygon)
+                # The actual geojson is a bit more complex
+                oGeoJson = dict(
+                    type="FeatureCollection", name="Unnamed (from map input)", crs=None,
+                    features=[ oFeature ]
+                )
+                # Store the actual object
+                form.instance.geojson = oGeoJson
+                form.instance.title = "Polygon from map"
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ImageEdit/after_new")
+        return bResult, msg
 
 
 class ImageDetails(ImageEdit):
@@ -641,10 +667,11 @@ class InstallationList(BasicList):
             context['basicmap'] = True
 
             # Figure out how many locations there are
-            lst_installations = self.qs.filter(location__isnull=False).values('id')
+            lst_installations = self.qs.filter(Q(location__isnull=False)).values('id')
             # sLocationCount = Image.objects.filter(installation__in=lst_installations).order_by('id').distinct().count()
             # Also get the number of installations that have a geojson image
-            lst_geojson = Image.objects.filter(installation__in=lst_installations, geojson__isnull=False).order_by('id').values('id')
+            # lst_geojson = Image.objects.filter(installation__in=lst_installations, geojson__isnull=False).order_by('id').values('id')
+            lst_geojson = self.qs.filter(Q(images__geojson__isnull=False)).values('id')
             sLocationCount = len(lst_installations) + len(lst_geojson)
             context['mapcount'] = sLocationCount
 
@@ -729,8 +756,16 @@ class InstallationMap(MapView):
                             if not geometry is None:
                                 coordinates = geometry.get("coordinates")
                                 if not coordinates is None and len(coordinates) > 0:
-                                    point_x = coordinates[0][1]
-                                    point_y = coordinates[0][0]
+                                    # point_x = coordinates[0][1]
+                                    # point_y = coordinates[0][0]
+                                    # bHavePoint = True
+                                    point = coordinates[0]
+                                    if isinstance(point[0], list):
+                                        point = point[0]
+                                        if isinstance(point[0], list):
+                                            point = point[0]
+                                    point_x = point[1]
+                                    point_y = point[0]
                                     bHavePoint = True
                             break
                     if bHavePoint:
@@ -824,6 +859,12 @@ class InstallationMap(MapView):
             msg = oErr.get_error_message()
             oErr.DoError("InstallationMap/get_group_popup")
         return pop_up
+
+    def add_to_data(self, data):
+        # Add edit permission to data
+        data = get_application_context(self.request, data)
+        # Return what we have
+        return data
 
 
 
@@ -1277,6 +1318,28 @@ class LocationEdit(BasicDetails):
 
         # Return the context we have made
         return context
+
+    def before_save(self, form, instance):
+        """Before saving a new Location"""
+
+        bResult = True
+        msg = ""
+        oErr = ErrHandle()
+        try:
+            # Try to retrieve the marker location
+            marker_loc = self.qd.get("marker_loc")
+            if not marker_loc is None and marker_loc != "":
+                # This is a stringified json
+                oGeoJson = json.loads(marker_loc)
+                # Find the actual location
+                coords = oGeoJson.get("geometry").get("coordinates")
+                form.instance.x_coordinate = str(coords[1])
+                form.instance.y_coordinate = str(coords[0])
+                form.instance.loctype = LocType.get_item("mappoint")
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LocationEdit/before_save")
+        return bResult, msg
 
 
 class LocationDetails(LocationEdit):

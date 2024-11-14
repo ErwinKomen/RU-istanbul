@@ -60,6 +60,33 @@ var ru = (function ($, ru) {
       },
 
       /**
+       * create_instance
+       * 
+       * Create a new instance of an object
+       */
+      create_instance: function (elStart) {
+        var targeturl = "",
+            data = null,
+            frm = null;
+        try {
+          // Get the form
+          frm = $(elStart).find("form").first();
+          // Get the targeturl
+          targeturl = $(frm).attr("targeturl");
+          // Get the data
+          data = frm.serializeArray();
+          // Submit a POST to create the new instance
+          $(frm).attr("action", targeturl);
+          $(frm).attr("method", "post");
+          $(frm).submit();
+          //$.post(targeturl, data);
+
+        } catch (ex) {
+          errMsg("create_instance", ex);
+        }
+      },
+
+      /**
        * make_icon
        * 
        * @param {str}   name, representing category
@@ -179,6 +206,130 @@ var ru = (function ($, ru) {
           loc_layerDict[trefwoord].push(marker);
         } catch (ex) {
           private_methods.errMsg("make_marker", ex);
+        }
+      },
+
+      leaflet_editable: function (this_map) {
+        try {
+          // Editable shapes
+          L.EditControl = L.Control.extend({
+            options: {
+              position: 'topleft',
+              callback: null,
+              kind: '',
+              html: ''
+            },
+
+            onAdd: function (map) {
+              var container = L.DomUtil.create('div', 'leaflet-control leaflet-bar'),
+                link = L.DomUtil.create('a', '', container);
+
+              link.href = '#';
+              link.title = 'Create a new ' + this.options.kind;
+              link.innerHTML = this.options.html;
+              L.DomEvent.on(link, 'click', L.DomEvent.stop)
+                .on(link, 'click', function () {
+                  window.LAYER = this.options.callback.call(map.editTools);
+                }, this);
+
+              return container;
+            }
+          });
+          L.NewMarkerControl = L.EditControl.extend({
+            options: {
+              position: 'topleft',
+              callback: this_map.editTools.startMarker,
+              kind: 'marker',
+              html: '🖈'
+            }
+          });
+          L.NewLineControl = L.EditControl.extend({
+            options: {
+              position: 'topleft',
+              callback: this_map.editTools.startPolyline,
+              kind: 'line',
+              html: '\\/\\'
+            }
+          });
+          L.NewPolygonControl = L.EditControl.extend({
+            options: {
+              position: 'topleft',
+              callback: this_map.editTools.startPolygon,
+              kind: 'polygon',
+              html: '▰'
+            }
+          });
+
+          this_map.addControl(new L.NewMarkerControl());
+          this_map.addControl(new L.NewLineControl());
+          this_map.addControl(new L.NewPolygonControl());
+          // Add delete capabilities
+          var clickShape = function (e) {
+            var x = 1, arPoints = null, sGeoJson;
+            // Is editing enabled?
+            if (this.editEnabled()) {
+              // Is this a ctrl or a shift?
+              if (e.originalEvent.ctrlKey || e.originalEvent.metaKey) {
+                // Ctrl + click: delete
+                this.editor.deleteShapeAt(e.latlng);
+              } else if (e.originalEvent.shiftKey) {
+                // Shift + click: add location based on this shape
+                //arPoints = e.target.getLatLngs().map(function (point) { return [point.lat, point.lng]; });
+                sGeoJson = JSON.stringify(e.target.toGeoJSON());
+                $("#image_polygon").val(sGeoJson);
+                private_methods.create_instance("#create_image");
+              }
+            }
+          };
+          var clickMarker = function (e) {
+            var x = 1, sGeoJson = ""; // coords = null;
+
+            // Is editing enabled?
+            if (this.editEnabled()) {
+              // Is this a ctrl or a shift?
+              if (e.originalEvent.ctrlKey || e.originalEvent.metaKey) {
+                // Ctrl + click: delete
+                e.target.remove();
+              } else if (e.originalEvent.shiftKey) {
+                // Shift + click: add location based on this marker
+                // coords = e.target.getLatLng();
+                sGeoJson = JSON.stringify(e.target.toGeoJSON());
+                $("#marker_loc").val(sGeoJson);
+                private_methods.create_instance("#create_location");
+              }
+
+            }
+          };
+          this_map.on('layeradd', function (e) {
+            // Ctrl + click is deleting the selected shape
+            if (e.layer instanceof L.Path) {
+              e.layer.on('click', L.DomEvent.stop).on('click', clickShape, e.layer);
+            } else if (e.layer instanceof L.Marker) {
+              e.layer.on('click', L.DomEvent.stop).on('click', clickMarker, e.layer);
+            }
+            // Double click is toggling the edit mode of the particular shape
+            if (e.layer instanceof L.Path) {
+              e.layer.on('dblclick', L.DomEvent.stop).on('dblclick', e.layer.toggleEdit);
+            } else if (e.layer instanceof L.Marker) {
+              e.layer.on('dblclick', function (ev2) {
+                var x = ev2;
+            });
+            }
+          });
+
+          // Add event listener to the map
+          this_map.addEventListener('mousedown', function (event) {
+            var lat = Math.round(event.latlng.lat * 100000) / 100000,
+                lng = Math.round(event.latlng.lng * 100000) / 100000,
+                ctrl = event.originalEvent.ctrlKey,
+                shift = event.originalEvent.shiftKey;
+
+            this_map.position = lat + "," + lng;
+            console.log("Position = " + this_map.position);
+          });
+
+        } catch (ex) {
+          private_methods.errMsg("leaflet_editable", ex);
         }
       },
 
@@ -786,6 +937,7 @@ var ru = (function ($, ru) {
           map_id = null,
           polyline = null,
           map_title = null,
+          has_edit_permission = false,
           trefwoord = "",
           i = 0,
           j = 0,
@@ -852,6 +1004,11 @@ var ru = (function ($, ru) {
             if (response !== undefined) {
               if (response.status == "ok") {
                 if ('entries' in response) {
+                  // Get the edit permission
+                  if (response.is_app_editor !== undefined) {
+                    has_edit_permission = response.is_app_editor;
+                  }
+                  // Get the entries
                   entries = response['entries'];
 
                   // The title LABEL is for a Modal Dialog view
@@ -883,18 +1040,12 @@ var ru = (function ($, ru) {
                       // CLear the map section from the waiting symbol
                       $("#" + map_id).html();
                       // Set the starting map
-                      main_map_object = L.map(map_id).setView([point[0], point[1]], 12);
+                      // EK: Added "editable" to it
+                      main_map_object = L.map(map_id, { editable: true }).setView([point[0], point[1]], 12);
                       // Add it to my mapview_tiles
                       mapview_tiles.addTo(main_map_object);
                       // https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet to handle overlapping markers
                       loc_oms = new OverlappingMarkerSpiderfier(main_map_object, { keepSpiderfied: true });
-
-                      //// Handle geojson
-                      //if (geometries.length > 0) {
-                      //  for (j = 0; j < geometries.length; j++) {
-                      //    L.geoJSON(geometries[j]).addTo(main_map_object);
-                      //  }
-                      //}
 
                       // Convert layerdict into layerlist
                       for (key in loc_layerDict) {
@@ -932,7 +1083,13 @@ var ru = (function ($, ru) {
 
                       private_methods.leaflet_scrollbars();
 
+                      // If there is permission, switch on editable
+                      if (has_edit_permission) {
+                        private_methods.leaflet_editable(main_map_object);
+                      }
+
                     }
+
                   }
 
                   // Make sure it is redrawn
