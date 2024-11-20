@@ -1,4 +1,20 @@
 <h4 class="mt-2">
-  <a class="nostyle" 
+  <a class="nostyle"
      {% if form.instance.pk %}href="{% url detailsname form.instance.pk %}{% endif %}">{{page_name}}</a>
 </h4>
+
+{% if form.instance.pk %}
+  <!-- Cancel button -->
+  <span>&nbsp;&nbsp;</span>
+  <a mode="cancel" class="edit-mode btn btn-sm jumbo-1 details-buttons"
+     href="{% url detailsname form.instance.pk %}">
+    <span class="glyphicon glyphicon-arrow-left fa fa-arrow-left" title="Cancel (do *NOT* save)"></span>
+  </a>
+
+  <!-- Save button -->
+  <span>&nbsp;&nbsp;</span>
+  <button name="save" class="edit-mode btn btn-sm jumbo-2 details-buttons" 
+     type="submit" value="save_view">
+    <span class="glyphicon glyphicon-ok fa fa-check" title="Save these data and then View the result">&nbsp;Save</span>
+  </button>
+{% endif %}

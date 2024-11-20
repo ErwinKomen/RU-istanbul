@@ -10,10 +10,14 @@
       {% else %}
         <div>&nbsp;</div>
       {% endif %}
-      <div title="{{default.title}}" info="{{default.info}}" data-toggle="modal" data-target="#werkstuk_modal"
-           onclick="ru.istanbul.show_picture(this);">
+      {% if default.geojson %}
         {{default.img|safe}}
-      </div>
+      {% else %}
+        <div title="{{default.title}}" info="{{default.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+             onclick="ru.istanbul.show_picture(this);">
+          {{default.img|safe}}
+        </div>
+      {% endif %}
     </div>
   </div>
 

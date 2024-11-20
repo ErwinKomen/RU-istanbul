@@ -18,10 +18,10 @@
     {% if view != "inline" %}
         {% if page_name == "Edit event"%}
             <a class ="btn btn-link ml-auto" 
-				href="{% url 'installations:add_event' %}"
-                role="button">
-					<i class="fa fa-plus"></i>
-			</a>
+				       href="{% url 'installations:add_event' %}"
+                      role="button">
+					      <i class="fa fa-plus"></i>
+			      </a>
         {% endif %}
         <a class ="btn btn-link ml-auto"
             href="{% url 'utilities:list_view' 'Event' 'installations'%}"

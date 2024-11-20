@@ -310,18 +310,25 @@ class Image(models.Model, info):
         try:
             # Try to load a possible geojson field
             if not self.image_file is None and not self.image_file.name is None:
-                filename = self.image_file.file.name
-                if filename.endswith(".geojson"):
-                    oGeojson = None
-                    try:
-                        with open(filename, "r") as f:
-                            oGeojson = json.load(f)
-                        # Chek if all went file
-                        if not oGeojson is None:
-                            self.geojson = oGeojson
-                    except:
-                        msg = oErr.get_error_message()
-                        print("Image/save fails to extract geojson: {}".format(msg))
+                # Okay, there already is a loaded image
+                if self.geojson is None:
+                    filename = self.image_file.file.name
+                    if filename.endswith(".geojson"):
+                        oGeojson = None
+                        try:
+                            with open(filename, "r") as f:
+                                oGeojson = json.load(f)
+                            # Chek if all went file
+                            if not oGeojson is None:
+                                self.geojson = oGeojson
+                        except:
+                            msg = oErr.get_error_message()
+                            print("Image/save fails to extract geojson: {}".format(msg))
+                # We now have a geojson: double check the geojson's "NAME" field
+                name = self.geojson.get("name")
+                if name is None or name == "Unnamed (from map input)":
+                    # Give it the name of my title
+                    self.geojson['name'] = self.title
             elif not self.geojson is None:
                 # This is a new image that has not been saved to a file yet
                 # Create a unique ID for this image
@@ -343,7 +350,7 @@ class Image(models.Model, info):
         # Return the response when saving
         return response
 
-    def get_image_html(self, tooltip=None):
+    def get_image_html(self, tooltip=None, bListGeoJson=False):
         """Get the HTML <img> code for this one"""
 
         oErr = ErrHandle()
@@ -358,8 +365,27 @@ class Image(models.Model, info):
             sClass = "stalla-image" # Was: col-md-12
 
             if ".geojson" in image.lower():
-                # This is a geojson file that I cannot show
-                sBack = "<span title='{}'>geojson file</span>".format(image)
+                # This is a geojson file
+                if bListGeoJson:
+                    # I need to give a little table with geojson coordinates
+                    if self.geojson:
+                        # Yes, there are coordinates
+                        html = []
+                        coordinates = self.geojson.get("features")[0].get("geometry").get("coordinates")
+                        while isinstance(coordinates[0][0], list):
+                            coordinates = coordinates[0]
+                        html.append("<table class='func-view'><thead><tr><th>Latitude</th><th>Longitude</th></thead><tbody>")
+                        for coord in coordinates:
+                            html.append("<tr><td>{}</td><td>{}</td></tr>".format(coord[1], coord[0]))
+                        html.append("</tbody></table>")
+                        sBack = "\n".join(html)
+                    else:
+                        sBack = "(no geojson information)"
+                else:
+                    # I can give a link to the `Image` details
+                    url = reverse('image_details', kwargs={'pk': self.id})
+                    sBack = '<span title="{}" class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(
+                        self.title, url, "geojson image")
             else:
 
                 if tooltip == None:

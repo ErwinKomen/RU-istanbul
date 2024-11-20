@@ -219,3 +219,10 @@ body > div > footer a {
 .main-container {
     margin-top: 50px;
 }
+
+.details-buttons {
+    height: 25px;
+    padding-top: 2px;
+    margin-top: 12px;
+}
+

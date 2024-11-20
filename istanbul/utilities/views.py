@@ -148,6 +148,9 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
                                 return HttpResponseRedirect(
                                     reverse("{}:{}-detail".format(app_name, model_name.lower()), kwargs={'pk': instance.pk}))
                                     # reverse(app_name+':detail_'+model_name.lower()))
+                            elif button == "save_view":
+                                url = reverse("{}_details".format(model_name.lower()), kwargs={'pk': instance.pk})
+                                return HttpResponseRedirect(url)
                             return HttpResponseRedirect(reverse(
                                 app_name+':edit_'+model_name.lower(), 
                                 kwargs={'pk':instance.pk,'focus':focus}))

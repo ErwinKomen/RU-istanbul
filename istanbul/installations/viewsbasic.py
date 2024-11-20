@@ -474,7 +474,7 @@ class ImageDetails(ImageEdit):
                 lHtml.append(context['after_details'])
 
             # Note: there is only one image
-            img_html, sTitle = instance.get_image_html()
+            img_html, sTitle = instance.get_image_html(bListGeoJson=True)
             oImage = dict(img=img_html, title=sTitle, info=sTitle)
             context['default'] = oImage
             context['pictures'] = []
@@ -556,7 +556,8 @@ class InstallationDetails(InstallationEdit):
             lst_image = []
             for obj in instance.images.all():
                 img_html, sTitle = obj.get_image_html()
-                lst_image.append(dict(img=img_html, title=sTitle, info=sTitle))
+                bGeojson = (not obj.geojson is None)
+                lst_image.append(dict(img=img_html, title=sTitle, info=sTitle, geojson=bGeojson))
             if len(lst_image) > 0:
                 context['default'] = lst_image[0]
             context['pictures'] = lst_image[1:]
@@ -703,9 +704,9 @@ class InstallationMap(MapView):
             self.entry_list = []
 
             # Get the location's details: name, id, x-coordinate, y-coordinate
-            # self.add_entry('locname',       'str', 'location__name')
             self.add_entry('locname',       'str', 'english_name')
-            self.add_entry('location_id',   'str', 'location__id')
+            # OLD: just the location = self.add_entry('location_id',   'str', 'location__id')
+            self.add_entry('location_id',   'str', 'id')
             # labels 'point_x' and 'point_y' must be used for the coordinates
             self.add_entry('point_x',       'str', 'location__x_coordinate')
             self.add_entry('point_y',       'str', 'location__y_coordinate')
@@ -756,14 +757,14 @@ class InstallationMap(MapView):
                             if not geometry is None:
                                 coordinates = geometry.get("coordinates")
                                 if not coordinates is None and len(coordinates) > 0:
-                                    # point_x = coordinates[0][1]
-                                    # point_y = coordinates[0][0]
-                                    # bHavePoint = True
+                                    # Get the point
                                     point = coordinates[0]
+                                    # Make sure it is an actual point!
                                     if isinstance(point[0], list):
                                         point = point[0]
                                         if isinstance(point[0], list):
                                             point = point[0]
+                                    # Divide the point into (x,y): contrary to expectations (1,0)
                                     point_x = point[1]
                                     point_y = point[0]
                                     bHavePoint = True
@@ -771,6 +772,7 @@ class InstallationMap(MapView):
                     if bHavePoint:
                         sTrefwoord = installation.get_value("instaltype")
                         if sTrefwoord is None or sTrefwoord == "":
+                            # Worst case scenario
                             sTrefwoord = "geojson"
                         # Add an entry to lst_this
                         oEntry = dict(
@@ -780,7 +782,7 @@ class InstallationMap(MapView):
                             point = "{}, {}".format(point_x, point_y),
                             pop_up = "(no popup specified)",
                             trefwoord = sTrefwoord,
-                            location_id = None,
+                            location_id = installation.id,
                             info = info,
                             geojson = geojson
                             )
@@ -845,7 +847,8 @@ class InstallationMap(MapView):
         try:
             if not oPoint['locid'] is None:
                 # Figure out what the link would be to this list of items
-                url = reverse('location_details', kwargs={'pk': oPoint['locid']})
+                # OLD: location. url = reverse('location_details', kwargs={'pk': oPoint['locid']})
+                url = reverse('installation_details', kwargs={'pk': oPoint['locid']})
                 # Create the popup
                 pop_up = '<p class="h4" title="{}">{}</p>'.format(oPoint['locatie'], oPoint['locatie'][:20])
                 pop_up += '<hr style="border: 1px solid green" />'
@@ -1372,7 +1375,7 @@ class PurposeEdit(BasicDetails):
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments},
             ]
             context['title'] = "View Purpose"
-            context['editview'] = reverse("installations:edit_system", kwargs={'pk': instance.id})
+            context['editview'] = reverse("installations:edit_purpose", kwargs={'pk': instance.id})
         except:
             msg = oErr.get_error_message()
             oErr.DoError("PurposeDetails/add_to_context")
