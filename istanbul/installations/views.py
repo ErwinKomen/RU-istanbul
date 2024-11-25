@@ -113,6 +113,25 @@ def contact(request):
         response = msg
     return response
 
+def about(request):
+    """Renders the contact page."""
+    assert isinstance(request, HttpRequest)
+    response = "-"
+    oErr = ErrHandle()
+    try:
+        template = "installations/about.html"
+        context = dict(
+            page_name="About",
+            title="About"
+            )
+        context = get_application_context(request, context)
+        response = render(request, template, context)
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("installations/about")
+        response = msg
+    return response
+
 def npermission(request):
     """Render page that the user has no permission"""
     assert isinstance(request, HttpRequest)

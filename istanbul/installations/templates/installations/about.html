@@ -1,0 +1,66 @@
+{% extends "utilities/base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+<title>{{title}}</title>
+{% endblock %}
+
+{% block content %}
+
+<div class="container body-content">
+
+  <div class="row">
+    <div class="col-md-12">
+
+      <h2>About Istanbul-SU</h2>
+
+      <p class="text-justify">
+        The Istanbul-SU web application provides access to a database with metadata on Istanbul's historical water supply systems
+        and the installations that were part of them such as aqueducts, cisterns, fountains, and baths. For each installation,
+        the database contains information such as its type, purpose, persons or institutions involved, source texts, images,
+        and events related to the installation such as restorations, additions and damages. The map shows the location of the installation.
+      </p>
+
+      <p class="text-justify">
+        The Istanbul-Su research project, aims to make knowledge about Istanbul's rich and multicultural water heritage available
+        to both scholars and a wider audience of interested parties.
+      </p>
+
+      <p class="text-justify">
+        The Istanbul-Su web application and database is one of the results of the ongoing project
+        '<a href="https://www.ru.nl/en/research/research-projects/engaging-with-istanbuls-water-heritage">Engaging with Istanbul's Water Heritage</a>.'
+        The project is led by Mariëtte Verhoeven, assistant professor and researcher at the Radboud Institute for
+        Culture and History (RICH).  The project researches the potential of Istanbul's historical water heritage as a
+        driver of sustainable solutions to contemporary and future challenges regarding water supply and use. It focuses
+        primarily on increasing knowledge about the tangible and intangible remains of Istanbul's rich and multilayered water
+        heritage and on activating this heritage in order to increase public awareness of both historical and contemporary water
+        issues in an urban environment.
+      </p>
+
+      <p class="text-justify">
+        Mariëtte Verhoeven works with several partners of which the Netherlands Institute in Turkey (NIT) is the most important.
+      </p>
+
+      <p class="text-justify">
+        The Istanbul-SU web application and database  are designed by the Radboud Humanities Computer Lab and made possible
+        by financial contributions from NWO's Embassy Science Fund and the Radboud Institute for Culture & History (RICH).
+      </p>
+    </div>
+  </div>
+
+  <!-- Row with logo's '-->
+  <div class="row">
+    <div class="col-md-2 text-center">
+      <img src="{% static 'installations/content/NIT_logo_EN.jpg' %}" alt="NWO logo" height="125" style="margin-top: 15px;" />
+    </div>
+    <div class="offset-3 col-md-2 text-center mr-auto">
+      <img src="{% static 'installations/content/NWO_logo.jpg' %}" alt="NWO logo" height="150" />
+    </div>
+    <div class="offset-2 col-md-3 ml-auto">
+      <img src="{% static 'installations/content/RU_logo_NL.jpg' %}" alt="NWO logo" height="150" />
+    </div>
+  </div>
+
+</div>
+{% endblock %}

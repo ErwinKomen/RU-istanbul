@@ -191,10 +191,14 @@
     <Content Include="data\Protocols.xlsx" />
     <Content Include="data\thumbnail_detail.Philipp_Ferdinand_von_Gudenus_Panorama_of_Constantinople.jpg" />
     <Content Include="installations\static\installations\add_image.css" />
+    <Content Include="installations\static\installations\content\NIT_logo_EN.jpg" />
+    <Content Include="installations\static\installations\content\NWO_logo.jpg" />
+    <Content Include="installations\static\installations\content\RU_logo_NL.jpg" />
     <Content Include="installations\static\installations\detail.css" />
     <Content Include="installations\static\installations\scripts\istanbul.js" />
     <Content Include="installations\static\installations\content\site.css" />
     <Content Include="installations\static\installations\content\istanbul_logo.jpg" />
+    <Content Include="installations\templates\installations\about.html" />
     <Content Include="installations\templates\installations\add_event.html" />
     <Content Include="installations\templates\installations\add_eventrole.html" />
     <Content Include="installations\templates\installations\add_eventtype.html" />

@@ -7,6 +7,7 @@ urlpatterns = [
 	path('',views.home, name = 'home'),
 	path('home/',views.home, name = 'home'),
 	path('contact/', views.contact, name='contact'),
+	path('about/', views.about, name='about'),
 
 	# ================== Detail View ===================================
     path('detail_installation_view/<int:pk>/', views.detail_installation_view, name='detail_installation_view'),
