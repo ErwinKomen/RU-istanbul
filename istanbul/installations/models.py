@@ -324,11 +324,13 @@ class Image(models.Model, info):
                         except:
                             msg = oErr.get_error_message()
                             print("Image/save fails to extract geojson: {}".format(msg))
-                # We now have a geojson: double check the geojson's "NAME" field
-                name = self.geojson.get("name")
-                if name is None or name == "Unnamed (from map input)":
-                    # Give it the name of my title
-                    self.geojson['name'] = self.title
+                # Check if this is a geojson
+                if not self.geojson is None:
+                    # We now have a geojson: double check the geojson's "NAME" field
+                    name = self.geojson.get("name")
+                    if name is None or name == "Unnamed (from map input)":
+                        # Give it the name of my title
+                        self.geojson['name'] = self.title
             elif not self.geojson is None:
                 # This is a new image that has not been saved to a file yet
                 # Create a unique ID for this image
