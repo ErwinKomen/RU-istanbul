@@ -125,6 +125,11 @@ def about(request):
             title="About"
             )
         context = get_application_context(request, context)
+
+        # Add context items from the CMS system
+        context = add_cms_contents('about', context)
+
+        # Show the about page
         response = render(request, template, context)
     except:
         msg = oErr.get_error_message()

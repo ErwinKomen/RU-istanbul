@@ -141,9 +141,17 @@ def csettings(request):
         assert isinstance(request, HttpRequest)
         context = dict(user=request.user)
         context['page_name'] = 'Moderator'
+
+        # Get the intro text
         intro = Citem.objects.filter(clocation__page__name='home', clocation__htmlid='introtext').first()
         context['intro_id'] = intro.id
         context['intro_text'] = intro.get_contents_markdown(keep=True)
+
+        # Get the about text
+        about = Citem.objects.filter(clocation__page__name='about', clocation__htmlid='abouttext').first()
+        context['about_id'] = about.id
+        context['about_text'] = about.get_contents_markdown(keep=True)
+
         context = get_application_context(request, context)
 
         response = render(request,template_name, context)
