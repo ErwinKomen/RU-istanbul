@@ -510,7 +510,7 @@ class CitemEdit(BasicDetails):
                 {'type': 'line',  'label': "Identifier:",   'value': instance.get_htmlid()    },
                 {'type': 'line',  'label': "Location:",     'value': instance.get_location(True, is_superuser) },
                 {'type': 'line',  'label': "Original:",     'value': instance.get_original_markdown(retain=True)},
-                {'type': 'line',  'label': "Contents:",     'value': instance.get_contents_markdown(retain=True)},
+                {'type': 'line',  'label': "Contents:",     'value': instance.get_contents_markdown(keep=True)},
                 {'type': 'line',  'label': "Saved:",        'value': instance.get_saved()       },
                 {'type': 'line',  'label': "Created:",      'value': instance.get_created()     },
                 ]       
