@@ -64,6 +64,13 @@ urlpatterns = [
 	path('add_style/',views.edit_style, name = 'add_style'),
 	path('add_style/<str:view>',views.edit_style, name = 'add_style'),
 
+	path('add_personsymbol/',views.edit_personsymbol, name = 'add_personsymbol'),
+	path('add_personsymbol/<str:view>',views.edit_personsymbol, name = 'add_personsymbol'),
+
+	path('add_persontype/',views.edit_persontype, name = 'add_persontype'),
+	path('add_persontype/<str:view>',views.edit_persontype, name = 'add_persontype'),
+
+
 	# ==================== EDIT =========================================
 	path('edit_system/<int:pk>', views.edit_system, name = 'edit_system'),
 	path('edit_system/<int:pk>/<str:focus>', views.edit_system, name = 'edit_system'),
@@ -115,4 +122,11 @@ urlpatterns = [
 
 	path('edit_style/<int:pk>', views.edit_style, name = 'edit_style'),
 	path('edit_style/<int:pk>/<str:focus>', views.edit_style, name = 'edit_style'),
+
+	path('edit_personsymbol/<int:pk>',views.edit_personsymbol, name = 'edit_personsymbol'),
+	path('edit_personsymbol/<int:pk>/<str:focus>',views.edit_personsymbol, name = 'edit_personsymbol'),
+
+	path('edit_persontype/<int:pk>',views.edit_persontype, name = 'edit_persontype'),
+	path('edit_persontype/<int:pk>/<str:focus>',views.edit_persontype, name = 'edit_persontype'),
+
 ]

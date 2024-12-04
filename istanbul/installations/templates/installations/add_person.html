@@ -18,16 +18,16 @@
     {% if view != "inline" %}
         {% if page_name == "Edit person"%}
             <a class ="btn btn-link ml-auto" 
-				href="{% url 'installations:add_person' %}"
+				        href="{% url 'installations:add_person' %}"
                 role="button">
-					<i class="fa fa-plus"></i>
-			</a>
+					    <i class="fa fa-plus"></i>
+			      </a>
         {% endif %}
         <a class ="btn btn-link ml-auto"
             href="{% url 'utilities:list_view' 'Person' 'installations'%}"
             role="button">
-				<i class="fas fa-list"></i>
-		</a>
+				  <i class="fas fa-list"></i>
+		    </a>
     {% endif %}
 </div>
 
@@ -52,62 +52,73 @@
             <tr class="d-flex">
                 <th class="col-2">gender</th>
                 <td class="col-8">
-					{{form.gender}} 
-					{{from.gender.error}}
-				</td>
+					        {{form.gender}} 
+					        {{from.gender.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">birth year</th>
                 <td class="col-8">
-					{{form.birth_year}} 
-					{{from.birth_year.error}}
-				</td>
+					        {{form.birth_year}} 
+					        {{from.birth_year.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">death year</th>
                 <td class="col-8">
-					{{form.death_year}} 
-					{{from.death_year.error}}
-				</td>
+					        {{form.death_year}} 
+					        {{from.death_year.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">start reign</th>
                 <td class="col-8">
-					{{form.start_reign}} 
-					{{from.start_reign.error}}
-				</td>
+					        {{form.start_reign}} 
+					        {{from.start_reign.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">end reign</th>
                 <td class="col-8">
-					{{form.end_reign}} 
-					{{from.end_reign.error}}
-				</td>
+					        {{form.end_reign}} 
+					        {{from.end_reign.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">religion</th>
                 <td class="col-8">
-					{{form.religion}} 
-					{{form.religion.error}}
-				</td>
-				<td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
-						href ="{% url 'installations:add_religion' 'inline' %}"
-						role="button"><i class="fa fa-plus"></i></a>
-				</td>
+					        {{form.religion}} 
+					        {{form.religion.error}}
+				        </td>
+				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						        href ="{% url 'installations:add_religion' 'inline' %}"
+						        role="button"><i class="fa fa-plus"></i></a>
+				        </td>
+            </tr>
+            <tr class="d-flex">
+                <th class="col-2">person type</th>
+                <td class="col-8">
+                  {{form.ptype}}
+                  {{form.ptype.error}}
+                </td>
+				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+						        href ="{% url 'installations:add_persontype' 'inline' %}"
+						        role="button"><i class="fa fa-plus"></i></a>
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">description</th>
                 <td class="col-8">
-					{{form.description}} 
-					{{form.description.error}}
-				</td>
+					        {{form.description}} 
+					        {{form.description.error}}
+				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">comments</th>
                 <td class="col-8">
-					{{form.comments}} 
-					{{form.comments.error}}
-				</td>
+					        {{form.comments}} 
+					        {{form.comments.error}}
+				        </td>
             </tr>
         </table>
     </div>

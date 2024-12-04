@@ -2,6 +2,10 @@ from django.apps import apps
 from django.db.models.functions import Lower
 from django.db.models import Q
 import time
+
+
+# =================== IMPORT FROM OWN APPS ====================================
+from basic.utils import ErrHandle
 from utils.model_util import get_all_models, instance2names, instances2model_counts
 
 
@@ -94,6 +98,7 @@ class SearchAll:
 
 class Search:
 	'''search a django model on all fields or a subset with Q objects'''
+
 	def __init__(self,request=None, model_name='',app_name='',query=None, 
 		max_entries=500,active_fields = None,special_terms = None):
 		'''search object to filter django models
@@ -116,25 +121,31 @@ class Search:
 							special terms 
 							active or not
 		'''
-		if query:
-			self.query = Query(query=query,active_fields = active_fields,
-				special_terms=special_terms)
-			self.order = Order(order=get_foreign_keydict()[model_name.lower()])
-		else:
-			self.request = request
-			self.query = Query(request,model_name, 
-				active_fields = active_fields,special_terms=special_terms)
-			self.order = self.query.order
-		self.option = self.query.option
-		self.max_entries = max_entries
-		self.model_name = model_name
-		self.app_name = app_name
-		self.model = apps.get_model(app_name,model_name)
-		self.fields = get_fields(model_name,app_name)
-		self.select_fields()
-		self.active_fields = [f.name for f in self.fields if f.include]
-		self.search_fields = [f.name for f in self.fields if not f.exclude]
-		self.notes = 'Search Fields: (' + ','.join(self.active_fields) + ')'
+
+		oErr = ErrHandle()
+		try:
+			if query:
+				self.query = Query(query=query,active_fields = active_fields,
+					special_terms=special_terms)
+				self.order = Order(order=get_foreign_keydict()[model_name.lower()])
+			else:
+				self.request = request
+				self.query = Query(request,model_name, 
+					active_fields = active_fields,special_terms=special_terms)
+				self.order = self.query.order
+			self.option = self.query.option
+			self.max_entries = max_entries
+			self.model_name = model_name
+			self.app_name = app_name
+			self.model = apps.get_model(app_name,model_name)
+			self.fields = get_fields(model_name,app_name)
+			self.select_fields()
+			self.active_fields = [f.name for f in self.fields if f.include]
+			self.search_fields = [f.name for f in self.fields if not f.exclude]
+			self.notes = 'Search Fields: (' + ','.join(self.active_fields) + ')'
+		except:
+			msg = oErr.get_error_message()
+			oErr.DoError("Search/init")
 
 	def select_fields(self):
 		'''select fields if one or more fields are specified, 
@@ -298,25 +309,31 @@ class Query:
 		* 	symbol prepended to special terms such as and/or / can also be set by
 			special_terms 
 		'''
-		if query:
-			self.query = query
-		else:
-			self.order = Order(request,model_name)
-			self.query = self.order.query
-		self.query_words = self.query.split(' ')
-		self.words = self.query_words
-		self.query_terms = [w for w in self.words if w and w[0] not in ['*','$']]
-		self.clean_query = ' '.join(self.query_terms)
-		self.extract_field_names()
-		#set the fields and special terms provided in the 
-		#active_fields & special_terms
-		#i.e. not in the query itself
-		if active_fields and type(active_fields) == list:
-			self.fields.extend(active_fields)
-		self.extract_special_terms(special_terms)
-		if not query and not active_fields and not special_terms:
-			self.empty = True
-		else: self.empty = False
+
+		oErr = ErrHandle()
+		try:
+			if query:
+				self.query = query
+			else:
+				self.order = Order(request,model_name)
+				self.query = self.order.query
+			self.query_words = self.query.split(' ')
+			self.words = self.query_words
+			self.query_terms = [w for w in self.words if w and w[0] not in ['*','$']]
+			self.clean_query = ' '.join(self.query_terms)
+			self.extract_field_names()
+			#set the fields and special terms provided in the 
+			#active_fields & special_terms
+			#i.e. not in the query itself
+			if active_fields and type(active_fields) == list:
+				self.fields.extend(active_fields)
+			self.extract_special_terms(special_terms)
+			if not query and not active_fields and not special_terms:
+				self.empty = True
+			else: self.empty = False
+		except:
+			msg = oErr.get_error_message()
+			oErr.DoError("Query/init")
 	
 
 	def extract_field_names(self):
@@ -426,15 +443,21 @@ class Order:
 		'''get the order and direction from the request and set it in such a 
 		way that it can be used in a filter call.
 		'''
-		if order:
-			self.order_by = order
-			self.direction = 'ascending'
-			self.order_results = True if order else False
-		else:
-			self.request = request
-			self.model_name = model_name
-			self.set_values()
-			self.order_results = True if request else False
+
+		oErr = ErrHandle()
+		try:
+			if order:
+				self.order_by = order
+				self.direction = 'ascending'
+				self.order_results = True if order else False
+			else:
+				self.request = request
+				self.model_name = model_name
+				self.set_values()
+				self.order_results = True if request else False
+		except:
+			msg = oErr.get_error_message()
+			oErr.DoError("Order/init")
 
 	def set_values(self):
 		if self.request:
@@ -492,6 +515,7 @@ def get_foreign_keydict():
 	m += ',eventtype:name,figure:name,style:name,event:name'
 	m += ',installationtype:name,eventrole:name,texttype:name'
 	m += ',loctype:name,location:name'
+	m += ',personsymbol:name,persontype:name'
 	return make_dict(m)
 
 

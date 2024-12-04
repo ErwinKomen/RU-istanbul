@@ -21,6 +21,7 @@ from .forms import eventperson_formset, personevent_formset
 from .forms import eventinstitution_formset, institutionevent_formset
 from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
+from .forms import PersonSymbolForm, PersonTypeForm
 from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
@@ -303,3 +304,22 @@ def edit_style(request, pk = None, focus = '', view = 'complete'):
     names = ''
     return edit_model(request, __name__, 'Style','installations',pk,
         formset_names = names, focus = focus, view = view)
+
+# --------------------- Person Symbol ------------------------------------------
+def edit_personsymbol(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Person symbol] instance"""
+
+    names = ''
+    return edit_model(request, __name__, 'PersonSymbol','installations',pk,
+        formset_names = names, focus = focus, view = view)
+
+# --------------------- Person Type ------------------------------------------
+def edit_persontype(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding a new or editing an existing [Person type] instance"""
+
+    names = ''
+    return edit_model(request, __name__, 'PersonType','installations',pk,
+        formset_names = names, focus = focus, view = view)
+
+
+

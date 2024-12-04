@@ -16,6 +16,7 @@ from partial_date import PartialDate
 
 # From own application
 from basic.utils import ErrHandle
+from basic.models import adapt_markdown, get_crpp_date, get_current_datetime, striphtml
 from istanbul.settings import MEDIA_ROOT
 from utils.model_util import info
 
@@ -92,6 +93,126 @@ class Location(models.Model, info):
         return sBack
 
 
+class PersonSymbol(models.Model, info):
+    """Symbol (from fa) could be used for persons"""
+
+    # [1] Font Awesome name of this symbol
+    name = models.CharField("Name", max_length=MAXPARAMLEN)
+
+    # ================== Standard fields ==================================
+    # [1] Description of the person (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonSymbol/get_description_md")
+        return sBack
+
+    def get_item(type_name):
+        obj = PersonSymbol.objects.filter(name__iexact=type_name).first()
+        if obj is None:
+            obj = PersonSymbol.objects.create(name=type_name)
+        return obj
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this personsymbol"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+
+            if field == "name":
+                sBack = self.name
+            elif field == "icon":
+                if self.name != "" and "fa-" in self.name:
+                    sBack = '<span class="fa {}" style="color: blue; font-size: 14;"></span>'.format(self.name.strip())
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonSymbol/get_value")
+
+        return sBack
+
+
+class PersonType(models.Model, info):
+    """Type of person and symbol that should go with him"""
+
+    # [1] Short name of this person type
+    name = models.CharField("Name", max_length=MAXPARAMLEN)
+    # [0-1] FK to symbol that should go with this person
+    #       (If nothing is specified, no symbol is shown with the person)
+    symbol = models.ForeignKey(PersonSymbol,null=True, blank=True, on_delete=models.SET_NULL, related_name="symbol_persontypes")
+
+    # ================== Standard fields ==================================
+    # [1] Description of the person (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        sBack = self.get_fullname()
+        return sBack
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonType/get_description_md")
+        return sBack
+
+    def get_fullname(self):
+        sBack = ""
+        if self.symbol is None:
+            sBack = self.name
+        else:
+            sBack = "{} ({} {})".format(self.name, self.symbol.get_value("name"), self.symbol.get_value("icon"))
+        return sBack
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this persontype"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+
+            if field == "name":
+                sBack = self.name
+            elif field == "symbol":
+                if not self.symbol is None:
+                    sBack = "{} {}".format( self.symbol.get_value("name"), self.symbol.get_value("icon"))
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonType/get_value")
+
+        return sBack
+
+    def get_item(type_name):
+        obj = PersonType.objects.filter(name__iexact=type_name).first()
+        if obj is None:
+            obj = PersonType.objects.create(name=type_name)
+        return obj
+
+
 # ========================== Main classes ===================================
 
 class Religion(models.Model, info):
@@ -103,6 +224,19 @@ class Religion(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user)
     comments = models.TextField(default = '')
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Religion/get_description_md")
+        return sBack
 
 
 class System(models.Model, info):
@@ -127,6 +261,19 @@ class System(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("System/get_description_md")
+        return sBack
 
     def get_value(self, field, sep=None, options={}):
         """Get the value(s) of 'field' associated with this system"""
@@ -173,6 +320,10 @@ class Person(models.Model, info):
     end_reign = PartialDateField(null=True,blank=True)
     # [0-1] Religion of this person
     religion = models.ForeignKey(Religion,**dargs)
+    # [0-1] Person type: used to identify and provide a separate symbol (if defined)
+    ptype = models.ForeignKey(PersonType,null=True, blank=True, on_delete=models.SET_NULL, related_name="ptype_persons")
+
+    # ================== Standard fields ==================================
     # [1] Description of the person (may be '')
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
@@ -180,6 +331,19 @@ class Person(models.Model, info):
 
     class Meta:
         unique_together = [['name','birth_year','death_year']]
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Person/get_description_md")
+        return sBack
 
     def get_value(self, field):
         """Get the value(s) of 'field' associated with this installation"""
@@ -195,6 +359,9 @@ class Person(models.Model, info):
             elif field == "religion":
                 if not self.religion is None:
                     sBack = self.religion.name
+            elif field == "type":
+                if not self.ptype is None:
+                    sBack = self.ptype.get_fullname()
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Person/get_value")
@@ -213,6 +380,19 @@ class InstitutionType(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionType/get_description_md")
+        return sBack
 
 
 class Institution(models.Model, info):
@@ -239,6 +419,19 @@ class Institution(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Institution/get_description_md")
+        return sBack
 
     def get_value(self, field):
         """Get the value(s) of 'field' associated with this institution"""
@@ -351,6 +544,19 @@ class Image(models.Model, info):
 
         # Return the response when saving
         return response
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Image/get_description_md")
+        return sBack
 
     def get_image_html(self, tooltip=None, bListGeoJson=False):
         """Get the HTML <img> code for this one"""
@@ -563,6 +769,19 @@ class Event(models.Model, info):
 
         return sBack
 
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Event/get_description_md")
+        return sBack
+
     def get_value(self, field, options = {}):
         """Get the value(s) of 'field' associated with this installation"""
 
@@ -637,6 +856,19 @@ class Purpose(models.Model, info):
             sBack = self.description
         return sBack
 
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Purpose/get_description_md")
+        return sBack
+
     def get_name(self):
         sBack = ""
         if self.name:
@@ -698,6 +930,19 @@ class Installation(models.Model, info):
     @property
     def detail_url(self):
         return 'installations:detail_installation_view'
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Installation/get_description_md")
+        return sBack
 
     def get_value(self, field, sep=None, options={}):
         """Get the value(s) of 'field' associated with this installation"""
@@ -799,38 +1044,6 @@ class Installation(models.Model, info):
 
         return sBack
 
-    # UNDESIRABLE: to add a piont stolen from the Geojson
-    #def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
-
-    #    oErr = ErrHandle()
-    #    try:
-    #        # If an installation is saved, doesn't have a location, but does have a geojson, take that
-    #        if self.location is None:
-    #            # There is no location: check for images
-    #            obj = self.images.filter(geojson__isnull=False).first()
-    #            if not obj is None:
-    #                # There is a GEOJSON image: take its first point
-    #                point = obj.get_point()
-    #                if not point is None:
-    #                    # Add a location based on this point
-    #                    sName = "GeoJson point from image id={}".format(obj.id)
-    #                    loc = Location.objects.create(
-    #                        name=sName,
-    #                        x_coordinate=point.get("x_coordinate"),
-    #                        y_coordinate=point.get("y_coordinate"),
-    #                        loctype = LocType.get_item("geojson point"))
-    #                    # Now set my location 
-    #                    self.location = loc
-
-    #        # Now attempt the actual saving
-    #        response = super(Installation, self).save(force_insert, force_update, using, update_fields)
-    #    except:
-    #        msg = oErr.get_error_message()
-    #        oErr.DoError("Installation/save")
-    #        response = None
-
-    #    # Return the response when saving
-    #    return response
 
 class Literature(models.Model, info):
     """Literature reference as well as source text"""
@@ -865,6 +1078,19 @@ class Literature(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Literature/get_description_md")
+        return sBack
 
 
 # ========================== RELATIONS BETWEEN MAIN ITEMS ===============================

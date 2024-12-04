@@ -17,6 +17,7 @@ from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
 from .models import Institution, EventInstitutionRelation
 from .models import Location, LocType
+from .models import PersonSymbol, PersonType
 from .forms import SystemForm, PersonForm, InstallationForm, InstallationSearchForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
@@ -26,7 +27,8 @@ from .forms import eventperson_formset, personevent_formset
 from .forms import eventinstitution_formset, institutionevent_formset
 from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
-from .forms import LocationForm
+from .forms import LocationForm, PersonSymbolForm, PersonTypeForm
+from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -64,7 +66,7 @@ class EventEdit(BasicDetails):
                 {'type': 'plain', 'label': 'date comments', 'value': instance.date_comments             },
                 {'type': 'plain', 'label': 'installations', 'value': instance.get_value('installations')},
                 {'type': 'plain', 'label': 'persons',       'value': instance.get_value('persons')      },
-                {'type': 'plain', 'label': 'description',   'value': instance.description               },
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()      },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments                  },
             ]
             context['title'] = "View Event"
@@ -322,7 +324,7 @@ class ImageEdit(BasicDetails):
                 {'type': 'plain', 'label': 'year',              'value': instance.year          },
                 {'type': 'plain', 'label': 'current location',  'value': instance.current_location      },
                 # {'type': 'plain', 'label': 'coordinate',        'value': instance.get_value('coordinate')},
-                {'type': 'plain', 'label': 'description',       'value': instance.description   },
+                {'type': 'plain', 'label': 'description',       'value': instance.get_description_md()   },
                 {'type': 'plain', 'label': 'comments',          'value': instance.comments      },
                 # {'type': 'plain', 'label': 'systems',           'value': instance.get_value('systems')      },
             ]
@@ -523,7 +525,7 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'type',          'value': instance.get_value('instaltype')   },
                 {'type': 'plain', 'label': 'location',      'value': instance.get_value('location')     },
                 # {'type': 'plain', 'label': 'images',        'value': instance.get_value('images')  },
-                {'type': 'plain', 'label': 'description',   'value': instance.description   },
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()   },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
                 {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems')      },
             ]
@@ -860,8 +862,8 @@ class InstallationMap(MapView):
                 popup_title_2 = _("objects in the list")
                 # sLanguage = "exists" if oPoint['trefwoord'] == "True" else "extinct"
                 sLanguage = oPoint['info']
-                pop_up += '<p style="font-size: large;"><a href="{}" title="{} {} {}"><span style="color: purple;">{}</span> in: {} {}</a></p>'.format(
-                    url, popup_title_1, oPoint['count'],popup_title_2, oPoint['count'], oPoint['trefwoord'], sLanguage)
+                pop_up += '<p style="font-size: large;"><a href="{}" title="{} {} {}"><span style="color: purple;">{}</span> installation ({})</a></p>'.format(
+                    url, popup_title_1, oPoint['count'],popup_title_2, oPoint['count'], oPoint['trefwoord'])
         except:
             msg = oErr.get_error_message()
             oErr.DoError("InstallationMap/get_group_popup")
@@ -872,7 +874,6 @@ class InstallationMap(MapView):
         data = get_application_context(self.request, data)
         # Return what we have
         return data
-
 
 
 # --------------------- Installation Type ------------------------------------
@@ -964,7 +965,7 @@ class InstitutionEdit(BasicDetails):
                 {'type': 'plain', 'label': 'institution type',  'value': instance.get_value('instittype')    },
                 {'type': 'plain', 'label': 'religion',          'value': instance.get_value('religion')  },
 
-                {'type': 'plain', 'label': 'description',       'value': instance.description   },
+                {'type': 'plain', 'label': 'description',       'value': instance.get_description_md()   },
                 {'type': 'plain', 'label': 'comments',          'value': instance.comments      },
             ]
             context['title'] = "View Institution"
@@ -1076,7 +1077,7 @@ class LiteratureEdit(BasicDetails):
             context['mainitems'] = [
                 {'type': 'plain', 'label': 'code',          'value': instance.code          },
                 {'type': 'plain', 'label': 'title',         'value': instance.title         },
-                {'type': 'plain', 'label': 'description',   'value': instance.description   },
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()   },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
             ]
             context['title'] = "View literature"
@@ -1200,12 +1201,14 @@ class PersonEdit(BasicDetails):
                 {'type': 'plain', 'label': 'start reign',   'value': instance.start_reign           },
                 {'type': 'plain', 'label': 'end reign',     'value': instance.end_reign             },
                 {'type': 'plain', 'label': 'religion',      'value': instance.get_value('religion') },
+                {'type': 'plain', 'label': 'type',          'value': instance.get_value('type')     },
 
-                {'type': 'plain', 'label': 'description',   'value': instance.description           },
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()  },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments              },
             ]
             context['title'] = "View Person"
             context['editview'] = reverse("installations:edit_person", kwargs={'pk': instance.id})
+
         except:
             msg = oErr.get_error_message()
             oErr.DoError("PersonDetails/add_to_context")
@@ -1289,6 +1292,249 @@ class PersonDetails(PersonEdit):
 
         # Return the context we have made
         return context
+
+
+# --------------------- Person Symbol ------------------------------------
+
+class PersonSymbolEdit(BasicDetails):
+    """Simple view mode of [PersonSymbol]"""
+
+    model = PersonSymbol
+    mForm = PersonSymbolForm
+    prefix = "psymb"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        #self.listview = reverse('utilities:list_view', kwargs={
+        #    'model_name': 'PersonSymbol', 'app_name': 'installations'})
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+        field_keys = [None, None, 'description', 'comments']
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.get_value("name")},
+                {'type': 'plain', 'label': 'icon',          'value': instance.get_value("icon")},
+
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()},
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+            ]
+            context['title'] = "View person symbol"
+            context['editview'] = reverse("installations:edit_personsymbol", kwargs={'pk': instance.id})
+
+            may_edit = context['is_app_moderator'] or context['is_app_developer']
+            # Only moderators and superusers are to be allowed to create and delete content-items
+            if may_edit: 
+                # Allow editing
+                for idx, oItem in enumerate(context['mainitems']):
+                    fk = field_keys[idx]
+                    if not fk is None:
+                        oItem['field_key'] = fk
+
+                # Only the superuser may edit the name
+                if context["is_app_developer"]:
+                    context['mainitems'][0]['field_key'] = "name"
+
+                # Signal that we have select2
+                context['has_select2'] = True
+            else:
+                # Make sure user cannot delete
+                self.no_delete = True
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonSymbolDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class PersonSymbolDetails(PersonSymbolEdit):
+    rtype = "html"
+
+
+class PersonSymbolList(BasicList):
+    """List and search view for PersonSymbol"""
+
+    model = PersonSymbol 
+    listform = PersonSymbolSearchForm
+    prefix = "symb"
+    has_select2 = True
+    sg_name = "Person Symbol"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Person Symbols"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', '', '']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
+        {'name': 'Icon',        'order': '',    'type': 'str', 'custom': 'icon',        'linkdetails': True               },
+        {'name': 'Description', 'order': '',    'type': 'str', 'custom': 'description', 'linkdetails': True               },
+        ]
+                   
+    filters = [ 
+        {"name": "Name",            "id": "filter_name",        "enabled": False},
+        {"name": "Description",     "id": "filter_description", "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        # may_add = context['is_app_moderator'] or context['is_app_developer']
+        # Note: only the S.U. may actually add one
+        may_add = context['is_app_developer']
+        if may_add:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            self.basic_add = reverse("installations:add_personsymbol")
+            context['basic_add'] = self.basic_add
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "name":
+                # Get the correctly visible date
+                sBack = instance.get_value("name")
+
+            if custom == "icon":
+                # Get the correctly visible date
+                sBack = instance.get_value("icon")
+
+            elif custom == "description":
+                sBack = instance.get_description_md()
+            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonSymbolList/get_field_value")
+
+        return sBack, sTitle
+
+
+# --------------------- Person Type ------------------------------------
+
+class PersonTypeEdit(BasicDetails):
+    """Simple view mode of [PersonType]"""
+
+    model = PersonType
+    mForm = PersonTypeForm
+    prefix = "ptype"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        #self.listview = reverse('utilities:list_view', kwargs={
+        #    'model_name': 'PersonType', 'app_name': 'installations'})
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.name},
+                {'type': 'plain', 'label': 'symbol',        'value': instance.get_value('symbol')},
+
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()},
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+            ]
+            context['title'] = "View person type"
+            context['editview'] = reverse("installations:edit_persontype", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonTypeDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class PersonTypeDetails(PersonTypeEdit):
+    rtype = "html"
+
+
+class PersonTypeList(BasicList):
+    """List and search view for PersonType"""
+
+    model = PersonType 
+    listform = PersonTypeSearchForm
+    prefix = "symb"
+    has_select2 = True
+    sg_name = "Person Type"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Person Types"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'symbol__name', '']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
+        {'name': 'Symbol',      'order': '',    'type': 'str', 'custom': 'symbol',      'linkdetails': True               },
+        {'name': 'Description', 'order': '',    'type': 'str', 'custom': 'description', 'linkdetails': True               },
+        ]
+                   
+    filters = [ 
+        {"name": "Name",            "id": "filter_name",        "enabled": False},
+        {"name": "Symbol",          "id": "filter_symbol",      "enabled": False},
+        {"name": "Description",     "id": "filter_description", "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'symbol',         'fkfield': 'symbol',        'keyFk': 'name', 
+             'keyList': 'symbollist',    'infield': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        may_add = context['is_app_moderator'] or context['is_app_developer']
+        if may_add:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            self.basic_add = reverse("installations:add_persontype")
+            context['basic_add'] = self.basic_add
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "name":
+                # Get the correctly visible date
+                sBack = instance.get_value("name")
+
+            elif custom == "symbol":
+                # Get the correctly visible date
+                sBack = instance.get_value("symbol")
+
+            elif custom == "description":
+                sBack = instance.get_description_md()
+            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonTypeList/get_field_value")
+
+        return sBack, sTitle
 
 
 # --------------------- Location ----------------------------------------------
@@ -1375,7 +1621,7 @@ class PurposeEdit(BasicDetails):
         try:
             context['mainitems'] = [
                 {'type': 'plain', 'label': 'name',          'value': instance.name},
-                {'type': 'plain', 'label': 'description',   'value': instance.description},
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()},
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments},
             ]
             context['title'] = "View Purpose"
@@ -1488,7 +1734,7 @@ class SystemEdit(BasicDetails):
                 {'type': 'plain', 'label': 'original name', 'value': instance.original_name},
                 {'type': 'plain', 'label': 'ottoman name',  'value': instance.ottoman_name},
                 {'type': 'plain', 'label': 'location',      'value': instance.get_value('location')     },
-                {'type': 'plain', 'label': 'description',   'value': instance.description},
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()  },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments},
             ]
             context['title'] = "View System"

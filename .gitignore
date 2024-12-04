@@ -368,3 +368,4 @@ FodyWeavers.xsd
 /istanbul/.env
 /istanbul/static
 /istanbul/cms/
+/istanbul/installations/fa_v4.txt

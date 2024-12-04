@@ -29,7 +29,7 @@ def get_current_datetime():
     """Get the current time"""
     return timezone.now()
 
-def adapt_markdown(val, lowercase=False):
+def adapt_markdown(val, lowercase=False, retain_p=True):
     """Call markdown, but perform some actions to make it a bit safer"""
 
     sBack = ""
@@ -37,9 +37,11 @@ def adapt_markdown(val, lowercase=False):
     try:
         if val != None:
             val = val.replace("***", "\*\*\*")
-            sBack = mark_safe(markdown(val, safe_mode='escape', extensions=['tables']))
-            sBack = sBack.replace("<p>", "")
-            sBack = sBack.replace("</p>", "")
+            # sBack = mark_safe(markdown(val, safe_mode='escape', extensions=['tables']))
+            sBack =markdown( mark_safe(val), safe_mode='escape', extensions=['tables'])
+            if not retain_p:
+                sBack = sBack.replace("<p>", "")
+                sBack = sBack.replace("</p>", "")
             if lowercase:
                 sBack = sBack.lower()
             #print(sBack)

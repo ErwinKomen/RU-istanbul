@@ -226,3 +226,38 @@ body > div > footer a {
     margin-top: 12px;
 }
 
+/* Extra small pagination */
+.pagination {
+    margin: 3px 0;
+}
+
+.pagination-xsm > li > a,
+.pagination-xsm > li > span {
+    padding: 2px 4px; /* Note: this is vertical, horizontal... */
+    font-size: 12px;
+}
+
+.pagination-xsm > li > a:hover {
+    cursor: pointer;
+}
+
+.pagination-xsm > li:first-child > a,
+.pagination-xsm > li:first-child > span {
+    border-bottom-left-radius: 2px;
+    border-top-left-radius: 2px;
+}
+
+.pagination-xsm > li:last-child > a,
+.pagination-xsm > li:last-child > span {
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+/* Compatibility with lower Bootstrap versions */
+.hidden {
+    display: none !important;
+}

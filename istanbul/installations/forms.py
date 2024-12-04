@@ -9,6 +9,7 @@ from .models import SystemInstallationRelation,TextType
 from .models import EventLiteratureRelation, EventRole, InstitutionType
 from .models import EventInstitutionRelation,EventPersonRelation
 from .models import Location, LocType
+from .models import PersonSymbol, PersonType
 
 
 from .widgets import SystemWidget, ReligionWidget, GenderWidget, PersonsWidget
@@ -19,6 +20,7 @@ from .widgets import InstallationTypeWidget,InstallationWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
 from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
+from .widgets import PersonSymbolWidget, PersonSymbolsWidget, PersonTypeWidget
 
 # From our own application
 from utils.select2 import  make_select2_attr
@@ -125,13 +127,17 @@ class PersonForm(forms.ModelForm):
 		queryset = Religion.objects.all(),
 		widget = ReligionWidget(**dselect2),
 		required = False)
+	ptype = forms.ModelChoiceField(
+		queryset = PersonType.objects.all().order_by('name'),
+		widget = PersonTypeWidget(**dselect2),
+		required = False)
 	description = forms.CharField(**dtext)
 	comments = forms.CharField(**dtext)
 
 	class Meta:
 		model = Person
 		fields = 'name,gender,birth_year,death_year,start_reign,end_reign'
-		fields += ',religion,description,comments'
+		fields += ',religion,ptype,description,comments'
 		fields = fields.split(',')
 
 	def save(self, commit=True, *args, **kwargs):
@@ -267,13 +273,6 @@ class LiteratureForm(forms.ModelForm):
 
 # ================================= Helper model forms ========================================
 
-#class InstitutionTypeForm(forms.ModelForm):
-#	name = forms.CharField(**dchar_required)
-
-#	class Meta:
-#		model = InstitutionType
-#		fields = ['name']
-
 
 class EventRoleForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
@@ -281,24 +280,6 @@ class EventRoleForm(forms.ModelForm):
 	class Meta:
 		model = EventRole
 		fields = ['name']
-
-
-class GenderForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-
-	class Meta:
-		model = Gender
-		fields = ['name']
-
-
-class InstitutionTypeForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
-
-	class Meta:
-		model = InstallationType
-		fields = 'name,description,comments'.split(',')
 
 
 class EventTypeForm(forms.ModelForm):
@@ -309,6 +290,26 @@ class EventTypeForm(forms.ModelForm):
 	class Meta:
 		model = EventType
 		fields = 'name,description,comments'.split(',')
+
+
+class FigureForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	style = forms.ModelChoiceField(
+		queryset = Style.objects.all(),
+		widget = StyleWidget(**dselect2),
+		required = False)
+
+	class Meta:
+		model = Figure 
+		fields = 'name,geojson,style'.split(',')
+
+
+class GenderForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+
+	class Meta:
+		model = Gender
+		fields = ['name']
 
 
 class ImageForm(forms.ModelForm):
@@ -339,30 +340,78 @@ class ImageForm(forms.ModelForm):
 		return response
 
 
-class StyleForm(forms.ModelForm):
+class InstallationTypeForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
-	line_thickness = forms.IntegerField(**dnumber)
-	fill_opacity = forms.FloatField(**dnumber)
-	line_opacity = forms.FloatField(**dnumber)
-	z_index = forms.IntegerField(**dnumber)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
 
 	class Meta:
-		model = Style
-		fields = 'name,color,line_thickness,fill_opacity,line_opacity'
-		fields += ',dashed,z_index'
-		fields = fields.split(',')
+		model = InstallationType
+		fields = 'name,description,comments'.split(',')
 	
 
-class FigureForm(forms.ModelForm):
+class InstitutionTypeForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
-	style = forms.ModelChoiceField(
-		queryset = Style.objects.all(),
-		widget = StyleWidget(**dselect2),
-		required = False)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
 
 	class Meta:
-		model = Figure 
-		fields = 'name,geojson,style'.split(',')
+		model = InstallationType
+		fields = 'name,description,comments'.split(',')
+
+
+class PersonSymbolForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = PersonSymbol
+		fields = 'name,description,comments'.split(',')
+
+
+class PersonSymbolSearchForm(PersonSymbolForm):
+
+    def __init__(self, *args, **kwargs):
+        # Start by executing the standard handling
+        super(PersonSymbolSearchForm, self).__init__(*args, **kwargs)
+
+        # Some fields are not required
+        self.fields['name'].required = False
+
+        # We do not really return anything from the init
+        return None
+
+
+class PersonTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	symbol = forms.ModelChoiceField(
+		queryset = PersonSymbol.objects.all().order_by('name'),
+		widget = PersonSymbolWidget(**dselect2),
+		required = False)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = PersonType
+		fields = 'name,symbol,description,comments'.split(',')
+
+
+class PersonTypeSearchForm(PersonTypeForm):
+	symbollist = forms.ModelMultipleChoiceField(
+		queryset = PersonSymbol.objects.all().order_by('name'),
+		widget = PersonSymbolsWidget(**dselect2),
+		required = False)
+
+	def __init__(self, *args, **kwargs):
+		# Start by executing the standard handling
+		super(PersonTypeSearchForm, self).__init__(*args, **kwargs)
+
+        # Some fields are not required
+		self.fields['name'].required = False
+
+        # We do not really return anything from the init
+		return None
 
 
 class PurposeForm(forms.ModelForm):
@@ -375,14 +424,18 @@ class PurposeForm(forms.ModelForm):
 		fields = 'name,description,comments'.split(',')
 
 
-class InstallationTypeForm(forms.ModelForm):
+class StyleForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
+	line_thickness = forms.IntegerField(**dnumber)
+	fill_opacity = forms.FloatField(**dnumber)
+	line_opacity = forms.FloatField(**dnumber)
+	z_index = forms.IntegerField(**dnumber)
 
 	class Meta:
-		model = InstallationType
-		fields = 'name,description,comments'.split(',')
+		model = Style
+		fields = 'name,color,line_thickness,fill_opacity,line_opacity'
+		fields += ',dashed,z_index'
+		fields = fields.split(',')
 	
 
 class TextTypeForm(forms.ModelForm):

@@ -2,6 +2,7 @@ from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,Style,Figure,Event
 from .models import Purpose,InstallationType,Installation,Literature
 from .models import TextType, EventRole, LocType, Location
+from .models import PersonSymbol, PersonType
 
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -214,6 +215,39 @@ class PersonsWidget(ModelSelect2MultipleWidget):
     
     def get_queryset(self):
         return Person.objects.all().order_by('name')
+
+
+class PersonSymbolWidget(ModelSelect2Widget):
+    model = PersonSymbol
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return PersonSymbol.objects.all().order_by('name')
+
+
+class PersonSymbolsWidget(ModelSelect2MultipleWidget):
+    model = PersonSymbol
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return PersonSymbol.objects.all().order_by('name')
+
+
+class PersonTypeWidget(ModelSelect2Widget):
+    model = PersonType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return PersonType.objects.all().order_by('name')
 
 
 class PurposeWidget(ModelSelect2Widget):

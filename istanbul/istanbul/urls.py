@@ -30,7 +30,9 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     LiteratureEdit, LiteratureDetails, \
     EventEdit, EventDetails, \
     InstitutionEdit, InstitutionDetails, \
-    ImageEdit, ImageDetails
+    ImageEdit, ImageDetails, \
+    PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
+    PersonTypeEdit, PersonTypeDetails, PersonTypeList
 from accounts.views import RegisterView
 from cms.views import CitemDetails, CitemEdit,CitemListView, CitemSafe, \
     CpageDetails, CpageEdit, CpageListView, CpageAdd, \
@@ -81,6 +83,15 @@ urlpatterns = [
 
 	re_path('location/edit(?:/(?P<pk>\d+))?/$', LocationEdit.as_view(), name='location_edit'),
 	re_path('location/details(?:/(?P<pk>\d+))?/$', LocationDetails.as_view(), name='location_details'),
+
+    # ================ Helper views for types =====================================================
+	re_path('personsymbol/edit(?:/(?P<pk>\d+))?/$', PersonSymbolEdit.as_view(), name='personsymbol_edit'),
+	re_path('personsymbol/details(?:/(?P<pk>\d+))?/$', PersonSymbolDetails.as_view(), name='personsymbol_details'),
+	re_path('personsymbol/list/$', PersonSymbolList.as_view(), name='personsymbol_list'),
+
+	re_path('persontype/edit(?:/(?P<pk>\d+))?/$', PersonTypeEdit.as_view(), name='persontype_edit'),
+	re_path('persontype/details(?:/(?P<pk>\d+))?/$', PersonTypeDetails.as_view(), name='persontype_details'),
+	re_path('persontype/list/$', PersonTypeList.as_view(), name='persontype_list'),
 
     # ================ CMS ========================================================================
     re_path(r'^cpage/list', CpageListView.as_view(), name='cpage_list'),
