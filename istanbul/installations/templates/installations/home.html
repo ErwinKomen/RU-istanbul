@@ -7,6 +7,14 @@
 
 
 {% block content %}
+<!-- Main title of this page -->
+<div class="row">
+  <div class="w-50 mx-auto text-center">
+    <h1>Istanbul’s Water Heritage</h1>
+  </div>
+</div>
+
+
 <!-- The image and its description -->
 <div class="istanbul-banner" img="{% static 'installations/content/istanbul_logo.jpg' %}">
   <!-- to the database button -->
@@ -31,8 +39,8 @@
   <div id="introtext" class="col-md-12">
     {% if cms_has_introtext %}{{cms_introtext|safe}}
     {% else %}
-      <h1>Istanbul su</h1>
-      <p>An introduction into this topic will soon appear...</p>
+    <h1>Istanbul su</h1>
+    <p>An introduction into this topic will soon appear...</p>
     {% endif %}
   </div>
 </div>

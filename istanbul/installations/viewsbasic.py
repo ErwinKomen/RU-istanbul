@@ -850,7 +850,11 @@ class InstallationMap(MapView):
                 # OLD: location. url = reverse('location_details', kwargs={'pk': oPoint['locid']})
                 url = reverse('installation_details', kwargs={'pk': oPoint['locid']})
                 # Create the popup
-                pop_up = '<p class="h4" title="{}">{}</p>'.format(oPoint['locatie'], oPoint['locatie'][:20])
+                long_title = oPoint['locatie']
+                short_title = oPoint['locatie'][:30]
+                if len(short_title) < len(long_title):
+                    short_title += "..."
+                pop_up = '<p class="h4" title="{}">{}</p>'.format(long_title, short_title)
                 pop_up += '<hr style="border: 1px solid green" />'
                 popup_title_1 = _("Show")
                 popup_title_2 = _("objects in the list")

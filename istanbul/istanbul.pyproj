@@ -193,6 +193,7 @@
     <Content Include="installations\static\installations\add_image.css" />
     <Content Include="installations\static\installations\content\NIT_logo_EN.jpg" />
     <Content Include="installations\static\installations\content\NWO_logo.jpg" />
+    <Content Include="installations\static\installations\content\ru-logo-a4-rich-eng.jpg" />
     <Content Include="installations\static\installations\content\RU_logo_A4_CKD_NL.jpg" />
     <Content Include="installations\static\installations\content\RU_logo_NL.jpg" />
     <Content Include="installations\static\installations\detail.css" />
