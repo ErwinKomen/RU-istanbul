@@ -187,7 +187,7 @@ class PersonType(models.Model, info):
         if self.symbol is None:
             sBack = self.name
         else:
-            sBack = "{} ({} {})".format(self.name, self.symbol.get_value("name"), self.symbol.get_value("icon"))
+            sBack = "{} {}".format(self.name, self.symbol.get_value("icon"))
         return sBack
 
     def get_value(self, field):
@@ -813,9 +813,10 @@ class Event(models.Model, info):
             elif field == "persons":
                 # Get all persons associated with this event
                 qs = Person.objects.filter(eventpersonrelations__event=self)
-                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign').order_by('name'):
+                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
                     url = reverse('person_details', kwargs={'pk': oItem['id']})
                     label = oItem.get('name')
+                    fa = oItem.get("ptype__symbol__name")
 
                     # Get the person's role in this event
                     eventrole = EventPersonRelation.objects.filter(person_id=oItem['id'], event=self).first()
@@ -823,12 +824,28 @@ class Event(models.Model, info):
                         role = eventrole.role.name
                         label = "{} - <i>{}</i>".format(label, role)
                     
+                    combi = []
+                    combi.append(label)
+
+                    # Possibly add symbol
+                    if not fa is None:
+                        if not "fa " in fa and not "fas " in fa:
+                            fa = "fa {}".format(fa)
+                        combi.append('<span class="{}"></span>'.format(fa))
+
                     # Get appropriate dates
                     start_reign = oItem.get('start_reign')
                     end_reign = oItem.get('end_reign')
                     if start_reign and end_reign:
-                        empire = '<i class="fa fa-empire"></i>'
-                        label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
+                        #empire = '<i class="fa fa-empire"></i>'
+                        #label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
+
+                        # NEW: no automatic symbol
+                        combi.append("({}-{})".format(label, start_reign.year, end_reign.year))
+
+                    # Combine combi into label
+                    label = "&nbsp;".join(combi)
+
                     sItem = '<span class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
@@ -970,9 +987,10 @@ class Installation(models.Model, info):
             elif field == "eventpersons":
                 # Get all persons associated with installation via events
                 qs = Person.objects.filter(eventpersonrelations__event__installation=self)
-                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign').order_by('name'):
+                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
                     url = reverse('person_details', kwargs={'pk': oItem['id']})
                     label = oItem.get('name')
+                    fa = oItem.get("ptype__symbol__name")
 
                     # Get the person's roles in all events associated with this installation
                     if not options.get("skiprole", False):
@@ -986,12 +1004,27 @@ class Installation(models.Model, info):
                         if len(lst_role) > 0:
                             label = "{} - <i>{}</i>".format(label, ", ".join(lst_role))
 
+                    combi = []
+                    combi.append(label)
+
+                    # Possibly add symbol
+                    if not fa is None:
+                        if not "fa " in fa and not "fas " in fa:
+                            fa = "fa {}".format(fa)
+                        combi.append('<span class="{}"></span>'.format(fa))
+
                     # If this is an emperor, get the reign dates
                     start_reign = oItem.get('start_reign')
                     end_reign = oItem.get('end_reign')
                     if start_reign and end_reign:
-                        empire = '<i class="fa fa-empire"></i>'
-                        label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
+                        #empire = '<i class="fa fa-empire"></i>'
+                        #label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
+                        # NEW: no automatic symbol
+                        combi.append("({}-{})".format(label, start_reign.year, end_reign.year))
+
+                    # Combine combi into label
+                    label = "&nbsp;".join(combi)
+
                     sItem = '<span class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
