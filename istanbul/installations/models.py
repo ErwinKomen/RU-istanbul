@@ -841,7 +841,7 @@ class Event(models.Model, info):
                         #label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
 
                         # NEW: no automatic symbol
-                        combi.append("({}-{})".format(label, start_reign.year, end_reign.year))
+                        combi.append("({}-{})".format(start_reign.year, end_reign.year))
 
                     # Combine combi into label
                     label = "&nbsp;".join(combi)
@@ -1020,7 +1020,7 @@ class Installation(models.Model, info):
                         #empire = '<i class="fa fa-empire"></i>'
                         #label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
                         # NEW: no automatic symbol
-                        combi.append("({}-{})".format(label, start_reign.year, end_reign.year))
+                        combi.append("({}-{})".format(start_reign.year, end_reign.year))
 
                     # Combine combi into label
                     label = "&nbsp;".join(combi)
