@@ -138,8 +138,11 @@ class PersonSymbol(models.Model, info):
             if field == "name":
                 sBack = self.name
             elif field == "icon":
-                if self.name != "" and "fa-" in self.name:
-                    sBack = '<span class="fa {}" style="color: blue; font-size: 14;"></span>'.format(self.name.strip())
+                if self.name != "":
+                    if "fas fa-" in self.name:
+                        sBack = '<span class="{}" style="color: blue; font-size: 14;"></span>'.format(self.name.strip())
+                    elif "fa-" in self.name:
+                        sBack = '<span class="fa {}" style="color: blue; font-size: 14;"></span>'.format(self.name.strip())
         except:
             msg = oErr.get_error_message()
             oErr.DoError("PersonSymbol/get_value")
