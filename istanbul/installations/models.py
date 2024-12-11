@@ -1180,6 +1180,38 @@ class Literature(models.Model, info):
             oErr.DoError("Literature/get_description_md")
         return sBack
 
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated of this literature"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "author" and self.author:
+                sBack = self.author
+            elif field == "editor" and self.editor:
+                sBack = self.editor
+            elif field == "publisher" and self.publisher:
+                sBack = self.publisher
+            elif field == "place" and self.place:
+                sBack = self.place
+            elif field == "year" and self.year:
+                sBack = self.year
+            elif field == "journal" and self.journal:
+                sBack = self.journal
+            elif field == "volume" and self.volume:
+                sBack = self.volume
+            elif field == "issue" and self.issue:
+                sBack = self.issue
+            elif field == "pages" and self.page_numbers:
+                sBack = self.page_numbers
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventLiteratureRelation/get_value")
+
+        return sBack
+
 
 # ========================== RELATIONS BETWEEN MAIN ITEMS ===============================
   

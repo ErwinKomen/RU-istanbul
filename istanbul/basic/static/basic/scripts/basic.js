@@ -2769,51 +2769,38 @@ var ru = (function ($, ru) {
        */
       related_save: function (elStart, prefix, mode) {
         var elTable = null,
-            elForm = null,
-            elHlist = null,
-            elSavenew = null,
-            lst_row = [];
+          elForm = null,
+          elHlist = null,
+          elGlist = null,
+          elSavenew = null,
+          groupid = 0,
+          lst_grow = [],
+          lst_row = [];
 
         try {
-          elTable = $(elStart).closest(".related-original").find("table tbody").first();
+          elTable = $(elStart).closest(".related-original").find("table.related tbody").first();
           if (elTable.length > 0 && prefix !== undefined && mode !== undefined) {
             // Get all the rows in their current order
-            $(elTable).find("tr.form-row").each(function (idx, el) {
-              var oRow = null, lst_stage = [], rowid = null, scrpartid = null, storyid=null;
-
-              rowid = $(el).attr("rowid");
-              // THe exact function depends on the prefix
-              switch (prefix) {
-                case "prjplan":
-                  scrpartid = $(el).attr("scrpartid");
-                  storyid = $(el).attr("storyid");
-                  if (scrpartid === undefined || scrpartid === null) {
-                    oRow = { rowid: rowid, storyid: storyid };
-                  } else {
-                    oRow = { rowid: rowid, scrpartid: scrpartid };
-                  }
-                  $(el).find("select[stage_order]").each(function (colidx, elCol) {
-                    var sorder = $(elCol).attr("stage_order"),
-                        svalue = $(elCol).val();
-                    if (sorder !== undefined && sorder !== "") {
-                      lst_stage.push({ sorder: sorder, svalue: svalue});
-                    }
-                  })
-                  // Add he stages to the row
-                  oRow['columns'] = lst_stage;
-                  break;
-                default:
-                  oRow = rowid;
-                  break;
+            $(elTable).find("tr.ru-form-row").each(function (idx, el) {
+              // Exclude .savegroup
+              if (!$(el).hasClass("savegroup")) {
+                // Regular [hlist]
+                lst_row.push($(el).attr("rowid"));
+                // Grouping [glist]
+                groupid = $(el).attr("groupid");
+                if (groupid !== undefined) {
+                  lst_grow.push({ groupid: groupid, rowid: $(el).attr("rowid") });
+                }
               }
-              lst_row.push(oRow);
             });
             // Get form, hlist, savenew
             elForm = $("#save_related_" + prefix);
             elHlist = $("#id_" + prefix + "-hlist");
+            elGlist = $("#id_" + prefix + "-glist");
             elSavenew = $("#id_" + prefix + "-savenew");
             // Set the parameters
             $(elHlist).val(JSON.stringify(lst_row));
+            $(elGlist).val(JSON.stringify(lst_grow));
             switch (mode) {
               case "save":
                 $(elSavenew).val("false");

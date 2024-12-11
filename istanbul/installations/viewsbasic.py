@@ -1107,6 +1107,48 @@ class LiteratureEdit(BasicDetails):
             'model_name': 'Literature', 'app_name': 'installations'})
         return None
 
+    def check_hlist(self, instance):
+        """Check if a hlist parameter is given, and hlist saving is called for"""
+
+        oErr = ErrHandle()
+        bChanges = False
+        bDebug = True
+
+        try:
+            arg_hlist = "evnt-hlist"
+            arg_savenew = "evnt-savenew"
+            if arg_hlist in self.qd and arg_savenew in self.qd:
+                # Interpret the list of information that we receive
+                hlist = json.loads(self.qd[arg_hlist])
+                # Interpret the savenew parameter
+                savenew = self.qd[arg_savenew]
+
+                # Make sure we are not saving
+                self.do_not_save = True
+                # But that we do a new redirect
+                self.newRedirect = True
+
+                # Change the redirect URL
+                if self.redirectpage == "":
+                    self.redirectpage = reverse('literature_details', kwargs={'pk': instance.id})
+
+                # See if any need to be removed
+                existing_item_id = [str(x.id) for x in EventLiteratureRelation.objects.filter(literature=instance)]
+                delete_id = []
+                for item_id in existing_item_id:
+                    if not item_id in hlist:
+                        delete_id.append(item_id)
+                if len(delete_id)>0:
+                    lstQ = [Q(literature=instance)]
+                    lstQ.append(Q(**{"id__in": delete_id}))
+                    EventLiteratureRelation.objects.filter(*lstQ).delete()
+
+            return True
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Literature/check_hlist")
+            return False
+
     def add_to_context(self, context, instance):
         """Add to the existing context"""
 
@@ -1116,6 +1158,16 @@ class LiteratureEdit(BasicDetails):
             context['mainitems'] = [
                 {'type': 'plain', 'label': 'code',          'value': instance.code          },
                 {'type': 'plain', 'label': 'title',         'value': instance.title         },
+                {'type': 'plain', 'label': 'author',        'value': instance.get_value("author")   },
+                {'type': 'plain', 'label': 'editor',        'value': instance.get_value("editor")   },
+                {'type': 'plain', 'label': 'publisher',     'value': instance.get_value("publisher")},
+                {'type': 'plain', 'label': 'place',         'value': instance.get_value("place")    },
+                {'type': 'plain', 'label': 'year',          'value': instance.get_value("year")     },
+                {'type': 'plain', 'label': 'journal',       'value': instance.get_value("journal")  },
+                {'type': 'plain', 'label': 'volume',        'value': instance.get_value("volume")   },
+                {'type': 'plain', 'label': 'issue',         'value': instance.get_value("issue")    },
+                {'type': 'plain', 'label': 'pages',         'value': instance.get_value("pages")    },
+
                 {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()   },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
             ]
@@ -1132,6 +1184,14 @@ class LiteratureEdit(BasicDetails):
 class LiteratureDetails(LiteratureEdit):
     rtype = "html"
 
+    def custom_init(self, instance):
+        # First get the 'standard' context from TestsetEdit
+        super(LiteratureDetails, self).custom_init(instance)
+
+        if not instance is None:
+            self.check_hlist(instance)
+        return None
+
     def add_to_context(self, context, instance):
         """Add to the existing context"""
 
@@ -1140,6 +1200,7 @@ class LiteratureDetails(LiteratureEdit):
 
         oErr = ErrHandle()
         try:
+            bMayEdit = context['is_app_editor']
                 
             # Lists of related objects
             related_objects = []
@@ -1155,6 +1216,10 @@ class LiteratureDetails(LiteratureEdit):
             events = dict(title="Connections to this Literature", prefix="evnt")
             if resizable: events['gridclass'] = "resizable"
 
+            # events['editable'] = bMayEdit
+            events['savebuttons'] = bMayEdit
+            events['saveasbutton'] = True
+
             rel_list = []
             qs = EventLiteratureRelation.objects.filter(literature=instance).exclude(
                     event__isnull=True, text_type__isnull=True).order_by(
@@ -1164,7 +1229,7 @@ class LiteratureDetails(LiteratureEdit):
                 url = None
                 if not event is None: 
                     url = reverse("event_details", kwargs={'pk': event.id})
-                # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
+                # url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
                 url_relation = None
                 rel_item = []
                 
@@ -1173,7 +1238,7 @@ class LiteratureDetails(LiteratureEdit):
                 index += 1
 
                 # Texttype of relation
-                add_rel_item(rel_item, item.get_value('texttype'), False, main=False, nowrap=True, link=url)
+                add_rel_item(rel_item, item.get_value('texttype'), False, main=False, nowrap=True, link=url_relation)
 
                 # Name of event
                 add_rel_item(rel_item, item.get_value('eventname'), False, main=True, nowrap=False, link=url)
@@ -1185,7 +1250,11 @@ class LiteratureDetails(LiteratureEdit):
                 add_rel_item(rel_item, item.get_value('enddate'), False, main=False, nowrap=True, link=url)
 
                 # Literature page range
-                add_rel_item(rel_item, item.get_value('pages'), False, main=False, nowrap=True, link=url)
+                add_rel_item(rel_item, item.get_value('pages'), False, main=False, nowrap=True, link=url_relation)
+
+                # Actions that can be performed on this item
+                if bMayEdit:
+                    add_rel_item(rel_item, self.get_actions())
 
                 # Add this line to the list
                 rel_list.append(dict(id=item.id, cols=rel_item))
@@ -1200,6 +1269,8 @@ class LiteratureDetails(LiteratureEdit):
                 '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
                 '{}<span>Pages</span>{}'.format(sort_start, sort_end), 
                 ]
+            if bMayEdit:
+                events['columns'].append("")
             related_objects.append(events)
 
             # Add all related objects to the context
@@ -1210,6 +1281,25 @@ class LiteratureDetails(LiteratureEdit):
 
         # Return the context we have made
         return context
+
+    def get_actions(self):
+        html = []
+        buttons = ['remove']    # This contains all the button names that need to be added
+
+        # Start the whole div
+        html.append("<div class='blinded'>")
+        
+        # Add components
+        if 'remove' in buttons: 
+            html.append("<a class='related-remove'><span class='glyphicon glyphicon-remove fa fa-remove'></span></a>")
+
+        # Finish up the div
+        html.append("&nbsp;</div>")
+
+        # COmbine the list into a string
+        sHtml = "\n".join(html)
+        # Return out HTML string
+        return sHtml
 
 
 # --------------------- Person ----------------------------------------------
