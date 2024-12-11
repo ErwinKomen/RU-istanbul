@@ -19,6 +19,8 @@
         style="text-decoration:none;">title</a></th>
     <th><a href="?order_by=maker,{{order}},{{direction}},{{query}}"
         style="text-decoration:none;">maker</a></th>
+    <th><a href="?order_by=geojson,{{order}},{{direction}},{{query}}"
+        style="text-decoration:none;">type</a></th>
     <th><a href="?order_by=year,{{order}},{{direction}},{{query}}"
         style="text-decoration:none;">year</a></th>
     <th><a href="?order_by=current_location,{{order}},{{direction}},{{query}}"
@@ -29,6 +31,7 @@
     <tr>
         <td><a class="nostyle" href="{% url 'image_details' image.pk %}">{{image.get_label}}</a></td>
         <td>{{image.maker}}</td>
+        <td>{{image.get_itype}}</td>
         <td>{{image.year.year}}</td>
         <td>{{image.current_location}}</td>
         <td style="white-space:nowrap;">

@@ -3,7 +3,7 @@ Forms for the Installations app inside istanbul-su
 """
 from django import forms
 from .models import System, Religion, Gender, Person, InstitutionType
-from .models import Institution,EventType,Image,Style,Figure,Event
+from .models import Institution,EventType,Image,ImageType,Style,Figure,Event
 from .models import Purpose,InstallationType,Installation,Literature
 from .models import SystemInstallationRelation,TextType
 from .models import EventLiteratureRelation, EventRole, InstitutionType
@@ -21,6 +21,7 @@ from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
 from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
 from .widgets import PersonSymbolWidget, PersonSymbolsWidget, PersonTypeWidget
+from .widgets import ImageTypeWidget, ImageTypesWidget
 
 # From our own application
 from utils.select2 import  make_select2_attr
@@ -318,15 +319,17 @@ class ImageForm(forms.ModelForm):
 	url= forms.CharField(**dchar)
 	current_location= forms.CharField(**dchar)
 	collection = forms.CharField(**dchar)
+	itype = forms.ModelChoiceField(
+		queryset = ImageType.objects.all().order_by('name'),
+		widget = ImageTypeWidget(**dselect2),
+		required = False)
 	description = forms.CharField(**dtext)
-	#latitude = forms.DecimalField(**dgps)
-	#longitude = forms.DecimalField(**dgps)
 	comments = forms.CharField(**dtext)
 
 	class Meta:
 		model = Image
 		fields = 'image_file,maker,year,title,url,current_location'
-		fields += ',collection,description,comments'		# ,latitude,longitude'
+		fields += ',itype,collection,description,comments'		
 		fields = fields.split(',')
 
 	def save(self, commit=True, *args, **kwargs):
@@ -338,6 +341,17 @@ class ImageForm(forms.ModelForm):
 		response = super(ImageForm, self).save(commit=commit)
 		# Return the save response
 		return response
+
+
+class ImageSearchForm(ImageForm):
+	itypelist = forms.ModelMultipleChoiceField(
+		queryset = ImageType.objects.all().order_by('name'),
+		widget = ImageTypesWidget(**dselect2),
+		required = False)
+	start_date = forms.CharField(label="Date start", required=False, 
+			widget=forms.TextInput(attrs={'placeholder': 'Starting from...',  'style': 'width: 30%;', 'class': 'searching'}))
+	end_date = forms.CharField(label="Date end", required=False, 
+			widget=forms.TextInput(attrs={'placeholder': 'Until (including)...',  'style': 'width: 30%;', 'class': 'searching'}))
 
 
 class InstallationTypeForm(forms.ModelForm):

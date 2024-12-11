@@ -30,7 +30,7 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     LiteratureEdit, LiteratureDetails, \
     EventEdit, EventDetails, \
     InstitutionEdit, InstitutionDetails, \
-    ImageEdit, ImageDetails, \
+    ImageEdit, ImageDetails, ImageList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
     PersonTypeEdit, PersonTypeDetails, PersonTypeList
 from accounts.views import RegisterView
@@ -57,6 +57,7 @@ urlpatterns = [
 
 	re_path('image/edit(?:/(?P<pk>\d+))?/$', ImageEdit.as_view(), name='image_edit'),
 	re_path('image/details(?:/(?P<pk>\d+))?/$', ImageDetails.as_view(), name='image_details'),
+	re_path('image/list/$', ImageList.as_view(), name='image_list'),
 
 	re_path('installation/edit(?:/(?P<pk>\d+))?/$', InstallationEdit.as_view(), name='installation_edit'),
 	re_path('installation/details(?:/(?P<pk>\d+))?/$', InstallationDetails.as_view(), name='installation_details'),

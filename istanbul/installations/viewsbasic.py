@@ -29,6 +29,7 @@ from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import LocationForm, PersonSymbolForm, PersonTypeForm
 from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
+from .forms import ImageSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -308,7 +309,8 @@ class ImageEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Image', 'app_name': 'installations' })
+        # self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Image', 'app_name': 'installations' })
+        self.listview = reverse('image_list')
         return None
 
     def add_to_context(self, context, instance):
@@ -384,47 +386,6 @@ class ImageDetails(ImageEdit):
             sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
             sort_end = '</span>'
 
-            # NOTE: the following was removed due to issue #22
-            ## List of Events that link to this Image
-            #events = dict(title="Events connected to this Image", prefix="evnt", 
-            #              classes="collapse",label="Events")
-            #if resizable: events['gridclass'] = "resizable"
-
-            #rel_list = []
-            #qs = instance.event_set.all().order_by('start_date', 'end_date', 'name')
-            #for item in qs:
-            #    event = item
-            #    url = reverse("event_details", kwargs={'pk': event.id})
-            #    # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
-            #    url_relation = None
-            #    rel_item = []
-                
-            #    # Order number for this item
-            #    add_rel_item(rel_item, index, False, align="right")
-            #    index += 1
-
-            #    # Name of event
-            #    add_rel_item(rel_item, event.name, False, main=True, nowrap=False, link=url)
-
-            #    # start date
-            #    add_rel_item(rel_item, event.get_value('startdate'), False, main=False, nowrap=True, link=url)
-
-            #    # end date
-            #    add_rel_item(rel_item, event.get_value('enddate'), False, main=False, nowrap=True, link=url)
-
-            #    # Add this line to the list
-            #    rel_list.append(dict(id=item.id, cols=rel_item))
-
-            #events['rel_list'] = rel_list
-
-            #events['columns'] = [
-            #    '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
-            #    '{}<span>Event</span>{}'.format(sort_start, sort_end), 
-            #    '{}<span>Start date</span>{}'.format(sort_start_int, sort_end), 
-            #    '{}<span>End date date</span>{}'.format(sort_start_int, sort_end), 
-            #    ]
-            #related_objects.append(events)
-
             # List of Installations that link to this Image
             installations = dict(title="Installations connected to this Image", prefix="inst",
                             classes="collapse", label="Installations")
@@ -477,7 +438,7 @@ class ImageDetails(ImageEdit):
 
             # Note: there is only one image
             img_html, sTitle = instance.get_image_html(bListGeoJson=True)
-            oImage = dict(img=img_html, title=sTitle, info=sTitle)
+            oImage = dict(img=img_html, title=sTitle, info=sTitle, itype=instance.get_itype())
             context['default'] = oImage
             context['pictures'] = []
 
@@ -490,6 +451,84 @@ class ImageDetails(ImageEdit):
 
         # Return the context we have made
         return context
+
+
+class ImageList(BasicList):
+    """List and search view for Image"""
+
+    model = Image 
+    listform = ImageSearchForm
+    prefix = "img"
+    has_select2 = True
+    sg_name = "Image"               # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Images"          # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['title', 'maker', 'itype__name', 'year', 'current_location']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'title',   'order': 'o=1', 'type': 'str', 'custom': 'title',   'linkdetails': True, 'allowwrap': True}, #, 'main': True},
+        {'name': 'maker',   'order': 'o=2', 'type': 'str', 'custom': 'maker',   'linkdetails': True, 'allowwrap': True},
+        {'name': 'type',    'order': 'o=3', 'type': 'str', 'custom': 'itype',   'linkdetails': True               },
+        {'name': 'year',    'order': 'o=4', 'type': 'int', 'custom': 'year',    'linkdetails': True               },
+        {'name': 'location','order': 'o=5', 'type': 'str', 'custom': 'location','linkdetails': True, 'allowwrap': True},
+        ]
+                   
+    filters = [ 
+        {"name": "Title",       "id": "filter_title",       "enabled": False},
+        {"name": "Maker",       "id": "filter_maker",       "enabled": False},
+        {"name": "Image type",  "id": "filter_itype",       "enabled": False},
+        {"name": "Year",        "id": "filter_daterange",   "enabled": False},
+        {"name": "Location",    "id": "filter_location",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'title',         'dbfield': 'title',             'keyS': 'title'},
+            {'filter': 'maker',         'dbfield': 'maker',             'keyS': 'maker'},
+            {'filter': 'itype',         'fkfield': 'itype',             'keyFk': 'name', 
+             'keyList': 'itypelist',    'infield': 'name'},
+            {'filter': 'daterange',     'dbfield': 'year__gte',         'keyS': 'start_date'},
+            {'filter': 'daterange',     'dbfield': 'year__lte',         'keyS': 'end_date'},
+            {'filter': 'location',      'dbfield': 'current_location',  'keyS': 'current_location'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            # Figure out who may edit
+            may_add = context['is_app_editor']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_image")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ImageList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom in ["title", "maker", "itype", "year", "location"]:
+                # Get the correctly visible date
+                sBack = instance.get_value(custom)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ImageList/get_field_value")
+
+        return sBack, sTitle
 
 
 # --------------------- Installation ----------------------------------------

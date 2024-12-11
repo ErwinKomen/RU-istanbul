@@ -2,7 +2,7 @@ from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,Style,Figure,Event
 from .models import Purpose,InstallationType,Installation,Literature
 from .models import TextType, EventRole, LocType, Location
-from .models import PersonSymbol, PersonType
+from .models import PersonSymbol, PersonType, ImageType
 
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -99,6 +99,28 @@ class ImagesWidget(ModelSelect2MultipleWidget):
     
     def get_queryset(self):
         return Image.objects.all().order_by('title')
+
+
+class ImageTypeWidget(ModelSelect2Widget):
+    model = ImageType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return ImageType.objects.all().order_by('name')
+
+
+class ImageTypesWidget(ModelSelect2MultipleWidget):
+    model = ImageType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return ImageType.objects.all().order_by('name')
 
 
 class InstallationTypeWidget(ModelSelect2Widget):

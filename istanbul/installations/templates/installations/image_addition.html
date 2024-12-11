@@ -10,7 +10,8 @@
       {% else %}
         <div>&nbsp;</div>
       {% endif %}
-      <div title="{{default.title}}" info="{{default.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+      <div title="{{default.title}}" info="{{default.info}}" 
+           {% if default.itype == "geojson" %}{% else %} data-toggle="modal" data-target="#werkstuk_modal"{% endif %}
            onclick="ru.istanbul.show_picture(this);">
         {{default.img|safe}}
       </div>

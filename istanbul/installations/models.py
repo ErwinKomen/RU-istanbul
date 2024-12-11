@@ -470,6 +470,19 @@ class EventType(models.Model, info):
     comments = models.TextField(default = '')
 
 
+class ImageType(models.Model, info):
+    """An image type"""
+
+    # [0-1] The name of the image type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+
 class Image(models.Model, info):
     """An image related to an event"""
 
@@ -493,6 +506,8 @@ class Image(models.Model, info):
 
     # If this is a .geojson image, then load its contents here
     geojson = models.JSONField(blank=True, null=True)
+    # The type of the image: geojson or image
+    itype = models.ForeignKey(ImageType, null=True, blank=True, on_delete=models.SET_NULL, related_name="itype_images")
 
     # =========== Standard fields ========================================
     # [1] Description of this object (may be '')
@@ -505,7 +520,7 @@ class Image(models.Model, info):
         oErr = ErrHandle()
         try:
             # Try to load a possible geojson field
-            if not self.image_file is None and not self.image_file.name is None:
+            if not self.image_file is None and not self.image_file.name is None and self.image_file.name != "":
                 # Okay, there already is a loaded image
                 if self.geojson is None:
                     filename = self.image_file.file.name
@@ -537,6 +552,9 @@ class Image(models.Model, info):
                     json.dump(self.geojson, f, indent=2)
                 # Add the filename to the field
                 self.image_file.name = os.path.join("IMAGES", basename)
+            else:
+                # There is no valid image_file name - how to save changes then?
+                iStop = 1
 
             # Now attempt the actual saving
             response = super(Image, self).save(force_insert, force_update, using, update_fields)
@@ -575,7 +593,7 @@ class Image(models.Model, info):
             descr = self.description
             sClass = "stalla-image" # Was: col-md-12
 
-            if ".geojson" in image.lower():
+            if self.get_itype() == "geojson":
                 # This is a geojson file
                 if bListGeoJson:
                     # I need to give a little table with geojson coordinates
@@ -585,7 +603,12 @@ class Image(models.Model, info):
                         coordinates = self.geojson.get("features")[0].get("geometry").get("coordinates")
                         while isinstance(coordinates[0][0], list):
                             coordinates = coordinates[0]
-                        html.append("<table class='func-view'><thead><tr><th>Latitude</th><th>Longitude</th></thead><tbody>")
+                        sToggle = '<span class="fa fa-toggle-down"></span>'
+                        sId = "geojson_list"
+                        sText = "List of coordinates"
+                        html.append('<a class="btn btn-sm jumbo-1" data-toggle="collapse" data-target="#{}">{} {}</a>'.format(
+                            sId, sText, sToggle))
+                        html.append("<table id='geojson_list' class='collapse func-view'><thead><tr><th>Latitude</th><th>Longitude</th></thead><tbody>")
                         for coord in coordinates:
                             html.append("<tr><td>{}</td><td>{}</td></tr>".format(coord[1], coord[0]))
                         html.append("</tbody></table>")
@@ -650,6 +673,23 @@ class Image(models.Model, info):
             oErr.DoError("Image/get_point")
         return oPoint
 
+    def get_itype(self):
+        """Used in the listview to get the image type"""
+
+        sBack = ""
+        if self.itype is None:
+            # Determine the type
+            sType = "image" if self.geojson is None else "geojson"
+            # Add the type to this item
+            itype = ImageType.objects.filter(name=sType).first()
+            if itype is None:
+                itype = ImageType.objects.create(name=sType)
+            self.itype = itype
+            self.save()
+        # Get the correct type string
+        sBack = self.itype.name
+        return sBack
+
     def get_value(self, field):
         """Get the value(s) of 'field' associated with this image"""
 
@@ -657,10 +697,22 @@ class Image(models.Model, info):
         lst_value = []
         oErr = ErrHandle()
         try:
-            iTemp = 1
-            #if field == "coordinate":
-            #    if not self.latitude is None and not self.longitude is None:
-            #        sBack = "{} {}".format(self.latitude, self.longitude)
+            # "title", "maker", "itype", "year", "location"
+            if field == "title":
+                if self.title:
+                    sBack = self.title
+            elif field == "maker":
+                if self.maker:
+                    sBack = self.maker
+            elif field == "itype":
+                if self.itype:
+                    sBack = self.get_itype()
+            elif field == "year":
+                if self.year:
+                    sBack = "{}".format(self.year)
+            elif field == "location":
+                if self.current_location:
+                    sBack = self.current_location
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Image/get_value")
