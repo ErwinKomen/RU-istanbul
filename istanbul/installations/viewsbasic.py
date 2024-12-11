@@ -1163,7 +1163,7 @@ class LiteratureDetails(LiteratureEdit):
                 event = item.event
                 url = None
                 if not event is None: 
-                    reverse("event_details", kwargs={'pk': event.id})
+                    url = reverse("event_details", kwargs={'pk': event.id})
                 # url_relation = reverse("eventperson_details", kwargs={'pk': item.id})
                 url_relation = None
                 rel_item = []
@@ -1720,7 +1720,7 @@ class PurposeDetails(PurposeEdit):
                 add_rel_item(rel_item, installation.get_value('instaltype'), False, main=False, nowrap=True, link=url)
 
                 # Systems
-                add_rel_item(rel_item, installation.get_value('systems'), False, main=False, nowrap=True, link=url)
+                add_rel_item(rel_item, installation.get_value('systems'), False, main=False, nowrap=True) #, link=url)
 
                 # Add this line to the list
                 rel_list.append(dict(id=item.id, cols=rel_item))
