@@ -964,6 +964,26 @@ class InstallationType(models.Model, info):
         return self.name
     
 
+class InstallationStatus(models.Model, info):
+    """An installation type"""
+
+    # [0-1] The name of the installation type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_default():
+        obj = InstallationStatus.objects.filter(name="show").first()
+        return obj
+    
+
 class Installation(models.Model, info):
     """Water related installation"""
 
@@ -980,6 +1000,8 @@ class Installation(models.Model, info):
     still_exists = models.BooleanField(blank=True,null=True)
 
     # ==================== Links to other objects ========================
+    # [0-1] Status of installation editing
+    installation_status = models.ForeignKey(InstallationStatus,**dargs)
     # [0-1] Type of installation
     installation_type = models.ForeignKey(InstallationType,**dargs)
     # [0-1] Location of the system 
@@ -1131,6 +1153,26 @@ class Installation(models.Model, info):
             oErr.DoError("Installation/label")
 
         return sBack
+
+    def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+        """Make sure a default Status is saved"""
+
+        oErr = ErrHandle()
+        try:
+            # Check the installation status
+            if self.installation_status_id is None:
+                # Need to add a default status: "show"
+                self.installation_status = InstallationStatus.get_default()
+            # Continue with regular saving
+            response = super(Installation, self).save(force_insert, force_update, using, update_fields)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Installation.save")
+            response = None
+
+        # Return the response when saving
+        return response
 
 
 class Literature(models.Model, info):

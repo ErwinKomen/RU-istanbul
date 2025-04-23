@@ -4,7 +4,7 @@ Forms for the Installations app inside istanbul-su
 from django import forms
 from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,ImageType,Style,Figure,Event
-from .models import Purpose,InstallationType,Installation,Literature
+from .models import Purpose,InstallationType,InstallationStatus,Installation,Literature
 from .models import SystemInstallationRelation,TextType
 from .models import EventLiteratureRelation, EventRole, InstitutionType
 from .models import EventInstitutionRelation,EventPersonRelation
@@ -16,7 +16,8 @@ from .widgets import SystemWidget, ReligionWidget, GenderWidget, PersonsWidget
 from .widgets import InstitutionTypeWidget,InstitutionsWidget,ImagesWidget
 from .widgets import InstitutionWidget, EventRoleWidget
 from .widgets import EventTypeWidget,StyleWidget,FigureWidget
-from .widgets import InstallationTypeWidget,InstallationWidget
+from .widgets import InstallationTypeWidget,InstallationStatusWidget,InstallationWidget
+from .widgets import InstallationTypesWidget,InstallationStatusesWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
 from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
@@ -71,6 +72,10 @@ class InstallationForm(forms.ModelForm):
 		queryset = InstallationType.objects.all(),
 		widget = InstallationTypeWidget(**dselect2),
 		required = False)
+	installation_status = forms.ModelChoiceField(
+		queryset = InstallationStatus.objects.all(),
+		widget = InstallationStatusWidget(**dselect2),
+		required = False)
 	events = forms.ModelMultipleChoiceField(
 		queryset = Event.objects.all(),
 		widget = EventsWidget(**dselect2),
@@ -93,16 +98,20 @@ class InstallationForm(forms.ModelForm):
 	class Meta:
 		model = Installation
 		fields = 'original_name,ottoman_name,english_name,turkish_name'
-		fields += ',installation_type,events,purposes,description,comments'
+		fields += ',installation_type,installation_status,events,purposes,description,comments'
 		fields += ',still_exists,images,location'
 		fields = fields.split(',')
 
 
 class InstallationSearchForm(forms.ModelForm):
 	english_name = forms.CharField(**dchar)
-	itypelist = forms.ModelChoiceField(
+	itypelist = forms.ModelMultipleChoiceField(
 		queryset = InstallationType.objects.all(),
-		widget = InstallationTypeWidget(**dselect2),
+		widget = InstallationTypesWidget(**dselect2),
+		required = False)
+	istatuslist = forms.ModelMultipleChoiceField(
+		queryset = InstallationStatus.objects.all(),
+		widget = InstallationStatusesWidget(**dselect2),
 		required = False)
 	eventlist = forms.ModelMultipleChoiceField(queryset = Event.objects.all(),widget = EventsWidget(**dselect2),required = False)
 	purplist = forms.ModelMultipleChoiceField(queryset = Purpose.objects.all(),widget = PurposesWidget(**dselect2),required = False)

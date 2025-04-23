@@ -570,6 +570,10 @@ class InstallationEdit(BasicDetails):
             ]
             context['title'] = "View Installation"
             context['editview'] = reverse("installations:edit_installation", kwargs={'pk': instance.id})
+            # Possible addition, if this item is hidden
+            status = instance.installation_status
+            if status and status.name == "hide":
+                context['title_addition'] = '<span style="font-size: small; color: blue;">(hidden)</span>'
         except:
             msg = oErr.get_error_message()
             oErr.DoError("InstallationDetails/add_to_context")
@@ -623,6 +627,7 @@ class InstallationList(BasicList):
     has_select2 = True
     sg_name = "Installation"        # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
     plural_name = "Installations"   # As displayed
+    bUseFilter = True
     new_button = False              # Normally this is false, unless this is someone with editing rights
     fontawesome_already = True      # Already have fontawesome
     order_cols = ['english_name', 'installation_type__name', '', '', '']
@@ -643,11 +648,13 @@ class InstallationList(BasicList):
         {"name": "Event",           "id": "filter_event",       "enabled": False},
         {"name": "System",          "id": "filter_system",      "enabled": False},
         {"name": "Event dates",     "id": "filter_daterange",   "enabled": False},
+        {"name": "Status",          "id": "filter_istatus",     "enabled": False, "head_id": True},
         ]
     searches = [
         {'section': '', 'filterlist': [
             {'filter': 'name',      'dbfield': 'english_name',      'keyS': 'english_name'},
             {'filter': 'itype',     'fkfield': 'installation_type', 'keyFk': 'name', 'keyList': 'itypelist',    'infield': 'name'},
+            {'filter': 'istatus',   'fkfield': 'installation_status','keyFk': 'name', 'keyList': 'istatuslist', 'infield': 'name'},
             {'filter': 'purpose',   'fkfield': 'purposes',          'keyFk': 'name', 'keyList': 'purplist',     'infield': 'name'},
             {'filter': 'person',    'fkfield': 'events__eventpersonrelations__person',   
              'keyFk': 'name', 'keyList': 'perslist',     'infield': 'name'},
@@ -702,6 +709,17 @@ class InstallationList(BasicList):
             # All people (including non-users) should see the listview
             context['authenticated'] = True
 
+            # Hide the 'Status' if this is a non-editor
+            is_app_editor = context['is_app_editor']
+            for idx, oItem in enumerate(self.filters):
+                if oItem['name'] == "Status":
+                    # Set or Nullify the [head_id]
+                    if is_app_editor:
+                        oItem['head_id'] = None
+                    else:
+                        oItem['head_id'] = True
+                    break
+
             # Provide the link to the mapview url
             context['mapviewurl'] = reverse('installation_map')
             # Signal that 'basicmap' should be used (used in `basic_list.html`)
@@ -723,6 +741,24 @@ class InstallationList(BasicList):
             msg = oErr.get_error_message()
             oErr.DoError("InstallationList/add_to_context")
         return context
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            istatuslist = fields.get("istatuslist")
+            if istatuslist is None or len(istatuslist) == 0:
+                # Make sure only the 'show' ones are actually shown
+                lstExclude.append(Q(installation_status__name="hide"))
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 
 
 class InstallationMap(MapView):

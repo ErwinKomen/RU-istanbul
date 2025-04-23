@@ -1,6 +1,6 @@
 from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,Style,Figure,Event
-from .models import Purpose,InstallationType,Installation,Literature
+from .models import Purpose,InstallationType,InstallationStatus, Installation,Literature
 from .models import TextType, EventRole, LocType, Location
 from .models import PersonSymbol, PersonType, ImageType
 
@@ -132,6 +132,39 @@ class InstallationTypeWidget(ModelSelect2Widget):
     
     def get_queryset(self):
         return InstallationType.objects.all().order_by('name')
+
+
+class InstallationTypesWidget(ModelSelect2MultipleWidget):
+    model = InstallationType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return InstallationType.objects.all().order_by('name')
+
+
+class InstallationStatusWidget(ModelSelect2Widget):
+    model = InstallationStatus
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return InstallationStatus.objects.all().order_by('name')
+
+
+class InstallationStatusesWidget(ModelSelect2MultipleWidget):
+    model = InstallationStatus
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return InstallationStatus.objects.all().order_by('name')
 
 
 class InstallationWidget(ModelSelect2Widget):
