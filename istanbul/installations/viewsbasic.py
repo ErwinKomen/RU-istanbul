@@ -565,7 +565,7 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'location',      'value': instance.get_value('location')     },
                 # {'type': 'plain', 'label': 'images',        'value': instance.get_value('images')  },
                 {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()   },
-                {'type': 'plain', 'label': 'comments',      'value': instance.comments      },
+                {'type': 'plain', 'label': 'comments',      'value': instance.get_comments_md()      },
                 {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems')      },
             ]
             context['title'] = "View Installation"
@@ -574,6 +574,16 @@ class InstallationEdit(BasicDetails):
             status = instance.installation_status
             if status and status.name == "hide":
                 context['title_addition'] = '<span style="font-size: small; color: blue;">(hidden)</span>'
+
+            # Add a button to go to the installation maplistview
+            topleftlist = []
+            if not instance is None:
+                buttonspecs = dict(
+                    label="M", title="Open the map listview",
+                    url=reverse('installation_listmap', kwargs={'pk': instance.id}))
+                topleftlist.append(buttonspecs)
+            context['topleftbuttons'] = topleftlist
+
         except:
             msg = oErr.get_error_message()
             oErr.DoError("InstallationDetails/add_to_context")
@@ -630,6 +640,7 @@ class InstallationList(BasicList):
     bUseFilter = True
     new_button = False              # Normally this is false, unless this is someone with editing rights
     fontawesome_already = True      # Already have fontawesome
+    start_with_list = True          # Start with listview
     order_cols = ['english_name', 'installation_type__name', '', '', '']
     order_default = order_cols
     order_heads = [
@@ -723,14 +734,12 @@ class InstallationList(BasicList):
             # Provide the link to the mapview url
             context['mapviewurl'] = reverse('installation_map')
             # Signal that 'basicmap' should be used (used in `basic_list.html`)
-            # context['basicmap'] = False # True
             context['basicmap'] = True
+            context['start_with_list'] = self.start_with_list
 
             # Figure out how many locations there are
             lst_installations = self.qs.filter(Q(location__isnull=False)).values('id')
-            # sLocationCount = Image.objects.filter(installation__in=lst_installations).order_by('id').distinct().count()
             # Also get the number of installations that have a geojson image
-            # lst_geojson = Image.objects.filter(installation__in=lst_installations, geojson__isnull=False).order_by('id').values('id')
             lst_geojson = self.qs.filter(Q(images__geojson__isnull=False)).values('id')
             sLocationCount = len(lst_installations) + len(lst_geojson)
             context['mapcount'] = sLocationCount
@@ -759,6 +768,12 @@ class InstallationList(BasicList):
             oErr.DoError("InstallationList/adapt_search")
         
         return fields, lstExclude, qAlternative
+
+
+class InstallationListMap(InstallationList):
+    """Derived from Installation list, but now starting with the map view"""
+
+    start_with_list = False
 
 
 class InstallationMap(MapView):
@@ -974,7 +989,7 @@ class InstallationTypeEdit(BasicDetails):
         try:
             context['mainitems'] = [
                 {'type': 'plain', 'label': 'name',          'value': instance.name},
-                {'type': 'plain', 'label': 'description',   'value': instance.description},
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()},
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments},
             ]
             context['title'] = "View installation type"

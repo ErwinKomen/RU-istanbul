@@ -28,7 +28,7 @@
         {% include 'mapview/map_view_full.html' %}
       {% endif %}
 
-      <div id="basiclist_top" class="container-small" >
+      <div id="basiclist_top" class="container-small {% if start_with_list %}{% else %}hidden{% endif %}" >
 
         <!-- Allow access to interface parts that are normally hidden -->
         <div  class="panel panel-none">
@@ -37,7 +37,11 @@
             <div class="col-md-2 offset-md-6">
               {% if basicmap %}
                 <div class="pull-right">
-                  {% include 'basic/map_list_switch.html' with mode='list' %}
+                  {% if start_with_list %}
+                    {% include 'basic/map_list_switch.html' with mode='list' %}
+                  {% else %}
+                    {% include 'basic/map_list_switch.html' with mode='map' %}
+                  {% endif %}
                 </div>
               {% endif %}
             </div>
@@ -542,7 +546,7 @@
       </div>
 
       {% if basicmap %}
-        <div id="basicmap" class="container-small hidden">
+        <div id="basicmap" class="container-small {% if start_with_list %}hidden{% else %}{% endif %}">
 
           <div id="werkstuk_map" class="werkstuk-map"  >
             <!-- This is where the map comes -->
@@ -550,7 +554,11 @@
 
           <div class="inner-map">
             <div class="pull-right">
-              {% include 'basic/map_list_switch.html' with mode='map' %}
+              {% if start_with_list %}
+                {% include 'basic/map_list_switch.html' with mode='map' %}
+              {% else %}
+                {% include 'basic/map_list_switch.html' with mode='list' %}
+              {% endif %}
             </div>
           </div>
 
@@ -608,6 +616,9 @@
 
 <script>
   ru.basic.init_events();
+  {% if not start_with_list %}
+    $("#maplist").click();
+  {% endif %}
 </script>
 
 {% endblock content %}

@@ -962,6 +962,19 @@ class InstallationType(models.Model, info):
 
     def __str__(self):
         return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationType/get_description_md")
+        return sBack
     
 
 class InstallationStatus(models.Model, info):
@@ -1008,7 +1021,7 @@ class Installation(models.Model, info):
     location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL, related_name="locationinstallations")
 
     # ==================== Many-to-many fields ===========================
-    # [0-1] Images related to this installation
+    # [0-1] Events related to this installation. Note: each event can only belong to one Installation
     events = models.ManyToManyField(Event,blank=True,default= None)
     # [0-1] Purposes related to this installation
     purposes = models.ManyToManyField(Purpose,blank=True,default= None)
@@ -1024,6 +1037,19 @@ class Installation(models.Model, info):
     @property
     def detail_url(self):
         return 'installations:detail_installation_view'
+
+    def get_comments_md(self):
+        """Get comments, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.comments != "":
+                sBack = adapt_markdown(self.comments)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Installation/get_comments_md")
+        return sBack
 
     def get_description_md(self):
         """Get description, but then processed by markdown"""

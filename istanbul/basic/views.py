@@ -1769,12 +1769,6 @@ class BasicDetails(DetailView):
 
         # Check this user: is he allowed to UPLOAD data?
         context = get_application_context(self.request, context)
-        #context['authenticated'] = user_is_authenticated(self.request)
-        #context['is_app_uploader'] = user_is_ingroup(self.request, app_uploader)
-        #context['is_app_user'] = user_is_ingroup(self.request, app_user)
-        #context['is_app_userplus'] = user_is_ingroup(self.request, app_userplus)
-        #context['is_app_moderator'] = user_is_superuser(self.request) or user_is_ingroup(self.request, app_moderator)
-        #context['is_app_editor'] = user_is_ingroup(self.request, app_editor) and self.may_edit(context, self.object)
 
         # context['prevpage'] = get_previous_page(self.request) # self.previous
         context['afternewurl'] = ""
