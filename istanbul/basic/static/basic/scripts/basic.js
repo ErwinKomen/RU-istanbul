@@ -1552,6 +1552,7 @@ var ru = (function ($, ru) {
               $(".edit-notnew").addClass("hidden");
               $(".edit-new").removeClass("hidden");
             }
+
           }
 
           // See if there are any post-loads to do

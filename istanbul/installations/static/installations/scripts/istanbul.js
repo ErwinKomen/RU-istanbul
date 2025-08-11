@@ -94,17 +94,19 @@ var ru = (function ($, ru) {
                             $(".map-tree-switch").addClass("map-active");
                             $(".map-list-switch").addClass("map-active");
 
-                            // Calculate and set the height
-                            if ($("footer").length === 0) {
+                            if ($(".werkstuk-map").length > 0) {
+                              // Calculate and set the height
+                              if ($("footer").length === 0) {
                                 footer_pos = $("div[class=col-1]").last().position().top;
-                            } else {
+                              } else {
                                 footer_pos = $("footer").position().top;
+                              }
+                              height = footer_pos - $(".werkstuk-map").position().top - 85;
+                              width = $(id_mapview).width();
+                              top = $("nav").height() - 15;
+                              $(".werkstuk-map").css("height", height + "px");
+                              $(".werkstuk-map").css("width", width + "px");
                             }
-                            height = footer_pos - $(".werkstuk-map").position().top - 85;
-                            width = $(id_mapview).width();
-                            top = $("nav").height() - 15;
-                            $(".werkstuk-map").css("height", height + "px");
-                            $(".werkstuk-map").css("width", width + "px");
 
                             // Initiate showing a map
                             if (sMapType === undefined || sMapType === "") { sMapType = "osm"; }

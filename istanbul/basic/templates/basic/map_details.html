@@ -1,0 +1,28 @@
+<form>
+  {% csrf_token %}
+
+  <div class="map-list-switch {% if mode == 'map' %}map-active{% endif %}">
+    <ul>
+      <li class="map-switch">
+        <a class="switch-item colorful" id="maplist" title="View in colored Open Street Map"
+           {% if mode == "list" %}
+             targeturl="{{mapviewurl}}"
+             onclick="ru.istanbul.goto_view(this, 'map', 'osm');"
+             style="cursor: pointer;"
+           {% endif %}>
+          <span class="glyphicon glyphicon-map-marker fa fa-map-marker"></span>&nbsp;
+          <strong>OSM</strong>
+        </a>
+        <a class="switch-item" title="View in grayish Carto map"
+           {% if mode == "list" %}
+             targeturl="{{mapviewurl}}"
+             onclick="ru.istanbul.goto_view(this, 'map', 'carto');"
+             style="cursor: pointer;"
+           {% endif %}>
+          <strong>Carto</strong>
+        </a>
+      </li>
+    </ul>
+  </div>
+
+</form>

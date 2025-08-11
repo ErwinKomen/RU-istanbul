@@ -575,14 +575,21 @@ class InstallationEdit(BasicDetails):
             if status and status.name == "hide":
                 context['title_addition'] = '<span style="font-size: small; color: blue;">(hidden)</span>'
 
-            # Add a button to go to the installation maplistview
-            topleftlist = []
-            if not instance is None:
-                buttonspecs = dict(
-                    label="M", title="Open the map listview",
-                    url=reverse('installation_listmap', kwargs={'pk': instance.id}))
-                topleftlist.append(buttonspecs)
-            context['topleftbuttons'] = topleftlist
+            # # Add a button to go to the installation maplistview
+            # topleftlist = []
+            # if not instance is None:
+            #     buttonspecs = dict(
+            #         label="M", title="Open the map listview",
+            #         url=reverse('installation_listmap', kwargs={'pk': instance.id}))
+            #     topleftlist.append(buttonspecs)
+            # context['topleftbuttons'] = topleftlist
+
+            # Create HTML for maplistview
+            context['mapviewurl'] = reverse('installation_listmap', kwargs = {"pk": instance.id})
+            context['mapviewurl'] = reverse('installation_map')
+            context['mode'] = 'list'
+            sHtml = render_to_string("basic/map_details.html", context=context, request=self.request)
+            context['title_right'] = sHtml
 
         except:
             msg = oErr.get_error_message()
