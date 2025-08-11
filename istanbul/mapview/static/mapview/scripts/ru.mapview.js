@@ -128,6 +128,7 @@ var ru = (function ($, ru) {
           trefwoord = "",
           popup = "",
           idx = -1,
+          col_style = "",
           marker;
 
         try {
@@ -146,7 +147,8 @@ var ru = (function ($, ru) {
           point = entry.point.split(",").map(Number);
 
           // Set the geometrical entry
-          marker = L.geoJSON(entry.geojson) //.addTo(main_map_object);
+          col_style = loc_colorDict[trefwoord];
+          marker = L.geoJSON(entry.geojson, { style: { color: col_style } }); //.addTo(main_map_object);
 
           // Create marker for this point
           //marker = L.marker(point, { icon: private_methods.make_icon(trefwoord) });
@@ -1041,7 +1043,6 @@ var ru = (function ($, ru) {
                         // Is this geojson or not?
                         if (entries[i].geojson !== undefined && entries[i].geojson !== null) {
                           // Probably  geojson
-                          // geometries.push(entries[i].geojson);
                           private_methods.make_geo(entries[i]);
                         } else {
                           // Create a marker for this point
