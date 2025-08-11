@@ -10,14 +10,22 @@
         </a>
       </li>
       <li class="map-switch">
-        <a class="switch-item"
+        <a class="switch-item colorful" title="View in colored Open Street Map"
            {% if mode == "list" %}
              targeturl="{{mapviewurl}}"
-             onclick="ru.istanbul.goto_view(this, 'map');"
+             onclick="ru.istanbul.goto_view(this, 'map', 'osm');"
              style="cursor: pointer;"
            {% endif %}>
           <span class="glyphicon glyphicon-map-marker fa fa-map-marker"></span>&nbsp;
-          <strong>Map</strong>
+          <strong>OSM</strong>
+        </a>
+        <a class="switch-item" title="View in grayish Carto map"
+           {% if mode == "list" %}
+             targeturl="{{mapviewurl}}"
+             onclick="ru.istanbul.goto_view(this, 'map', 'carto');"
+             style="cursor: pointer;"
+           {% endif %}>
+          <strong>Carto</strong>
           <span class="count">({{mapcount}})</span>
         </a>
       </li>

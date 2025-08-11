@@ -18,13 +18,20 @@ var ru = (function ($, ru) {
 
   ru.mapview = (function ($, config) {
     // Local variables for ru.mapview
-    const tileUrl_1 = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-        tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-        attribution_1 = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
+    var tileUrl_carto = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
+        tileUrl_osm = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        tileUrl_google = 'https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+        tileUrl = tileUrl_osm,
+        attribution_combi = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' +
                       ' contributors &copy; <a href="https://carto.com/attribution">CARTO</a>',
+        attribution_carto = '&copy; <a href="https://carto.com/attribution">CARTO</a>',
         attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" title="Open Street Map">OSM</a>',
         tiles = L.tileLayer(tileUrl, { attribution }),
         mapview_tiles = L.tileLayer(tileUrl, { attribution }),
+        //mapview_tiles = L.tileLayer(tileUrl, {
+        //  maxZoom: 20,
+        //  subdomain: ['mt0']
+        //}),
         // Trial: for fontawesome *4*
         fontAwesomeIcon = L.divIcon({
           html: '<i class="fa fa-map-marker fa-alt" style="color: darkred;"></i>',
@@ -925,7 +932,12 @@ var ru = (function ($, ru) {
        * @param {options}   dictionary with 'filter', 'map' and 'title' identifiers (set to default values)
        * @returns {void}
        */
-      list_to_map: function (el, options = { filter: "basiclist_filter", map: "werkstuk_map", title: "map_view_title" }) {
+      list_to_map: function (el, options = {
+        filter: "basiclist_filter",
+        map: "werkstuk_map",
+        title: "map_view_title",
+        maptype: "osm"
+      }) {
         var frm = null,       // Used in the Radboud 'basic' app
           frm2 = null,
           data = null,
@@ -943,13 +955,16 @@ var ru = (function ($, ru) {
           j = 0,
           idx = 0,
           label = "",           // This is, so far, only used for a modal-form
-          targeturl = ""; //,
-        //oOverlay = null,    // Possibly this and the remaining ones are NOT USED?
-        //keywords = [],
-        //lemma = "",
-        //targetid = "";
+          targeturl = ""; 
 
         try {
+          // Set the mapview tiles correctly
+          if (options['maptype'] === "carto") {
+            mapview_tiles = L.tileLayer(tileUrl_carto, { attribution_carto });
+          } else {
+            mapview_tiles = L.tileLayer(tileUrl_osm, { attribution });
+          }
+
           // Get the map_id and the id_filter
           id_filter = options.filter;
           map_id = options.map;

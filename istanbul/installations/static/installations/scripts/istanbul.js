@@ -78,7 +78,7 @@ var ru = (function ($, ru) {
              *   Open the mapview or the listview
              *
              */
-            goto_view: function (elStart, sView) {
+            goto_view: function (elStart, sView, sMapType) {
                 var height = 0,
                     footer_pos = 0,
                     width = 0,
@@ -105,17 +105,14 @@ var ru = (function ($, ru) {
                             top = $("nav").height() - 15;
                             $(".werkstuk-map").css("height", height + "px");
                             $(".werkstuk-map").css("width", width + "px");
-                            // $(".werkstuk-map").css("top", "-" + top + "px");
-
-                            // And copy the generic search value
-                            // $("#generic_search").val($("#generic-search-input").val());
 
                             // Initiate showing a map
-                            // ru.mapview.language_map(elStart);
+                            if (sMapType === undefined || sMapType === "") { sMapType = "osm"; }
                             options['filter'] = "basiclist_filter";
                             options['map'] = "werkstuk_map";
                             options['title'] = "map_view_title";
-                            ru.mapview.list_to_map(elStart);
+                            options['maptype'] = sMapType;
+                            ru.mapview.list_to_map(elStart, options);
                             break;
                         case "tree":  // Open the treeview
                             $(id_mapview).addClass("hidden");

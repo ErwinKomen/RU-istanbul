@@ -167,6 +167,9 @@ td.ruler {
     color: #000;
     line-height: 13px;
 }
+.map-list-switch .switch-item.colorful {
+    color: blue;
+}
 
 .map-list-switch .switch-item strong {
     font-weight: 700;
