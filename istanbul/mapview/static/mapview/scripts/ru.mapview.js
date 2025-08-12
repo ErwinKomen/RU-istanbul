@@ -47,6 +47,7 @@ var ru = (function ($, ru) {
         loc_overlayMarkers = {},
         loc_colorDict = {},
         loc_trefwoord = [],
+        loc_focusmarker = null,
         loc_colors = '#0fba62,#5aa5c4,black,#345beb,#e04eed,#ed4c72,#1e662a,#c92f04,#e39817'.split(',');
     
     // Private methods specifiction
@@ -156,7 +157,13 @@ var ru = (function ($, ru) {
           // Add a popup to the marker
           //popup = entry.woord + "\n (" + entry.kloeke + ": " + entry.stad + ")";
           popup = entry.pop_up;
-          marker.bindPopup(popup, { maxWidth: 200, closeButton: false });
+          // Check whether focus is needed
+          if (entry.focus) {
+            marker.bindPopup(popup, { maxWidth: 200, closeButton: false });
+            loc_focusmarker = marker;
+          } else {
+            marker.bindPopup(popup, { maxWidth: 200, closeButton: false });
+          }
 
           // Add to OMS
           if (loc_oms !== null) { loc_oms.addMarker(marker); }
@@ -1095,6 +1102,11 @@ var ru = (function ($, ru) {
                         main_map_object.fitBounds(polyline.getBounds());
                       } else {
                         main_map_object.setView(points[0], 12);
+                      }
+
+                      // if focus, popup
+                      if (loc_focusmarker) {
+                        loc_focusmarker.openPopup();
                       }
 
                       private_methods.leaflet_scrollbars();

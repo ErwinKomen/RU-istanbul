@@ -584,12 +584,26 @@ class InstallationEdit(BasicDetails):
             #     topleftlist.append(buttonspecs)
             # context['topleftbuttons'] = topleftlist
 
-            # Create HTML for maplistview
-            context['mapviewurl'] = reverse('installation_listmap', kwargs = {"pk": instance.id})
-            context['mapviewurl'] = reverse('installation_map')
-            context['mode'] = 'list'
-            sHtml = render_to_string("basic/map_details.html", context=context, request=self.request)
-            context['title_right'] = sHtml
+            # # Create HTML for maplistview
+            # context['mapviewurl'] = reverse('installation_listmap', kwargs = {"pk": instance.id})
+            # context['mapviewurl'] = reverse('installation_map')
+            # context['mode'] = 'list'
+            # sHtml = render_to_string("basic/map_details.html", context=context, request=self.request)
+            # context['title_right'] = sHtml
+
+            # Provide the link to the mapview url
+            context['mapviewurl'] = reverse('installation_focus_map', kwargs = {"pk": instance.id})
+            # Signal that 'basicmap' should be used (used in `basic_list.html`)
+            context['basicmap'] = True
+
+            # Figure out how many locations there are
+            qs = Installation.objects.all()
+            lst_installations = qs.filter(Q(location__isnull=False)).values('id')
+            # Also get the number of installations that have a geojson image
+            lst_geojson = qs.filter(Q(images__geojson__isnull=False)).values('id')
+            sLocationCount = len(lst_installations) + len(lst_geojson)
+            context['mapcount'] = sLocationCount
+            context['entrycount'] = sLocationCount
 
         except:
             msg = oErr.get_error_message()
@@ -787,10 +801,11 @@ class InstallationMap(MapView):
     """Mapview that leans on the InstallationList listview"""
 
     model = Installation    # This is the basic model of the related listview
-    # modEntry = Location        # Each point on the map is defined by a Location object
     modEntry = Installation # Each point on the map is defined by a Location object
     use_object = False      # We are **not** grouping around one language
     prefix = "map"          # Needs to differ from the ``InstallationList`` prefix
+    use_object = False      # Possible item to focus on
+    use_lv = True           # Making use of listview
     param_list = ""
     frmSearch = InstallationSearchForm
 
@@ -814,16 +829,21 @@ class InstallationMap(MapView):
             self.add_entry('info',          'str', 'english_name')
 
 
-            # Get a version of the current listview
-            lv = InstallationList()
-            lv.initializations()
-            # Get the list of [Installation] elements
-            qs_installation = lv.get_queryset(self.request)
-            # Figure out what the list of installations will be
-            lst_installation = qs_installation.values('id')
+            if self.use_lv:
+                # Get a version of the current listview
+                lv = InstallationList()
+                lv.initializations()
+                # Get the list of [Installation] elements
+                qs_installation = lv.get_queryset(self.request)
+                # Figure out what the list of installations will be
+                lst_installation = qs_installation.values('id')
 
-            # Get all the installations selected (or is this the same as qs_installation?)
-            qs_loc = Installation.objects.filter(id__in=lst_installation)
+                # Get all the installations selected (or is this the same as qs_installation?)
+                qs_loc = Installation.objects.filter(id__in=lst_installation)
+            else:
+                # Take the whole
+                qs_loc = Installation.objects.all()
+
 
             # Essential: make sure that self.qs gets filled
             self.qs = qs_loc
@@ -915,6 +935,10 @@ class InstallationMap(MapView):
                         info=oEntry['info'],
                         geojson=oEntry.get('geojson')
                         )
+                # Possibly add focus
+                if oEntry.get("focus"):
+                    set_point[point]['focus'] = True
+
                 # Retrieve the item from the set
                 oPoint = set_point[point]
                 # Add this entry
@@ -971,6 +995,13 @@ class InstallationMap(MapView):
         data = get_application_context(self.request, data)
         # Return what we have
         return data
+
+
+class InstallationFocusMap(InstallationMap):
+    """Mapview that shows complete inventory, while also focusing one one item"""
+
+    use_lv = False
+    use_object = True   # Possible item to focus on
 
 
 # --------------------- Installation Type ------------------------------------

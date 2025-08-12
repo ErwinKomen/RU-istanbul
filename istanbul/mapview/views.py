@@ -92,6 +92,7 @@ class MapView(DetailView):
     order_by = ""
     labelfield = ""
     use_object = True
+    use_lv = True
     filterQ = None
     label = ""
     instance = None
@@ -165,7 +166,7 @@ class MapView(DetailView):
                     lstQ.append(self.filterQ)
 
                 # Start with the main object's id
-                if self.use_object:
+                if self.use_object and self.use_lv:
                     lstQ.append(Q(**{"{}__id".format(self.model._meta.model_name.lower()): obj.id}))
 
                 # Derive the variables from the cleaned_data according to entry_list
@@ -221,20 +222,33 @@ class MapView(DetailView):
                         oEntry['point'] = "{}, {}".format(oEntry['point_x'], oEntry['point_y'])
                     if oEntry['point'] != "None, None":
                         oEntry['pop_up'] = self.get_popup(oEntry)
+
                         lst_back.append(oEntry)
 
                 lst_back = self.add_geojson(lst_back)
                 # sBack = json.dumps(lst_back, indent=2)
+
+                # Possibly add an indication that this is the focus entry
+                if self.use_object and not self.use_lv:
+                    for oEntry in lst_back:
+                        if obj.id == oEntry.get("location_id"):
+                            oEntry['focus'] = True
                 
                 # Possibly perform grouping
                 lst_back = self.group_entries(lst_back)
                 
                 # Add the data
                 data['entries'] = lst_back
-                if self.use_object:
+                if self.use_object and self.use_lv:
                     data['label'] = getattr(obj, self.labelfield)    # lemma.gloss
                 else:
                     data['label'] = self.label
+
+                # If this is focusing on one entry
+                if self.use_object and not self.use_lv:
+                    # Means: focus on one particular object
+                    #        while also showing the other objects
+                    data['focus'] = True
 
                 # Add anything to the data
                 data = self.add_to_data(data)

@@ -1519,6 +1519,7 @@ class BasicDetails(DetailView):
     rtype = "json"          # JSON response (alternative: html)
     prefix_type = ""        # Whether the adapt the prefix or not ('simple')
     mForm = None            # Model form
+    entrycount = 0
     basic_name = None
     basic_name_prefix = ""
     basic_add = ""
@@ -1784,6 +1785,9 @@ class BasicDetails(DetailView):
                 self.permission = "write"
         context['permission'] = self.permission
         context['extend_template'] = self.extend_template
+
+        # Determine the count 
+        context['entrycount'] = self.entrycount # self.get_queryset().count()
 
         # Possibly define where a listview is
         classname = self.model._meta.model_name

@@ -1,3 +1,5 @@
+<form>
+  {% csrf_token %}
 
   <div class="map-list-switch {% if mode == 'map' %}map-active{% endif %}">
     <ul>
@@ -5,8 +7,7 @@
         <a class="switch-item"
            {% if mode == "map" %}onclick="ru.istanbul.goto_view(this, 'list');" style="cursor: pointer;" {% endif %}>
           <span class="glyphicon glyphicon-menu-hamburger fa fa-bars"></span>
-          <strong>&nbsp;List</strong>
-          <span class="count">({{entrycount}})</span>
+          <strong>&nbsp;Details</strong>
         </a>
       </li>
       <li class="map-switch">
@@ -26,8 +27,10 @@
              style="cursor: pointer;"
            {% endif %}>
           <strong>Carto</strong>
-          <span class="count">({{mapcount}})</span>
+          <span class="count">({{entrycount}})</span>
         </a>
       </li>
     </ul>
   </div>
+
+</form>

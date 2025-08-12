@@ -1692,6 +1692,20 @@ var ru = (function ($, ru) {
             }
           });
 
+          //// Mapview options
+          //if (options !== undefined) {
+          //  if ("startup" in options) {
+          //    // Figure out what the startup means
+          //    switch (options['startup']) {
+          //      case "maplist":
+          //        // Okay, we need to call mapview
+          //        $("#maplist").click();
+          //        ru.istanbul.goto_view(this, 'map', 'osm');
+          //        break;
+          //    }
+          //  }
+          //}
+
         } catch (ex) {
           private_methods.errMsg("init_events", ex);
         }
