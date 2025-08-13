@@ -48,6 +48,7 @@ var ru = (function ($, ru) {
         loc_colorDict = {},
         loc_trefwoord = [],
         loc_focusmarker = null,
+        loc_focuspoint = null,
         loc_colors = '#0fba62,#5aa5c4,black,#345beb,#e04eed,#ed4c72,#1e662a,#c92f04,#e39817'.split(',');
     
     // Private methods specifiction
@@ -212,6 +213,10 @@ var ru = (function ($, ru) {
           //popup = entry.woord + "\n (" + entry.kloeke + ": " + entry.stad + ")";
           popup = entry.pop_up;
           marker.bindPopup(popup, { maxWidth: 200, closeButton: false });
+          // Check whether focus is needed
+          if (entry.focus) {
+            loc_focusmarker = marker;
+          }
 
           // Add to OMS
           if (loc_oms !== null) { loc_oms.addMarker(marker); }
@@ -958,6 +963,8 @@ var ru = (function ($, ru) {
           map_id = null,
           polyline = null,
           map_title = null,
+          zoom_focus = 15,
+          zoom_normal = 12,
           has_edit_permission = false,
           trefwoord = "",
           i = 0,
@@ -1055,6 +1062,10 @@ var ru = (function ($, ru) {
                           // Create a marker for this point
                           private_methods.make_marker(entries[i]);
                         }
+                        // Is this the focus point?
+                        if (entries[i].focus) {
+                          loc_focuspoint = points[points.length-1];
+                        }
                       }
                     }
                     if (points.length > 0) {
@@ -1064,7 +1075,7 @@ var ru = (function ($, ru) {
                       $("#" + map_id).html();
                       // Set the starting map
                       // EK: Added "editable" to it
-                      main_map_object = L.map(map_id, { editable: true }).setView([point[0], point[1]], 12);
+                      main_map_object = L.map(map_id, { editable: true }).setView([point[0], point[1]], zoom_normal);
                       // Add it to my mapview_tiles
                       mapview_tiles.addTo(main_map_object);
                       // https://github.com/jawj/OverlappingMarkerSpiderfier-Leaflet to handle overlapping markers
@@ -1098,15 +1109,19 @@ var ru = (function ($, ru) {
 
                       // Set map to fit the markers
                       polyline = L.polyline(points);
-                      if (points.length > 1) {
+                      if (loc_focusmarker) {
+                        main_map_object.setView(loc_focuspoint, zoom_focus);
+                      } else if (points.length > 1) {
                         main_map_object.fitBounds(polyline.getBounds());
                       } else {
-                        main_map_object.setView(points[0], 12);
+                        main_map_object.setView(points[0], zoom_normal);
                       }
 
                       // if focus, popup
                       if (loc_focusmarker) {
                         loc_focusmarker.openPopup();
+                        // Reset focusmarker
+                        //loc_focusmarker = null;
                       }
 
                       private_methods.leaflet_scrollbars();
@@ -1128,9 +1143,15 @@ var ru = (function ($, ru) {
                     } else {
                       main_map_object.invalidateSize();
                       if (points.length > 1) {
-                        main_map_object.fitBounds(polyline.getBounds());
+                        if (loc_focusmarker) {
+                          // Zoom in more on the focus point
+                          main_map_object.setView(loc_focuspoint, zoom_focus);
+                        } else {
+                          main_map_object.fitBounds(polyline.getBounds());
+                        }
+                        // main_map_object.fitBounds(polyline.getBounds());
                       } else {
-                        main_map_object.setView(points[0], 12);
+                        main_map_object.setView(points[0], zoom_normal);
                       }
 
                       private_methods.leaflet_scrollbars();
