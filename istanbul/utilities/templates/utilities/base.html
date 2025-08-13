@@ -48,26 +48,26 @@
 
 	<div class="main-container">
 		{% block messages %}
-		{% if messages %}
-		{% for message in messages %}
-			<!-- Messages -->
-			<div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"
-						style="height:0;line-height:0">
-				<button type="button" class="close"
-								data-dismiss="alert" aria-label="Close">
-				</button>
-				<p class="mb-0 mt-0"><small>{{ message | safe }}</small></p>
-			</div>
-		{% endfor %}
-		{% else %}
-			<div class="alert alert-light mb-0" role="alert"
-						style="height:0;line-height:0">
-				<button type="button" class="close"
-								data-dismiss="alert" aria-label="Close">
-				</button>
-				<p class="mb-0 mt-0"><small></small></p>
-			</div>
-		{% endif %}
+			{% if messages %}
+				{% for message in messages %}
+					<!-- Messages -->
+					<div class="alert {{ message.tags }} alert-dismissible mb-0" role="alert"
+								style="height:0;line-height:0">
+						<button type="button" class="close"
+										data-dismiss="alert" aria-label="Close">
+						</button>
+						<p class="mb-0 mt-0"><small>{{ message | safe }}</small></p>
+					</div>
+				{% endfor %}
+			{% else %}
+				<div class="alert alert-light mb-0" role="alert"
+							style="height:0;line-height:0">
+					<button type="button" class="close"
+									data-dismiss="alert" aria-label="Close">
+					</button>
+					<p class="mb-0 mt-0"><small></small></p>
+				</div>
+			{% endif %}
 		{% endblock %}
 
 		{% block login %}
@@ -90,6 +90,7 @@
 					</div>
 
 					<div class="col-10">
+						<div id="diadict_err"></div>
 						{% block content %}
 
 						{% endblock %}
@@ -105,7 +106,7 @@
 	</div>
 	<div>
 		<footer>
-			<span><a href="{% url 'installations:about' %}">Istanbul-su</a> v1.1.0 &copy; 2023-{% now 'Y' %} </span>
+			<span><a href="{% url 'installations:about' %}">Istanbul-su</a> v1.2.0 &copy; 2023-{% now 'Y' %} </span>
 			&nbsp;&nbsp;&nbsp;&nbsp;
 			<span>Developed at: <a href="http://www.ru.nl/humanitieslab/">Radboud University Nijmegen, TSG</a></span>
 		</footer>

@@ -1161,15 +1161,15 @@ var ru = (function ($, ru) {
                   // Debug  break point
                   i = 100;
                 } else {
-                  errMsg("Response is okay, but [html] is missing");
+                  private_methods.errMsg("Response is okay, but [html] is missing");
                 }
                 // Knoppen weer inschakelen
 
               } else {
                 if ("msg" in response) {
-                  errMsg(response.msg);
+                  private_methods.errMsg(response.msg);
                 } else {
-                  errMsg("Could not interpret response " + response.status);
+                  private_methods.errMsg("Could not interpret response " + response.status);
                 }
               }
             }
