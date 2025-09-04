@@ -11,7 +11,7 @@ import copy
 import json
 
 # From own applicatino
-from .models import System, Image, Installation, SystemInstallationRelation
+from .models import EventInstallationRelation, System, Image, Installation, SystemInstallationRelation
 from .models import InstallationType, Purpose
 from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
@@ -60,18 +60,56 @@ class EventEdit(BasicDetails):
 
         try:
             context['mainitems'] = [
+                {'type': 'plain', 'label': 'installation',  'value': instance.get_value('installations')},
                 {'type': 'plain', 'label': 'name',          'value': instance.name                      },
                 {'type': 'plain', 'label': 'event type',    'value': instance.get_value('eventtype')    },
                 {'type': 'plain', 'label': 'start date',    'value': instance.get_value('startdate')    },
                 {'type': 'plain', 'label': 'end date',      'value': instance.get_value('enddate')      },
                 {'type': 'plain', 'label': 'date comments', 'value': instance.date_comments             },
-                {'type': 'plain', 'label': 'installations', 'value': instance.get_value('installations')},
                 {'type': 'plain', 'label': 'persons',       'value': instance.get_value('persons')      },
                 {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()      },
                 {'type': 'plain', 'label': 'comments',      'value': instance.comments                  },
             ]
             context['title'] = "View Event"
             context['editview'] = reverse("installations:edit_event", kwargs={'pk': instance.id})
+
+            # Get the (best candidate for the) related installation
+            obj = EventInstallationRelation.objects.filter(event=instance).first()
+            if not obj is None:
+                installation = obj.installation
+                # Get a list of event id's that are 'part of' the related installation
+                # idlist = [ x['id'] for x in installation.events.all().values('id')]
+                idlist = [ x['id'] for x in installation.events.all().order_by(
+                    'start_date', 'end_date', 'name').values('id') ]
+                if len(idlist) > 0:
+                    # Indicate that we want to see navigation buttons
+                    context['navigation_buttons'] = True
+                    context['navigate_total'] = len(idlist)
+                    context['navigate_current'] = "??"
+
+                    # First and last are easy
+                    id_first = idlist[0]
+                    id_last = idlist[-1]
+                    context['navigate_first'] = "{}".format(reverse('event_details', kwargs={'pk': id_first}) )
+                    context['navigate_last'] = "{}".format(reverse('event_details', kwargs={'pk': id_last}) )
+
+                    # Where are we now in the list?
+                    id_current = instance.id
+                    if id_current in idlist:
+                        # Get the index of this id in the idlist
+                        idx = idlist.index(id_current)
+                        context['navigate_current'] = "{}".format(idx+1)
+
+                        # Okay, now 'previous'...
+                        if idx > 0:
+                            id_prev = idlist[idx-1]
+                            context['navigate_prev'] = "{}".format(reverse('event_details', kwargs={'pk': id_prev}) )
+
+                        # Then what about 'next'...
+                        if idx < len(idlist) - 1:
+                            id_next = idlist[idx+1]
+                            context['navigate_next'] = "{}".format(reverse('event_details', kwargs={'pk': id_next}) )
+
         except:
             msg = oErr.get_error_message()
             oErr.DoError("EventDetails/add_to_context")
@@ -275,15 +313,6 @@ class EventDetails(EventEdit):
             lHtml = []
             if 'after_details' in context:
                 lHtml.append(context['after_details'])
-
-            ## Figure out the list of images
-            #lst_image = []
-            #for obj in instance.images.all():
-            #    img_html, sTitle = obj.get_image_html()
-            #    lst_image.append(dict(img=img_html, title=sTitle, info=sTitle))
-            #if len(lst_image) > 0:
-            #    context['default'] = lst_image[0]
-            #context['pictures'] = lst_image[1:]
 
             # COmbine and show the additions
             lHtml.append(render_to_string('installations/event_addition.html', context, self.request))

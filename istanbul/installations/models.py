@@ -6,7 +6,7 @@ import json
 import uuid
 from pickle import NONE
 from re import X
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 from partial_date import PartialDateField
 from colorfield.fields import ColorField
@@ -770,9 +770,8 @@ class Event(models.Model, info):
     # [0-1] Figure related to this event
     figure = models.ForeignKey(Figure,**dargs)
 
-    ## ==================== Many-to-many fields ===========================
-    ## [0-1] Images related to this event
-    #images = models.ManyToManyField(Image,blank=True,default= None)
+    # ==================== Many-to-many fields ===========================
+    # (none)
 
     # =========== Standard fields ========================================
     # [1] Description of this object (may be '')
@@ -858,7 +857,7 @@ class Event(models.Model, info):
                 for oItem in self.installation_set.all().values('id', 'english_name').order_by('english_name'):
                     url = reverse('installation_details', kwargs={'pk': oItem['id']})
                     label = Installation.label(oItem)
-                    sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    sItem = "<span class='badge installation-title gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
                     sItem = "<div>{}</div>".format(sItem)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
@@ -906,6 +905,22 @@ class Event(models.Model, info):
             oErr.DoError("Event/get_value")
 
         return sBack
+
+    def order_events(self):
+        """Order the events of the main installation"""
+
+        oErr = ErrHandle()
+        try:
+            # Get the (best candidate for the) related installation
+            obj = EventInstallationRelation.objects.filter(event=self).first()
+            if not obj is None:
+                installation = obj.installation
+                # Perform re-ordering
+                installation.order_events()
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("order_events")
+        return None
 
 
 class Purpose(models.Model, info):
@@ -1022,7 +1037,7 @@ class Installation(models.Model, info):
 
     # ==================== Many-to-many fields ===========================
     # [0-1] Events related to this installation. Note: each event can only belong to one Installation
-    events = models.ManyToManyField(Event,blank=True,default= None)
+    events = models.ManyToManyField(Event, through="EventInstallationRelation")
     # [0-1] Purposes related to this installation
     purposes = models.ManyToManyField(Purpose,blank=True,default= None)
     # [0-1] Images related to this installation
@@ -1179,6 +1194,29 @@ class Installation(models.Model, info):
             oErr.DoError("Installation/label")
 
         return sBack
+
+    def order_events(self):
+        """Order the events for this installation chronologically"""
+
+        oErr = ErrHandle()
+        bFound = False
+        try:
+            # Calculate how the order 'should' be
+            # qs = EventInstallationRelation.objects.filter(installation=self).order_by(
+            #     'event__start_date', 'event__end_date', 'event__name')
+            qs = self.eventinstallation_relations.all().order_by(
+                'event__start_date', 'event__end_date', 'event__name')
+            with transaction.atomic():
+                for idx, obj in enumerate(qs):
+                    order = idx + 1
+                    if obj.order != order:
+                        obj.order = order
+                        obj.save()
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Installation/order_events")
+
+        return bFound
 
     def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
         """Make sure a default Status is saved"""
@@ -1425,5 +1463,37 @@ class EventPersonRelation(models.Model, info):
             oErr.DoError("EventPersonRelation/get_value")
 
         return sBack
+
+
+class EventInstallationRelation(models.Model, info):
+    """Relation between an event and an installation
+    
+    Note: one event can only belong to one installation
+    """
+
+    # ==================== Links to other objects ========================
+    # [0-1] Link to event
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name="eventinstallation_relations")
+    # [0-1] Link to installation
+    installation= models.ForeignKey(Installation, on_delete=models.CASCADE, related_name="eventinstallation_relations")
+    # [0-1] Order of this event within the installation
+    order = models.IntegerField(default = -1, blank=True, null=True)
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this event-installation relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "order" and self.order:
+                sBack = self.order
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventInstallationRelation/get_value")
+
+        return sBack
+
 
 

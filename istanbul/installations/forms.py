@@ -254,6 +254,11 @@ class EventForm(forms.ModelForm):
 		partial_year_to_date(self, instance, "end_date", "end_date")
 		# Perform the actual saving
 		response = super(EventForm, self).save(commit=commit)
+
+		# If this is that actual committing, then process after-save stuff
+		if commit:
+			instance.order_events()
+
 		# Return the save response
 		return response
 

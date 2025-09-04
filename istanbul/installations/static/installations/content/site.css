@@ -49,6 +49,16 @@ td a.nostyle {
 }
 
 /* Showing signature badges correctly */
+.installation-title {
+    font-size: x-large;
+    color: darkblue;
+    background-color: lightgray;
+}
+.installation-title:hover {
+    color: whitesmoke;
+    background-color: darkblue;
+    cursor: pointer;
+}
 .signature {
     /* font-family: monospace; */
     font-size: smaller;

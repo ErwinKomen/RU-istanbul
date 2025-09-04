@@ -60,6 +60,33 @@
             <!-- Actual contents -->
             <div class="col-md-10">
 
+              <!-- If the user desires: buttons back/forth -->
+              {% if navigation_buttons %}
+                <div class="row">
+                  <div class="col-md-12">
+                    <span class="pull-right">
+                      <span>{{navigate_current}} / {{navigate_total}}</span>
+                      <a class="btn btn-xs jumbo-1" role="button" title="{% trans 'Go to the first item' %}" href="{{navigate_first}}">
+                        <span class="glyphicon glyphicon-fast-backward fas fa-fast-backward"></span>
+                      </a>
+                      {% if navigate_prev %}
+                        <a class="btn btn-xs jumbo-1" role="button" title="{% trans 'Go to the previous item' %}" href="{{navigate_prev}}">
+                          <span class="glyphicon glyphicon-step-backward fas fa-step-backward"></span>
+                        </a>
+                      {% endif %}
+                      {% if navigate_next %}
+                        <a class="btn btn-xs jumbo-1" role="button" title="{% trans 'Go to the next item' %}" href="{{navigate_next}}">
+                          <span class="glyphicon glyphicon-step-forward fas fa-step-forward"></span>
+                        </a>
+                      {% endif %}
+                      <a class="btn btn-xs jumbo-1" role="button" title="{% trans 'Go to the last item' %}" href="{{navigate_last}}">
+                        <span class="glyphicon glyphicon-fast-forward fas fa-fast-forward"></span>
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              {% endif %}
+
               <div class="flex-row">
                 <div class="col-md-12">
                   <h3>
