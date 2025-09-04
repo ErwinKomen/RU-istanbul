@@ -22,6 +22,7 @@ from .forms import eventinstitution_formset, institutionevent_formset
 from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import PersonSymbolForm, PersonTypeForm
+from .forms import installationextlink_formset
 from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
@@ -161,7 +162,7 @@ def edit_system(request, pk = None, focus = '', view = 'complete'):
 def edit_installation(request, pk = None, focus = '', view = 'complete'):
     """Allow adding a new or editing an existing [Installation] instance"""
 
-    names = 'installationsystem_formset'
+    names = 'installationsystem_formset,installationextlink_formset'
     return edit_model(request, __name__, 'Installation','installations',pk,
         formset_names = names, focus = focus, view = view)
 

@@ -10,6 +10,7 @@ from .models import EventLiteratureRelation, EventRole, InstitutionType
 from .models import EventInstitutionRelation,EventPersonRelation
 from .models import Location, LocType
 from .models import PersonSymbol, PersonType
+from .models import ExternalLink
 
 
 from .widgets import SystemWidget, ReligionWidget, GenderWidget, PersonsWidget
@@ -569,6 +570,20 @@ class EventPersonRelationForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
+class ExternalLinkForm(forms.ModelForm):
+	installation= forms.ModelChoiceField(
+		queryset = Installation.objects.all(),
+		widget = InstallationWidget(**dselect2),
+		required = False)
+	name = forms.CharField(**dchar_required)
+	url = forms.URLField(**dchar)
+
+	class Meta:
+		model = ExternalLink
+		fields = 'installation,name,url'
+		fields = fields.split(",")
+
+
 # ================================= Formsets ===============================================
 
 systeminstallation_formset = forms.inlineformset_factory(
@@ -598,3 +613,8 @@ eventperson_formset = forms.inlineformset_factory(
 personevent_formset = forms.inlineformset_factory(
 	Person,EventPersonRelation,
 	form = EventPersonRelationForm, extra = 1)
+
+installationextlink_formset = forms.inlineformset_factory(
+	Installation,ExternalLink,
+	form = ExternalLinkForm, extra = 1)
+

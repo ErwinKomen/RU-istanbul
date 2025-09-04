@@ -213,6 +213,31 @@
             {% endfor %}
         </table>
     </div>
+    <div class="tab-pane fade" id="External">
+        {{installationextlink_formset.management_form}}
+        <table class="table table-borderless table-sm">
+            <tr class ="d-flex">
+                <th class="col-3">name</th>
+                <th class="col-9">url</th>
+                <th><i class="fa fa-times text-danger"></i></th>
+            </tr>
+            {% for f in installationextlink_formset.forms %}
+				        {{f.media.css}}
+                <tr class ="d-flex">
+                    <td class="col-3">
+						          {{f.name}} 
+						          {{f.name.errors}}
+					          </td>
+                    <td class="col-9">
+						          {{f.url}} 
+						          {{f.url.errors}}
+					          </td>
+                    <td class="col-1">{{f.DELETE}} {{f.id}}</td>
+                </tr>
+			          {{f.media.js}}
+            {% endfor %}
+        </table>
+    </div>
 </div>
 
 {% endif %}

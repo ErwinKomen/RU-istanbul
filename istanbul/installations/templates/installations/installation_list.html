@@ -15,11 +15,11 @@
 
 <table class="table table-hover">
     <tr>
-    <th><a href="?order_by=english_name,{{order}},{{direction}},{{query}}"
-        style="text-decoration:none;">English name</a></th>
-    <th><a href="?order_by=turkish_name,{{order}},{{direction}},{{query}}"
-        style="text-decoration:none;">Turkish name</a></th>
-    <th></th>
+      <th><a href="?order_by=english_name,{{order}},{{direction}},{{query}}"
+          style="text-decoration:none;">English name</a></th>
+      <th><a href="?order_by=turkish_name,{{order}},{{direction}},{{query}}"
+          style="text-decoration:none;">Turkish name</a></th>
+      <th></th>
     </tr>
     {% for i in installation_list %}
       <tr>
@@ -28,9 +28,9 @@
         <td style="white-space:nowrap;">
           {% if is_app_editor %}
             <a class = "btn btn-link btn-sm ml-auto" 
-href ="{% url 'utilities:delete_model' i.pk 'Installation' 'installations' %}"
-                role="button">
-                    <i class="fa fa-trash text-secondary"></i>
+               href ="{% url 'utilities:delete_model' i.pk 'Installation' 'installations' %}"
+               role="button">
+               <i class="fa fa-trash text-secondary"></i>
             </a>
             <a class = "btn btn-link btn-sm ml-auto"
                 href ="{% url 'installations:edit_installation' i.pk %}"

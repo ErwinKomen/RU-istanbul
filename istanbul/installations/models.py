@@ -798,9 +798,13 @@ class Event(models.Model, info):
         try:
             skipname = options.get("skipname")
             if skipname:
+                if "(" in skipname and not skipname in oItem.get('name'):
+                    pos = skipname.index("(")
+                    skipname = skipname[:pos].strip()
                 # Try to filter it out
                 name = oItem.get('name')
                 name = name.replace("{} - ".format(skipname), "")
+                name = name.replace("{} – ".format(skipname), "")
                 name = name.replace(skipname, "")
             else:
                 name = oItem.get('name')
@@ -864,7 +868,8 @@ class Event(models.Model, info):
             elif field == "persons":
                 # Get all persons associated with this event
                 qs = Person.objects.filter(eventpersonrelations__event=self)
-                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
+                for oItem in qs.values(
+                    'id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
                     url = reverse('person_details', kwargs={'pk': oItem['id']})
                     label = oItem.get('name')
                     fa = oItem.get("ptype__symbol__name")
@@ -1101,8 +1106,21 @@ class Installation(models.Model, info):
                     sBack = "\n".join(lst_value)
             elif field == "eventpersons":
                 # Get all persons associated with installation via events
-                qs = Person.objects.filter(eventpersonrelations__event__installation=self)
-                for oItem in qs.values('id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
+                # qs = Person.objects.filter(eventpersonrelations__event__installation=self)
+                # for oItem in qs.values('id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
+
+                qs = EventPersonRelation.objects.filter(event__installation=self)
+                for oEvPer in qs.order_by(
+                        'person__start_reign', 'person__birth_year', 'event__start_date', 'person__name').values(
+                        'person__id', 'person__name', 'person__start_reign', 'person__end_reign', 
+                        'person__ptype__symbol__name'):
+                    oItem = dict(id=oEvPer.get("person__id"),
+                                 name=oEvPer.get("person__name"),
+                                 start_reign=oEvPer.get("person__start_reign"),
+                                 end_reign=oEvPer.get("person__end_reign"),
+                                 ptype__symbol__name=oEvPer.get("person__ptype__symbol__name"),
+                                 )
+
                     url = reverse('person_details', kwargs={'pk': oItem['id']})
                     label = oItem.get('name')
                     fa = oItem.get("ptype__symbol__name")
@@ -1132,8 +1150,6 @@ class Installation(models.Model, info):
                     start_reign = oItem.get('start_reign')
                     end_reign = oItem.get('end_reign')
                     if start_reign and end_reign:
-                        #empire = '<i class="fa fa-empire"></i>'
-                        #label = "{} ({} {}-{})".format(label, empire, start_reign.year, end_reign.year)
                         # NEW: no automatic symbol
                         combi.append("({}-{})".format(start_reign.year, end_reign.year))
 
@@ -1173,6 +1189,21 @@ class Installation(models.Model, info):
                 # Get the location details
                 if not self.location is None:
                     sBack = self.location.get_value(html=True)
+            elif field == "extlinks":
+                # Get the external links
+                lst_item = self.installation_extlinks.all().order_by("name").values(
+                    "name", "url")
+                for oItem in lst_item:
+                    url = oItem.get("url")
+                    name = oItem.get("name")
+                    sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, name)
+                    lst_value.append(sItem)
+
+                # Combine into a string
+                if sep:
+                    sBack = sep.join(lst_value)
+                else:
+                    sBack = "\n".join(lst_value)
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Installation/get_value")
@@ -1494,6 +1525,20 @@ class EventInstallationRelation(models.Model, info):
             oErr.DoError("EventInstallationRelation/get_value")
 
         return sBack
+
+
+# ========================== MANY-TO-ONE ITEMS ===========================================
+
+
+class ExternalLink(models.Model, info):
+    """An externl URL (link) that is connected to an installation"""
+
+    # [1] Name obligatory
+    name = models.CharField("Name", max_length=MAXPARAMLEN)
+    # [0-1] The external link 
+    url = models.URLField("Link", null=True, blank=True)
+    # [1] Link to installation
+    installation= models.ForeignKey(Installation, on_delete=models.CASCADE, related_name="installation_extlinks")
 
 
 

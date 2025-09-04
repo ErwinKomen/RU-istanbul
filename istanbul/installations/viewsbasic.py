@@ -30,6 +30,7 @@ from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import LocationForm, PersonSymbolForm, PersonTypeForm
 from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
 from .forms import ImageSearchForm
+from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -596,6 +597,7 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()   },
                 {'type': 'plain', 'label': 'comments',      'value': instance.get_comments_md()      },
                 {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems')      },
+                {'type': 'plain', 'label': 'external',      'value': instance.get_value('extlinks')      },
             ]
             context['title'] = "View Installation"
             context['editview'] = reverse("installations:edit_installation", kwargs={'pk': instance.id})
@@ -603,22 +605,6 @@ class InstallationEdit(BasicDetails):
             status = instance.installation_status
             if status and status.name == "hide":
                 context['title_addition'] = '<span style="font-size: small; color: blue;">(hidden)</span>'
-
-            # # Add a button to go to the installation maplistview
-            # topleftlist = []
-            # if not instance is None:
-            #     buttonspecs = dict(
-            #         label="M", title="Open the map listview",
-            #         url=reverse('installation_listmap', kwargs={'pk': instance.id}))
-            #     topleftlist.append(buttonspecs)
-            # context['topleftbuttons'] = topleftlist
-
-            # # Create HTML for maplistview
-            # context['mapviewurl'] = reverse('installation_listmap', kwargs = {"pk": instance.id})
-            # context['mapviewurl'] = reverse('installation_map')
-            # context['mode'] = 'list'
-            # sHtml = render_to_string("basic/map_details.html", context=context, request=self.request)
-            # context['title_right'] = sHtml
 
             # Provide the link to the mapview url
             context['mapviewurl'] = reverse('installation_focus_map', kwargs = {"pk": instance.id})
@@ -694,7 +680,7 @@ class InstallationList(BasicList):
     order_cols = ['english_name', 'installation_type__name', '', '', '']
     order_default = order_cols
     order_heads = [
-        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname',  'linkdetails': True,  'main': True},
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname',  'allowwrap': True, 'linkdetails': True,  'main': True},
         {'name': 'Type',        'order': 'o=2', 'type': 'str', 'custom': 'instaltype'               },
         {'name': 'Purposes',    'order': '',    'type': 'str', 'custom': 'purposes'                 },
         {'name': 'Persons',     'order': '',    'type': 'str', 'custom': 'evpersons',   'allowwrap': True},
