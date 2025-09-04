@@ -1159,6 +1159,24 @@ class Installation(models.Model, info):
                     sItem = '<span class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(url, label)
                     lst_value.append(sItem)
                 sBack = ", ".join(lst_value)
+            elif field == "eventliterature":
+                # Get the literature that is linked to this installation via events
+                event_ids = [ x['id'] for x in self.events.all().values("id") ]
+                qs = EventLiteratureRelation.objects.filter(event__id__in=event_ids).order_by(
+                    "literature__code", "page_number").values(
+                    "page_number", "text", "literature__code", "literature__id")
+                for oItem in qs:
+                    url = reverse("literature_details", kwargs={'pk': oItem['literature__id']})
+                    label = oItem['literature__code']
+                    page_number = oItem.get("page_number")
+                    if page_number:
+                        label = "{}: {}".format(label, page_number)
+                    sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    lst_value.append(sItem)
+                if sep:
+                    sBack = sep.join(lst_value)
+                else:
+                    sBack = "\n".join(lst_value)
             elif field == "purposes":
                 for oItem in self.purposes.all().values('id','name').order_by('name'):
                     # url = reverse('installations:edit_purpose', kwargs={'pk': oItem['id']})

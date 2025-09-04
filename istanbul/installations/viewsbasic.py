@@ -594,10 +594,11 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'type',          'value': instance.get_value('instaltype')   },
                 {'type': 'plain', 'label': 'location',      'value': instance.get_value('location')     },
                 # {'type': 'plain', 'label': 'images',        'value': instance.get_value('images')  },
-                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()   },
-                {'type': 'plain', 'label': 'comments',      'value': instance.get_comments_md()      },
-                {'type': 'plain', 'label': 'systems',       'value': instance.get_value('systems')      },
-                {'type': 'plain', 'label': 'external',      'value': instance.get_value('extlinks')      },
+                {'type': 'plain', 'label': 'description',       'value': instance.get_description_md()      },
+                {'type': 'plain', 'label': 'comments',          'value': instance.get_comments_md()         },
+                {'type': 'plain', 'label': 'systems',           'value': instance.get_value('systems')      },
+                {'type': 'plain', 'label': 'event literature',  'value': instance.get_value('eventliterature')  },
+                {'type': 'plain', 'label': 'external',          'value': instance.get_value('extlinks')      },
             ]
             context['title'] = "View Installation"
             context['editview'] = reverse("installations:edit_installation", kwargs={'pk': instance.id})
