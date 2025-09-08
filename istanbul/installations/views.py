@@ -23,6 +23,7 @@ from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import PersonSymbolForm, PersonTypeForm
 from .forms import installationextlink_formset
+from .forms import EventLiteratureRelationForm
 from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
@@ -264,6 +265,15 @@ def edit_event(request, pk = None, focus = '', view = 'complete'):
 
     names = 'eventliterature_formset,eventperson_formset,eventinstitution_formset'
     return edit_model(request, __name__, 'Event','installations',pk,
+        formset_names = names, focus = focus, view = view)
+
+# --------------------- Event -----------------------------------------------
+def edit_eventliterature(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding an existing (not a new) [EventLiteratureRelation] instance"""
+
+    # names = 'eventliterature_formset,eventperson_formset,eventinstitution_formset'
+    names = ''
+    return edit_model(request, __name__, 'EventLiteratureRelation','installations',pk,
         formset_names = names, focus = focus, view = view)
 
 # --------------------- Literature ------------------------------------------

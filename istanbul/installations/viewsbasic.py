@@ -31,6 +31,7 @@ from .forms import LocationForm, PersonSymbolForm, PersonTypeForm
 from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
 from .forms import ImageSearchForm
 from .forms import ExternalLinkForm, installationextlink_formset
+from .forms import EventLiteratureRelationForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -40,7 +41,7 @@ from mapview.views import MapView
 
 
 
-# --------------------- Purpose ----------------------------------------------
+# --------------------- Event ----------------------------------------------
 
 class EventEdit(BasicDetails):
     """Simple view mode of [Event]"""
@@ -152,8 +153,8 @@ class EventDetails(EventEdit):
             for item in qs:
                 literature = item.literature
                 url = reverse("literature_details", kwargs={'pk': literature.id})
-                # url_relation = reverse("eventliterature_details", kwargs={'pk': item.id})
-                url_relation = None
+                url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
+                # url_relation = None
                 rel_item = []
                 
                 # Order number for this item
@@ -323,6 +324,68 @@ class EventDetails(EventEdit):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("EventDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- EventLiterature ------------------------------------
+
+
+class EventLiteratureRelationEdit(BasicDetails):
+    """Simple view mode of [EventLiteratureRelation]"""
+
+    model = EventLiteratureRelation
+    mForm = EventLiteratureRelationForm
+    prefix = "evlit"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={
+            'model_name': 'EventLiteratureRelation', 'app_name': 'installations'})
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'page number',   'value': instance.get_value("pages")},
+                {'type': 'plain', 'label': 'text type',     'value': instance.get_value("texttype")},
+                {'type': 'plain', 'label': 'text',          'value': instance.get_value("text")},
+            ]
+            context['title'] = "View installation type"
+            context['editview'] = reverse("installations:edit_eventliterature", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventLiteratureRelationDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class EventLiteratureRelationDetails(EventLiteratureRelationEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(EventLiteratureRelationDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventLiteratureRelationDetails/add_to_context")
 
         # Return the context we have made
         return context
@@ -597,7 +660,7 @@ class InstallationEdit(BasicDetails):
                 {'type': 'plain', 'label': 'description',       'value': instance.get_description_md()      },
                 {'type': 'plain', 'label': 'comments',          'value': instance.get_comments_md()         },
                 {'type': 'plain', 'label': 'systems',           'value': instance.get_value('systems')      },
-                {'type': 'plain', 'label': 'event literature',  'value': instance.get_value('eventliterature')  },
+                # {'type': 'plain', 'label': 'event literature',  'value': instance.get_value('eventliterature')  },
                 {'type': 'plain', 'label': 'external',          'value': instance.get_value('extlinks')      },
             ]
             context['title'] = "View Installation"
@@ -640,6 +703,81 @@ class InstallationDetails(InstallationEdit):
 
         oErr = ErrHandle()
         try:
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # ============ List of Literature that links to related events =======================================
+            literatures = dict(title="Literature of related events", prefix="litr", 
+                               classes="collapse", label="Literature")
+            if resizable: literatures['gridclass'] = "resizable"
+
+            rel_list = []
+            # Get the literature that is linked to this installation via events
+            event_ids = [ x['id'] for x in instance.events.all().values("id") ]
+            qs = EventLiteratureRelation.objects.filter(event__id__in=event_ids, 
+                    literature__isnull=False).order_by('event__start_date', 'event__end_date', 
+                                                       'literature__code', "page_number")
+            for item in qs:
+                literature = item.literature
+                event = item.event
+                url = reverse("literature_details", kwargs={'pk': literature.id})
+                url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
+                # url_relation = None
+                url_event = reverse('event_details', kwargs={'pk': event.id})
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Event
+                label = event.shortlabel()
+                # sEvent = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                add_rel_item(rel_item, label, False, main=False, nowrap=False, link=url_event)
+
+                # Code for this literature
+                add_rel_item(rel_item, literature.code, False, main=False, nowrap=False, link=url)
+
+                # Text type of this literature (primary/secondary)
+                sType = item.get_value("texttype")
+                add_rel_item(rel_item, sType, False, main=False, nowrap=False, link=url)
+
+                # Page number of this code
+                add_rel_item(rel_item, item.page_number, False, main=False, nowrap=True, link=url_relation)
+
+                ## Title of literature
+                #add_rel_item(rel_item, literature.title, False, main=False, nowrap=False, link=url)
+
+                # Excerpt on literature page
+                add_rel_item(rel_item, item.text, True, main=False, nowrap=False, link=url_relation)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            literatures['rel_list'] = rel_list
+
+            literatures['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Event</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Code</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Type</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Page</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Excerpt</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(literatures)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+            # ============================ END OF RELATED OBJECTS ================================================
+
             lHtml = []
             if 'after_details' in context:
                 lHtml.append(context['after_details'])

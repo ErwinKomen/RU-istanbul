@@ -28,7 +28,7 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     PurposeEdit, PurposeDetails, \
     LocationEdit, LocationDetails, \
     LiteratureEdit, LiteratureDetails, \
-    EventEdit, EventDetails, \
+    EventEdit, EventDetails, EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
     InstitutionEdit, InstitutionDetails, \
     ImageEdit, ImageDetails, ImageList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
@@ -52,6 +52,9 @@ urlpatterns = [
 	re_path(r'^select2/', include('django_select2.urls')),
 
 	# ================== Views ===================================
+	re_path('eventliterature/edit(?:/(?P<pk>\d+))?/$', EventLiteratureRelationEdit.as_view(), name='eventliteraturerelation_edit'),
+	re_path('eventliterature/details(?:/(?P<pk>\d+))?/$', EventLiteratureRelationDetails.as_view(), name='eventliteraturerelation_details'),
+
 	re_path('event/edit(?:/(?P<pk>\d+))?/$', EventEdit.as_view(), name='event_edit'),
 	re_path('event/details(?:/(?P<pk>\d+))?/$', EventDetails.as_view(), name='event_details'),
 

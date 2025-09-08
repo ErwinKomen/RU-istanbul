@@ -41,7 +41,7 @@
         {% if related.rel_list|length == 0 %}
           <button title="(No {{related.label}} for this entity)" class="btn btn-normal jumbo-1">(No {{related.label}})</button>
         {% else %}
-          <button data-toggle="collapse" data-target="#basic_{{related.prefix}}_set" class="btn btn-normal jumbo-3">
+          <button data-toggle="collapse" data-target="#basic_{{related.prefix}}_set" class="btn btn-normal jumbo-3 resizedetails">
             {{related.label}}
             <span style="color: yellow;">&nbsp;({{related.rel_list|length}})</span>
           </button>

@@ -827,6 +827,29 @@ class Event(models.Model, info):
 
         return sBack
 
+    def shortlabel(self):
+        """Provide short label of event"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        start_date = None
+        end_date = None
+        try:
+            # Figure out 'first' date
+            short_date = ""
+            if self.start_date:
+                short_date = self.start_date.year
+            elif self.end_date:
+                short_date = self.end_date.year
+            stype = self.event_type.name
+            # Possible modification
+            sBack = "{}: {}".format(stype, short_date)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Event/shortlabel")
+
+        return sBack
+
     def get_description_md(self):
         """Get description, but then processed by markdown"""
 
@@ -1096,7 +1119,8 @@ class Installation(models.Model, info):
                 for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
                     # url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
                     url = reverse('event_details', kwargs={'pk': oItem['id']})
-                    label = Event.label(oItem, options)
+                    # options={'skipname': instance.english_name}
+                    label = Event.label(oItem, options={'skipname': self.english_name})
                     sItem = "<span class='badge signature gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
                     # sItem = "<div>{}</div>".format(sItem)
                     lst_value.append(sItem)
@@ -1437,6 +1461,8 @@ class EventLiteratureRelation(models.Model, info):
                 sBack = self.text_type.name
             elif field == "pages" and self.page_number:
                 sBack = self.page_number
+            elif field == "text" and self.text:
+                sBack = self.text
             elif field == "eventname":
                 if self.event is None:
                     sBack = "(No event)"

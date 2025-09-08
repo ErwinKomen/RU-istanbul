@@ -99,6 +99,9 @@ urlpatterns = [
 	path('edit_eventtype/<int:pk>',views.edit_eventtype, name = 'edit_eventtype'),
 	path('edit_eventtype/<int:pk>/<str:focus>',views.edit_eventtype, name = 'edit_eventtype'),
 
+	path('edit_eventliterature/<int:pk>',views.edit_eventliterature, name = 'edit_eventliterature'),
+	path('edit_eventliterature/<int:pk>/<str:focus>',views.edit_eventliterature, name = 'edit_eventliterature'),
+
 	path('edit_purpose/<int:pk>',views.edit_purpose, name = 'edit_purpose'),
 	path('edit_purpose/<int:pk>/<str:focus>',views.edit_purpose, name = 'edit_purpose'),
 

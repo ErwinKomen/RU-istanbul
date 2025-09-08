@@ -205,6 +205,7 @@
     <Content Include="installations\templates\installations\about.html" />
     <Content Include="installations\templates\installations\add_event.html" />
     <Content Include="installations\templates\installations\add_eventrole.html" />
+    <Content Include="installations\templates\installations\add_eventliteraturerelation.html" />
     <Content Include="installations\templates\installations\add_eventtype.html" />
     <Content Include="installations\templates\installations\add_figure.html" />
     <Content Include="installations\templates\installations\add_heading.html" />

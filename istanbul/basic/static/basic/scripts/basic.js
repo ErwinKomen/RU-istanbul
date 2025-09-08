@@ -1670,6 +1670,14 @@ var ru = (function ($, ru) {
             private_methods.resizableGrid(el);
           });
 
+          $("button.resizedetails").each(function (idx, el) {
+            $($(el).attr("data-target")).unbind("shown.bs.collapse").on("shown.bs.collapse", function () {
+              var elTable = $(this).find("table")[0];
+              // Make it resizable
+              private_methods.resizableGrid(elTable);
+            });
+          });
+
           // sortable tables
           $("table th .sortshow").unbind("click").on("click", function (evt) {
             var el = $(this);
@@ -1691,20 +1699,6 @@ var ru = (function ($, ru) {
 
             }
           });
-
-          //// Mapview options
-          //if (options !== undefined) {
-          //  if ("startup" in options) {
-          //    // Figure out what the startup means
-          //    switch (options['startup']) {
-          //      case "maplist":
-          //        // Okay, we need to call mapview
-          //        $("#maplist").click();
-          //        ru.istanbul.goto_view(this, 'map', 'osm');
-          //        break;
-          //    }
-          //  }
-          //}
 
         } catch (ex) {
           private_methods.errMsg("init_events", ex);
