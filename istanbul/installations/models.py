@@ -10,6 +10,7 @@ from django.db import models, transaction
 from django.urls import reverse
 from partial_date import PartialDateField
 from colorfield.fields import ColorField
+from unidecode import unidecode
 
 # idiosyncratics
 from partial_date import PartialDate
@@ -254,6 +255,8 @@ class System(models.Model, info):
         unique=True)
     # [0-1] Name of the system in the Turkish language
     turkish_name = models.CharField(max_length=1000,blank=True,null=True)
+    # [0-1] Name of the system in unidecoded Turkish 
+    simple_name = models.CharField(max_length=1000,blank=True,null=True)
 
     # ==================== Links to other objects ========================
     # [0-1] Location of the system 
@@ -297,6 +300,28 @@ class System(models.Model, info):
             oErr.DoError("System/get_value")
 
         return sBack
+
+    def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+        """Make sure a default Status is saved"""
+
+        oErr = ErrHandle()
+        try:
+            # Check the turkish_name and the simple_name fields
+            sTurkic = self.turkish_name
+            if sTurkic:
+                sSimple = unidecode(sTurkic)
+                if self.simple_name != sSimple:
+                    self.simple_name = sSimple
+            # Continue with regular saving
+            response = super(System, self).save(force_insert, force_update, using, update_fields)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("System.save")
+            response = None
+
+        # Return the response when saving
+        return response
 
 
 class Gender(models.Model, info):
@@ -410,6 +435,8 @@ class Institution(models.Model, info):
         unique = True)
     # [0-1] Name of the system in the original language
     turkish_name = models.CharField(max_length=1000,blank=True,null=True)
+    # [0-1] Name of the system in unidecoded Turkish 
+    simple_name = models.CharField(max_length=1000,blank=True,null=True)
 
     # ==================== Links to other objects ========================
     # [0-1] Type of institution
@@ -455,6 +482,28 @@ class Institution(models.Model, info):
             oErr.DoError("Institution/get_value")
 
         return sBack
+
+    def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+        """Make sure a default Institution is saved"""
+
+        oErr = ErrHandle()
+        try:
+            # Check the turkish_name and the simple_name fields
+            sTurkic = self.turkish_name
+            if sTurkic:
+                sSimple = unidecode(sTurkic)
+                if self.simple_name != sSimple:
+                    self.simple_name = sSimple
+            # Continue with regular saving
+            response = super(Institution, self).save(force_insert, force_update, using, update_fields)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Institution.save")
+            response = None
+
+        # Return the response when saving
+        return response
 
 
 class EventType(models.Model, info):
@@ -1052,6 +1101,8 @@ class Installation(models.Model, info):
         unique=True)
     # [0-1] Name of the system in the Turkish language
     turkish_name = models.CharField(max_length=1000,blank=True,null=True)
+    # [0-1] Name of the system in unaccented turkic orthography
+    simple_name = models.CharField(max_length=1000,blank=True,null=True)
     # [0-1] Whether the installation still exists
     still_exists = models.BooleanField(blank=True,null=True)
 
@@ -1300,6 +1351,12 @@ class Installation(models.Model, info):
             if self.installation_status_id is None:
                 # Need to add a default status: "show"
                 self.installation_status = InstallationStatus.get_default()
+            # Check the turkish_name and the simple_name fields
+            sTurkic = self.turkish_name
+            if sTurkic:
+                sSimple = unidecode(sTurkic)
+                if self.simple_name != sSimple:
+                    self.simple_name = sSimple
             # Continue with regular saving
             response = super(Installation, self).save(force_insert, force_update, using, update_fields)
 

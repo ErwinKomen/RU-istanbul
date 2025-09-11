@@ -817,6 +817,7 @@ class BasicList(ListView):
     use_contains = True     # Use contains in searches
     permission = True
     nonuser_visible = True
+    start_with_list = True          # Start with listview
     usersearch_id = ""
     redirectpage = ""
     lst_typeaheads = []
@@ -923,6 +924,9 @@ class BasicList(ListView):
 
         # Make sure to transform the 'object_list'  into a 'result_list'
         context['result_list'] = self.get_result_list(context['object_list'])
+
+        # Default setting
+        context['start_with_list'] = self.start_with_list
 
         context['sortOrder'] = self.sort_order
         context['colWrap'] = self.col_wrap

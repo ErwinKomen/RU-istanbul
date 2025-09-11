@@ -10,6 +10,8 @@ from django.utils.translation import gettext as _, gettext_lazy
 import copy
 import json
 
+from unidecode import unidecode
+
 # From own applicatino
 from .models import EventInstallationRelation, System, Image, Installation, SystemInstallationRelation
 from .models import InstallationType, Purpose
@@ -36,7 +38,7 @@ from .forms import partial_year_to_date
 
 # EK: adding detail views
 from basic.utils import ErrHandle
-from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime, get_application_context
+from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime, get_application_context, user_is_superuser
 from mapview.views import MapView
 
 
@@ -933,10 +935,22 @@ class InstallationList(BasicList):
         oErr = ErrHandle()
 
         try:
+            # Check for statuslist
             istatuslist = fields.get("istatuslist")
             if istatuslist is None or len(istatuslist) == 0:
                 # Make sure only the 'show' ones are actually shown
                 lstExclude.append(Q(installation_status__name="hide"))
+
+            # Possibly adapt the 'name' field to also match:
+            #   field `simple_name` for simple ascii names
+            #   fields: `original_name`, `ottoman_name`, 
+            english_name = fields.get("english_name")
+            if not english_name is None and english_name != "":
+                fields["english_name"] = Q(english_name__icontains=english_name) | \
+                    Q(original_name__icontains=english_name) | \
+                    Q(ottoman_name__icontains=english_name) | \
+                    Q(turkish_name__icontains=english_name) | \
+                    Q(simple_name__icontains=english_name)
 
         except:
             msg = oErr.get_error_message()
@@ -1872,6 +1886,38 @@ class PersonTypeList(BasicList):
             ]
          } 
         ] 
+
+    def initializations(self):
+        # Perform standard initialization
+        response = super(PersonTypeList, self).initializations()
+
+        oErr = ErrHandle()
+        try:
+            # Double checked: are we superuser?
+            if user_is_superuser(self.request):
+                # Double check listviews
+                cls_items = [Installation, Institution, System]
+                iCount = 0
+                for clsThis in cls_items:
+                    # Check for all that has a turkish name
+                    qs = clsThis.objects.filter(turkish_name__isnull=False)
+                    for obj in qs:
+                        turkish_name = obj.turkish_name
+                        # unidecode
+                        simple_name = unidecode(turkish_name)
+                        if obj.simple_name != simple_name:
+                            obj.simple_name = simple_name
+                            obj.save()
+                            iCount += 1
+
+                # Report on performance
+                oErr.Status("PersonType initializations: {}".format(iCount))
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("")
+
+        # Return nothing
+        return None
 
     def add_to_context(self, context, initial):
         may_add = context['is_app_moderator'] or context['is_app_developer']
