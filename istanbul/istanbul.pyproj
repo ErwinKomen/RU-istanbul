@@ -153,6 +153,7 @@
     <Content Include="basic\templates\basic\basic_edit.html" />
     <Content Include="basic\templates\basic\basic_list.html" />
     <Content Include="basic\templates\basic\basic_nlogin.html" />
+    <Content Include="basic\templates\basic\basic_related.html" />
     <Content Include="basic\templates\basic\filter_help.html" />
     <Content Include="basic\templates\basic\formset_new.html" />
     <Content Include="basic\templates\basic\map_details_switch.html" />

@@ -75,6 +75,15 @@ var ru = (function ($, ru) {
                 $("#maplistcarto").click();
               }
 
+              // Check for .rel-image
+              $(".rel-image").unbind("click").on("click", function (event) {
+                var elThis = $(this);
+
+                // Prevent clicking through
+                // event.preventDefault;
+                ru.istanbul.show_picture(elThis);
+              });
+
             } catch (ex) {
               private_methods.errMsg("init_events", ex);
             }

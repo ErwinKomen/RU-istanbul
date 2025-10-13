@@ -2,6 +2,7 @@
 Views for the installations app - based on the 'basic' app
 """
 
+from django.db import transaction
 from django.db.models import Q, Prefetch, Count, F
 from django.http import HttpRequest
 from django.template.loader import render_to_string
@@ -13,7 +14,7 @@ import json
 from unidecode import unidecode
 
 # From own applicatino
-from .models import EventInstallationRelation, System, Image, Installation, SystemInstallationRelation
+from .models import EventInstallationRelation, ImageInstallationRelation, System, Image, Installation, SystemInstallationRelation
 from .models import InstallationType, Purpose
 from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
@@ -693,9 +694,77 @@ class InstallationEdit(BasicDetails):
         # Return the context we have made
         return context
 
+    def check_hlist(self, instance):
+        """Check if a hlist parameter is given, and hlist saving is called for"""
+
+        oErr = ErrHandle()
+        bChanges = False
+        bDebug = True
+        prefix = "imgs"
+
+        try:
+            arg_hlist = "{}-hlist".format(prefix)
+            arg_savenew = "{}-savenew".format(prefix)
+            if arg_hlist in self.qd and arg_savenew in self.qd:
+                # Interpret the list of information that we receive
+                hlist = json.loads(self.qd[arg_hlist])
+                # Interpret the savenew parameter
+                savenew = self.qd[arg_savenew]
+
+                # Make sure we are not saving
+                self.do_not_save = True
+                # But that we do a new redirect
+                self.newRedirect = True
+
+                # Change the redirect URL
+                if self.redirectpage == "":
+                    self.redirectpage = reverse('installation_details', kwargs={'pk': instance.id})
+
+                # What we have is the ordered list of ImageInstallationRelation id's that are part of this Installation
+                with transaction.atomic():
+                    # Make sure the orders are correct
+                    for idx, item_id in enumerate(hlist):
+                        order = idx + 1
+                        lstQ = [Q(installation=instance)]
+                        lstQ.append(Q(**{"id": item_id}))
+                        obj = ImageInstallationRelation.objects.filter(*lstQ).first()
+                        if obj != None:
+                            if obj.order != order:
+                                obj.order = order
+                                obj.save()
+                                bChanges = True
+                # See if any need to be removed
+                existing_item_id = [str(x.id) for x in ImageInstallationRelation.objects.filter(installation=instance)]
+                delete_id = []
+                for item_id in existing_item_id:
+                    if not item_id in hlist:
+                        delete_id.append(item_id)
+                if len(delete_id)>0:
+                    lstQ = [Q(installation=instance)]
+                    lstQ.append(Q(**{"id__in": delete_id}))
+                    ImageInstallationRelation.objects.filter(*lstQ).delete()
+                    bChanges = True
+
+                if bChanges:
+                    # (6) Re-calculate the set of setlists
+                    force = True if bDebug else False
+                    #instance.update_ssglists(force)
+
+            return True
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationEdit/check_hlist")
+            return False
+
 
 class InstallationDetails(InstallationEdit):
     rtype = "html"
+
+    def custom_init(self, instance):
+        if instance != None:
+            # Check for hlist saving
+            self.check_hlist(instance)
+        return None
 
     def add_to_context(self, context, instance):
         """Add to the existing context"""
@@ -704,7 +773,13 @@ class InstallationDetails(InstallationEdit):
         context = super(InstallationDetails, self).add_to_context(context, instance)
 
         oErr = ErrHandle()
+        include_images = False
         try:
+            # Is this an editor?
+            if context['is_app_editor']:
+                # Then the editor may edit the image order
+                include_images = True
+
             # Lists of related objects
             related_objects = []
 
@@ -778,6 +853,57 @@ class InstallationDetails(InstallationEdit):
             # Add all related objects to the context
             context['related_objects'] = related_objects
 
+            # ============ List of Images added to this installation =======================================
+            if include_images:
+                images = dict(title="Images for this installation", prefix="imgs", 
+                                   classes="collapse", label="Picture order...")
+                if resizable: images['gridclass'] = "resizable"
+                # Editors may use the save buttons
+                images['savebuttons'] = True
+                images['editorbutton'] = True
+
+                rel_list = []
+                index = 1
+                # Get the image that is linked to this installation in their proper order
+                qs = ImageInstallationRelation.objects.filter(installation=instance).order_by('order')
+                for item in qs:
+                    image = item.image
+                    url = reverse("image_details", kwargs={'pk': image.id})
+                    rel_item = []
+                
+                    # Order number for this item
+                    add_rel_item(rel_item, index, False, align="right")
+                    index += 1
+
+                    # Order
+                    order = item.order
+                    add_rel_item(rel_item, order, False, align="right", draggable=True)
+
+                    # The image itself
+                    img_html, sTitle = image.get_image_html(bSmall=True)
+                    img_html = img_html.replace("'", '"')
+                    # Adapted html
+                    sImage = '<div title="{}" info="{}" class="rel-image" data-toggle="modal" data-target="#werkstuk_modal">{}</div>'.format(
+                        sTitle, sTitle, img_html)
+                    add_rel_item(rel_item, sImage, False, main=False, nowrap=False)
+
+                    # Label for the image
+                    sLabel = image.get_label()
+                    add_rel_item(rel_item, sLabel, False, main=True, nowrap=False, link=url)
+
+                    # Add this line to the list
+                    rel_list.append(dict(id=item.id, cols=rel_item))
+
+                images['rel_list'] = rel_list
+
+                images['columns'] = [
+                    '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                    '{}<span>Order</span>{}'.format(sort_start_int, sort_end), 
+                    '{}<span>Image</span>{}'.format(sort_start, sort_end), 
+                    '{}<span>Title</span>{}'.format(sort_start, sort_end), 
+                    ]
+                related_objects.append(images)
+
             # ============================ END OF RELATED OBJECTS ================================================
 
             lHtml = []
@@ -786,7 +912,13 @@ class InstallationDetails(InstallationEdit):
 
             # Figure out the list of images
             lst_image = []
-            for obj in instance.images.all():
+            # Old queryset:
+            # qs = instance.images.all()
+            # for obj in instance.images.all():
+            # Ordered queryset:
+            for obj_rel in ImageInstallationRelation.objects.filter(installation=instance).order_by('order'):
+                obj = obj_rel.image
+                # Get the general image-showing-HTML code
                 img_html, sTitle = obj.get_image_html()
                 bGeojson = (not obj.geojson is None)
                 lst_image.append(dict(img=img_html, title=sTitle, info=sTitle, geojson=bGeojson))
@@ -823,7 +955,7 @@ class InstallationList(BasicList):
     order_heads = [
         {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname',  'allowwrap': True, 'linkdetails': True,  'main': True},
         {'name': 'Type',        'order': 'o=2', 'type': 'str', 'custom': 'instaltype'               },
-        {'name': 'Purposes',    'order': '',    'type': 'str', 'custom': 'purposes'                 },
+        {'name': 'Purposes',    'order': '',    'type': 'str', 'custom': 'purposes',    'allowwrap': True                 },
         {'name': 'Persons',     'order': '',    'type': 'str', 'custom': 'evpersons',   'allowwrap': True},
         {'name': 'Events',      'order': '',    'type': 'str', 'custom': 'events',      'allowwrap': True},
         ]

@@ -628,8 +628,10 @@ class Image(models.Model, info):
             oErr.DoError("Image/get_description_md")
         return sBack
 
-    def get_image_html(self, tooltip=None, bListGeoJson=False):
-        """Get the HTML <img> code for this one"""
+    def get_image_html(self, tooltip=None, bListGeoJson=False, bSmall=False):
+        """Get the HTML <img> code for this one
+        issue #50: also add a link to the image details page
+        """
 
         oErr = ErrHandle()
         sBack = ""
@@ -667,12 +669,21 @@ class Image(models.Model, info):
                 else:
                     # I can give a link to the `Image` details
                     url = reverse('image_details', kwargs={'pk': self.id})
-                    sBack = '<span title="{}" class="badge signature cl"><a class="nostyle" href="{}">{}</a></span>'.format(
+                    sBack = '<span title="{}" class="btn btn-xs jumbo-1"><a class="nostyle" href="{}">{}</a></span>'.format(
                         self.title, url, "geojson image")
             else:
+                # Figure out what the URL to the image details page is
+                url = reverse('image_details', kwargs={'pk': self.id})
+                # Adapt the description
+                #if bLink:
+                sTitle = "{} (<a href='{}'>details</a> )".format(sTitle, url)
+                #else:
+                if bSmall:
+                    sClass = "stalla-image-small"
 
-                if tooltip == None:
-                    sBack = "<img src='{}' alt='{}' class='{}' >".format(image, descr, sClass)
+                if tooltip is None:
+                    sBack = "<img src='{}' alt='{}' class='{}' >".format(
+                        image, descr, sClass)
                 else:
                     sBack = "<img src='{}' alt='{}' data-toggle='tooltip' data-tooltip='werkstuk-hover' title='{}' class='{}'>".format(
                         image, descr, tooltip, sClass)
@@ -890,7 +901,10 @@ class Event(models.Model, info):
                 short_date = self.start_date.year
             elif self.end_date:
                 short_date = self.end_date.year
-            stype = self.event_type.name
+            if self.event_type:
+                stype = self.event_type.name
+            else:
+                stype = "Unknown event type"
             # Possible modification
             sBack = "{}: {}".format(stype, short_date)
         except:
@@ -926,7 +940,9 @@ class Event(models.Model, info):
                 if not self.end_date is None:
                     sBack = self.end_date.year
             elif field == "eventtype":
-                if not self.event_type is None:
+                if self.event_type is None:
+                    sBack = "(no event type)"
+                else:
                     sBack = self.event_type.name
             elif field == "installations":
                 # Sort the installations by their English name, if possible
@@ -1120,7 +1136,7 @@ class Installation(models.Model, info):
     # [0-1] Purposes related to this installation
     purposes = models.ManyToManyField(Purpose,blank=True,default= None)
     # [0-1] Images related to this installation
-    images = models.ManyToManyField(Image,blank=True,default= None)
+    images = models.ManyToManyField(Image,blank=True,default= None, through="ImageInstallationRelation")
 
     # =========== Standard fields ========================================
     # [1] Description of this object (may be '')
@@ -1626,6 +1642,38 @@ class EventInstallationRelation(models.Model, info):
             oErr.DoError("EventInstallationRelation/get_value")
 
         return sBack
+
+
+class ImageInstallationRelation(models.Model, info):
+    """Relation between an installation and an image
+    
+    Note: this is true m2m - images can belong to multiple installations
+    """
+
+    # ==================== Links to other objects ========================
+    # [0-1] Link to image
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="imageinstallation_relations")
+    # [0-1] Link to installation
+    installation= models.ForeignKey(Installation, on_delete=models.CASCADE, related_name="imageinstallation_relations")
+    # [0-1] Order of this image within the installation
+    order = models.IntegerField(default = -1, blank=True, null=True)
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this installation-image relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "order" and self.order:
+                sBack = self.order
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationImageRelation/get_value")
+
+        return sBack
+
 
 
 # ========================== MANY-TO-ONE ITEMS ===========================================

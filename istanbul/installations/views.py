@@ -150,7 +150,6 @@ def npermission(request):
     return render(request,'utilities/npermission.html', context)
 
 
-
 # --------------------- System ----------------------------------------------
 def edit_system(request, pk = None, focus = '', view = 'complete'):
     """Allow adding a new or editing an existing [System] instance"""
@@ -165,7 +164,7 @@ def edit_installation(request, pk = None, focus = '', view = 'complete'):
 
     names = 'installationsystem_formset,installationextlink_formset'
     return edit_model(request, __name__, 'Installation','installations',pk,
-        formset_names = names, focus = focus, view = view)
+        formset_names = names, focus = focus, view = view) 
 
 def detail_installation_view(request,pk):
     installation= Installation.objects.get(pk = pk)

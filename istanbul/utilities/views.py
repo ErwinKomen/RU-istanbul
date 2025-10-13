@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.db.models import Count
+from django.db.models.fields import related
 from django.forms import modelformset_factory
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -82,7 +83,7 @@ def list_view(request, model_name, app_name, max_entries=500):
 
 @permission_required('utilities.add_generic')
 def edit_model(request, name_space, model_name, app_name, instance_id = None, 
-    formset_names='', focus='default', view ='complete', before_save = None):
+    formset_names='', focus='default', view ='complete', before_save = None, related_objects=None):
     '''edit view generalized over models.
     assumes a 'add_{{model_name}}.html template and edit_{{model_name}} function
     and {{model_name}}Form
@@ -184,9 +185,11 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
             print('helper made',delta(start))
 
             # Collect the context
+            if instance_id is None:
+                related_objects = None
             args = {'form':form,'page_name':page_name,'crud':crud,'model_name':model_name,
                 'app_name':app_name,'tabs':tabs, 'view':view,'helper':helper.get_dict(),
-                'instance':instance}
+                'instance':instance, 'related_objects': related_objects}
             args.update(ffm.dict)
             # context = get_application_context(request, args)
             context.update(args)

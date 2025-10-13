@@ -111,6 +111,10 @@ span.badge.signature:hover {
     max-width: 100%;
 }
 
+.stalla-image-small {
+    height: 100px;
+}
+
 /* Colors of jumbo parts */
 .jumbo-1 {
     background-color: lavender;
@@ -271,3 +275,17 @@ body > div > footer a {
 .hidden {
     display: none !important;
 }
+
+/* Drag and drop stuff */
+.draggable:hover {
+    /* border: 1px solid yellow; */
+    background-color: lightsalmon;
+    color: white;
+    cursor: move;
+}
+
+.dragover {
+    background-color: yellow !important;
+    border: 1px dotted red;
+}
+

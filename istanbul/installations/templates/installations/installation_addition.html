@@ -41,7 +41,13 @@
         {% if related.rel_list|length == 0 %}
           <button title="(No {{related.label}} for this entity)" class="btn btn-normal jumbo-1">(No {{related.label}})</button>
         {% else %}
-          <button data-toggle="collapse" data-target="#basic_{{related.prefix}}_set" class="btn btn-normal jumbo-3 resizedetails">
+          <button data-toggle="collapse" data-target="#basic_{{related.prefix}}_set" 
+                  {% if related.editorbutton %}
+                     class="btn btn-normal jumbo-2 resizedetails" 
+                     title="For editors only"
+                  {% else %} 
+                     class="btn btn-normal jumbo-3 resizedetails" 
+                  {% endif %}>
             {{related.label}}
             <span style="color: yellow;">&nbsp;({{related.rel_list|length}})</span>
           </button>
@@ -55,10 +61,14 @@
     {% if pictures|length > 0 %}
       <div id="pictures_table" class="collapse stalla-more">
         {% for oPict in pictures %}
-          <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
-               onclick="ru.istanbul.show_picture(this);">
+          {% if oPict.geojson %}
             {{oPict.img|safe}}
-          </div>
+          {% else %}
+            <div title="{{oPict.title}}" info="{{oPict.info}}" data-toggle="modal" data-target="#werkstuk_modal"
+                 onclick="ru.istanbul.show_picture(this);">
+              {{oPict.img|safe}}
+            </div>
+          {% endif %}
         {% endfor %}
       </div>
     {% endif %}
