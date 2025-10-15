@@ -289,3 +289,16 @@ body > div > footer a {
     border: 1px dotted red;
 }
 
+/* Specify how a keyword should be shown */
+.kw {
+    font-family: monospace;
+    color: darkblue;
+    font-size: 90%;
+    background-color: whitesmoke;
+}
+
+.card-header {
+    background-color: lightblue;
+}
+
+

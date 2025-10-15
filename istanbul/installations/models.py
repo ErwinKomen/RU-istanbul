@@ -635,13 +635,15 @@ class Image(models.Model, info):
 
         oErr = ErrHandle()
         sBack = ""
-        sTitle = ""
+        sTitle = ""     # Title seen on the bottom of the modal form
+        sInfo = ""      # Info seen when hovering
 
         try:
             # Get the number of the image, depending on the options
             image = self.image_file.url
-            sTitle = self.title
             descr = self.description
+            sTitle = descr if descr else self.title
+            sInfo = sTitle
             sClass = "stalla-image" # Was: col-md-12
 
             if self.get_itype() == "geojson":
@@ -676,7 +678,7 @@ class Image(models.Model, info):
                 url = reverse('image_details', kwargs={'pk': self.id})
                 # Adapt the description
                 #if bLink:
-                sTitle = "{} (<a href='{}'>details</a> )".format(sTitle, url)
+                sInfo = "{} (<a href='{}'>details</a> )".format(sInfo, url)
                 #else:
                 if bSmall:
                     sClass = "stalla-image-small"
@@ -691,7 +693,7 @@ class Image(models.Model, info):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Image/get_image_html")
-        return sBack, sTitle
+        return sBack, sTitle, sInfo
 
     def get_label(self):
         """Get a representative label for this image"""

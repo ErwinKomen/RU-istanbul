@@ -533,7 +533,7 @@ class ImageDetails(ImageEdit):
                 lHtml.append(context['after_details'])
 
             # Note: there is only one image
-            img_html, sTitle = instance.get_image_html(bListGeoJson=True)
+            img_html, sTitle, sInfo = instance.get_image_html(bListGeoJson=True)
             oImage = dict(img=img_html, title=sTitle, info=sTitle, itype=instance.get_itype())
             context['default'] = oImage
             context['pictures'] = []
@@ -880,11 +880,11 @@ class InstallationDetails(InstallationEdit):
                     add_rel_item(rel_item, order, False, align="right", draggable=True)
 
                     # The image itself
-                    img_html, sTitle = image.get_image_html(bSmall=True)
+                    img_html, sTitle, sInfo = image.get_image_html(bSmall=True)
                     img_html = img_html.replace("'", '"')
                     # Adapted html
                     sImage = '<div title="{}" info="{}" class="rel-image" data-toggle="modal" data-target="#werkstuk_modal">{}</div>'.format(
-                        sTitle, sTitle, img_html)
+                        sTitle, sInfo, img_html)
                     add_rel_item(rel_item, sImage, False, main=False, nowrap=False)
 
                     # Label for the image
@@ -919,9 +919,9 @@ class InstallationDetails(InstallationEdit):
             for obj_rel in ImageInstallationRelation.objects.filter(installation=instance).order_by('order'):
                 obj = obj_rel.image
                 # Get the general image-showing-HTML code
-                img_html, sTitle = obj.get_image_html()
+                img_html, sTitle, sInfo = obj.get_image_html()
                 bGeojson = (not obj.geojson is None)
-                lst_image.append(dict(img=img_html, title=sTitle, info=sTitle, geojson=bGeojson))
+                lst_image.append(dict(img=img_html, title=sTitle, info=sInfo, geojson=bGeojson))
             if len(lst_image) > 0:
                 context['default'] = lst_image[0]
             context['pictures'] = lst_image[1:]
