@@ -66,12 +66,16 @@ def home(request):
         tme_next = Information.get_kvalue("check_event_open_next")
         tme_now = str(get_current_datetime())
         if tme_next is None or tme_next == "" or tme_now > tme_next:
+            oErr.Status("home: synchronizing even_open end_date instances")
             # Need to synchronize event end_dates
             if Event.sync_end_dates():
                 # Now we can set the kv to the next YEAR
                 year_next = datetime.now().year + 1
                 tme_next = str( PartialDate("{}y".format(year_next)).dt )
                 Information.set_kvalue("check_event_open_next", tme_next)
+                oErr.Status("Home: check_event_open_next set to {}".format(tme_next))
+        else:
+            oErr.Status("home: no need to check even_open")
             
 
         # Show the home page
