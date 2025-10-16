@@ -47,28 +47,28 @@
                 <th class="col-2">name</th>
                 <td class="col-8">
 					        {{form.name}} 
-					        {{from.name.error}}
+					        {{form.name.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">location type</th>
                 <td class="col-8">
 					        {{form.loctype}} 
-					        {{form.loctype.error}}
+					        {{form.loctype.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">latitude (x-coordinate)</th>
                 <td class="col-8">
                   {{form.x_coordinate}}
-                  {{form.x_coordinate.error}}
+                  {{form.x_coordinate.errors}}
                 </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">longitude (y-coordinate)</th>
                 <td class="col-8">
                   {{form.y_coordinate}}
-                  {{form.y_coordinate.error}}
+                  {{form.y_coordinate.errors}}
                 </td>
             </tr>
         </table>

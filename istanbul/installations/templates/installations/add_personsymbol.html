@@ -47,7 +47,7 @@
                 <td class="col-8">
                   {% if is_app_developer %}
                     {{form.name}}
-                    {{from.name.error}}
+                    {{form.name.errors}}
                   {% else %}
                     {{form.instance.name}}
                     <div class="hidden">
@@ -61,14 +61,14 @@
                 <th class="col-2">description</th>
                 <td class="col-8">
 					        {{form.description}} 
-					        {{form.description.error}}
+					        {{form.description.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">comments</th>
                 <td class="col-8">
 					        {{form.comments}} 
-					        {{form.comments.error}}
+					        {{form.comments.errors}}
 				        </td>
             </tr>
         </table>

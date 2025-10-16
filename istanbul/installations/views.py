@@ -8,9 +8,12 @@ from django.contrib.auth.models import User
 from django.http import HttpRequest, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
+from datetime import datetime, timedelta
+
+from partial_date import PartialDate
 
 # From own applicatino
-from .models import System, Image, Installation, SystemInstallationRelation
+from .models import System, Image, Installation, SystemInstallationRelation, Event
 from .forms import SystemForm, PersonForm, InstallationForm 
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
@@ -29,6 +32,7 @@ from utilities.views import edit_model
 # EK: adding detail views
 from basic.utils import ErrHandle
 from basic.views import BasicDetails, add_rel_item, get_current_datetime, get_application_context
+from basic.models import Information
 from cms.views import add_cms_contents
 
 # @permission_required('utilities.add_generic')
@@ -57,6 +61,18 @@ def home(request):
 
         # Add context items from the CMS system
         context = add_cms_contents('home', context)
+
+        # Check anything that needs to be checked when s.o. goes to the home page
+        tme_next = Information.get_kvalue("check_event_open_next")
+        tme_now = str(get_current_datetime())
+        if tme_next is None or tme_next == "" or tme_now > tme_next:
+            # Need to synchronize event end_dates
+            if Event.sync_end_dates():
+                # Now we can set the kv to the next YEAR
+                year_next = datetime.now().year + 1
+                tme_next = str( PartialDate("{}y".format(year_next)).dt )
+                Information.set_kvalue("check_event_open_next", tme_next)
+            
 
         # Show the home page
         response = render(request,template,context)

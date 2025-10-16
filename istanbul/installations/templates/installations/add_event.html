@@ -46,14 +46,14 @@
                 <th class="col-2">name</th>
                 <td class="col-8">
 					        {{form.name}} 
-					        {{from.name.error}}
+					        {{form.name.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">event type</th>
                 <td class="col-8">
 					        {{form.event_type}} 
-					        {{from.event_type.error}}
+					        {{form.event_type.errors}}
 				        </td>
 				        <td>
                     <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
@@ -66,28 +66,28 @@
                 <th class="col-2">start date</th>
                 <td class="col-8">
 					        {{form.start_date}} 
-					        {{from.start_date.error}}
+					        {{form.start_date.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">end date</th>
                 <td class="col-8">
-					        {{form.end_date}} 
-					        {{from.end_date.error}}
+					        {{form.end_date}} {{form.end_date_type}}
+					        {{form.end_date.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">date comments</th>
                 <td class="col-8">
 					        {{form.date_comments}} 
-					        {{from.date_comments.error}}
+					        {{form.date_comments.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">figure</th>
                 <td class="col-8">
 					        {{form.figure}} 
-					        {{from.figure.error}}
+					        {{form.figure.errors}}
 				        </td>
 				        <td>
                     <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
@@ -100,14 +100,14 @@
                 <th class="col-2">description</th>
                 <td class="col-8">
 					        {{form.description}} 
-					        {{form.description.error}}
+					        {{form.description.errors}}
 				        </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">comments</th>
                 <td class="col-8">
 					        {{form.comments}} 
-					        {{form.comments.error}}
+					        {{form.comments.errors}}
 				        </td>
             </tr>
         </table>

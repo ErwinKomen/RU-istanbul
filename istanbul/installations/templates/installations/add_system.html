@@ -46,34 +46,34 @@
                 <th class="col-2">english name</th>
                 <td class="col-8">
 					      {{form.english_name}} 
-					      {{from.english_name.error}}
+					      {{form.english_name.errors}}
 				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">turkish name</th>
                 <td class="col-8">
 					      {{form.turkish_name}} 
-					      {{from.turkish_name.error}}
+					      {{form.turkish_name.errors}}
 				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">original name</th>
                 <td class="col-8">
 					      {{form.original_name}} 
-					      {{from.original_name.error}}
+					      {{form.original_name.errors}}
 				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">ottoman name</th>
                 <td class="col-8">
 					      {{form.ottoman_name}} 
-					      {{from.ottoman_name.error}}
+					      {{form.ottoman_name.errors}}
 				      </td>
             <tr class="d-flex">
                 <th class="col-2">location</th>
                 <td class="col-8">
                   {{form.location}}
-                  {{from.location.error}}
+                  {{form.location.errors}}
                 </td>
 				        <td><a class = "btn btn-link btn-sm ml-auto" target = "_blank"
 						        href ="{% url 'installations:add_location' 'inline' %}"
@@ -84,14 +84,14 @@
                 <th class="col-2">description</th>
                 <td class="col-8">
 					      {{form.description}} 
-					      {{form.description.error}}
+					      {{form.description.errors}}
 				      </td>
             </tr>
             <tr class="d-flex">
                 <th class="col-2">comments</th>
                 <td class="col-8">
 					{{form.comments}} 
-					{{form.comments.error}}
+					{{form.comments.errors}}
 				</td>
             </tr>
         </table>

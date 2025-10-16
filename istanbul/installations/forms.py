@@ -1,11 +1,13 @@
 """
 Forms for the Installations app inside istanbul-su
 """
+from xml.dom import ValidationErr
 from django import forms
+from django.core.exceptions import ValidationError
 from .models import System, Religion, Gender, Person, InstitutionType
 from .models import Institution,EventType,Image,ImageType,Style,Figure,Event
 from .models import Purpose,InstallationType,InstallationStatus,Installation,Literature
-from .models import SystemInstallationRelation,TextType
+from .models import SystemInstallationRelation,TextType,DateType
 from .models import EventLiteratureRelation, EventRole, InstitutionType
 from .models import EventInstitutionRelation,EventPersonRelation
 from .models import Location, LocType
@@ -16,7 +18,7 @@ from .models import ExternalLink
 from .widgets import SystemWidget, ReligionWidget, GenderWidget, PersonsWidget
 from .widgets import InstitutionTypeWidget,InstitutionsWidget,ImagesWidget
 from .widgets import InstitutionWidget, EventRoleWidget
-from .widgets import EventTypeWidget,StyleWidget,FigureWidget
+from .widgets import EventTypeWidget,StyleWidget,FigureWidget, DateTypeWidget
 from .widgets import InstallationTypeWidget,InstallationStatusWidget,InstallationWidget
 from .widgets import InstallationTypesWidget,InstallationStatusesWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
@@ -224,28 +226,51 @@ class ReligionForm(forms.ModelForm):
 
 
 class EventForm(forms.ModelForm):
-	name = forms.CharField(**dchar_required)
-	event_type = forms.ModelChoiceField(
-		queryset = EventType.objects.all(),
-		widget = EventTypeWidget(**dselect2),
-		required = False)
-	date_comments = forms.CharField(**dtext)
-	#images = forms.ModelMultipleChoiceField(
-	#	queryset = Image.objects.all(),
-	#	widget = ImagesWidget(**dselect2),
-	#	required = False)
-	figure = forms.ModelChoiceField(
-		queryset = Figure.objects.all(),
-		widget = FigureWidget(**dselect2),
-		required = False)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
+	# name = forms.CharField(**dchar_required)
+	# event_type = forms.ModelChoiceField(queryset = EventType.objects.all(),
+	# 	widget = EventTypeWidget(**dselect2),required = False)
+	# date_comments = forms.CharField(**dtext)
+	# #images = forms.ModelMultipleChoiceField(
+	# #	queryset = Image.objects.all(),
+	# #	widget = ImagesWidget(**dselect2),
+	# #	required = False)
+	# end_date_type = forms.ModelChoiceField(queryset = DateType.objects.all(),
+	# 	widget = DateTypeWidget(attrs={'style': 'width: 50%;', 'data-minimum-input-length': 0}),
+	# 	required = False)
+	# figure = forms.ModelChoiceField(queryset = Figure.objects.all(),
+	# 	widget = FigureWidget(**dselect2),required = False)
+	# description = forms.CharField(**dtext)
+	# comments = forms.CharField(**dtext)
 
 	class Meta:
 		model = Event
-		fields = 'name,start_date,end_date,date_comments' #,images'
+		fields = 'name,start_date,end_date,end_date_type,date_comments' #,images'
 		fields += ',figure,description,comments,event_type'
 		fields = fields.split(',')
+		widgets={
+			'name':			forms.TextInput(**dattr),
+			'event_type':	EventTypeWidget(**dselect2),
+			'date_comments': forms.Textarea(attrs={'style':'width:100%','rows':3}),
+			'end_date_type': DateTypeWidget(attrs={'style': 'width: 50%;', 'data-minimum-input-length': 0}),
+			'figure':		FigureWidget(**dselect2),
+			'description':	forms.Textarea(attrs={'style':'width:100%','rows':3}),
+			'comments':		forms.Textarea(attrs={'style':'width:100%','rows':3}),
+			}
+
+	def __init__(self, *args, **kwargs):
+        # Start by executing the standard handling
+		super().__init__(*args, **kwargs)
+		oErr = ErrHandle()
+		try:
+			# Some fields are not required
+			self.fields['date_comments'].required = False
+			self.fields['description'].required = False
+			self.fields['comments'].required = False
+
+		except:
+			msg = oErr.get_error_message()
+			oErr.DoError("EventForm-init")
+		return None
 
 	def save(self, commit=True, *args, **kwargs):
 		# Get the instance
@@ -262,6 +287,48 @@ class EventForm(forms.ModelForm):
 
 		# Return the save response
 		return response
+
+	def clean_start_date(self):
+		data = self.cleaned_data.get("start_date")
+		if data:
+			# Try converting into integer
+			try:
+				idata = int(data)
+			except:
+				# Data should be integer
+				raise ValidationError("Start date must be an integer")
+			# Continue test if integer
+			if idata < 0:
+				raise ValidationError("Start date may not be negative")
+
+		# If all went well
+		return data
+
+	def clean_end_date(self):
+		data = self.cleaned_data.get("end_date")
+		if data:
+			# Try converting into integer
+			try:
+				end_date = int(data)
+			except:
+				# Data should be integer
+				raise ValidationError("End date must be an integer")
+			# Continue test if integer
+			if end_date < 0:
+				raise ValidationError("End date may not be negative")
+			# Check if end date is higher than start date
+			start = self.cleaned_data.get("start_date")
+			if start:
+				try:
+					start_date = int(start)
+				except:
+					# no more errors
+					i = 1
+				# Compare
+				if start_date > end_date:
+					raise ValidationError("End date may not be before the start date")
+		# If all went well
+		return data
 
 
 class LiteratureForm(forms.ModelForm):

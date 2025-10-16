@@ -1,5 +1,5 @@
 from .models import System, Religion, Gender, Person, InstitutionType
-from .models import Institution,EventType,Image,Style,Figure,Event
+from .models import Institution,EventType,Image,Style,Figure,Event,DateType
 from .models import Purpose,InstallationType,InstallationStatus, Installation,Literature
 from .models import TextType, EventRole, LocType, Location
 from .models import PersonSymbol, PersonType, ImageType
@@ -7,6 +7,17 @@ from .models import PersonSymbol, PersonType, ImageType
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
 names = 'original_name,ottoman_name,english_name,turkish_name'.split(',')
+
+class DateTypeWidget(ModelSelect2Widget):
+    model = DateType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return DateType.objects.all().order_by('name')
+
 
 class EventTypeWidget(ModelSelect2Widget):
     model = EventType

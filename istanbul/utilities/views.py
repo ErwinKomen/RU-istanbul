@@ -164,7 +164,7 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
                         nfe = [ "{}: {}".format(k, v) for k,v in form.errors.items() ]
                     print('form invalid:',nfe)
                     show_messages(request,'form_invalid', model_name, form)
-
+                    x = form['start_date'].errors
             print('post part done',delta(start))
 
             # Adapt forms (post-POST)
@@ -195,7 +195,10 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
             context.update(args)
             print('arg made, start rendering',delta(start))
 
-            response = render(request,app_name+'/add_' + model_name.lower() + '.html',context)
+            template_name = "{}/add_{}.html".format(app_name, model_name.lower())
+
+            # Old: response = render(request,app_name+'/add_' + model_name.lower() + '.html',context)
+            response = render(request, template_name, context)
     except:
         msg = oErr.get_error_message()
         oErr.DoError("edit_model")

@@ -9,6 +9,7 @@ from installations.models import *
 # Register your models here.
 admin.site.register(LocType)
 admin.site.register(InstallationStatus)
+admin.site.register(DateType)
 
 # Register link
 admin.site.site_url = ADMIN_SITE_URL

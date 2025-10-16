@@ -22,19 +22,19 @@ role="button"><strong>change password</strong></a>
 	<table class="table table-borderless table-sm" id="form_table">
 	<tr class="d-flex">
 		<td class="col-3" id="user_name" >Username</th>
-		<td class="col-9">{{form.username}} {{form.username.error}}</td>
+		<td class="col-9">{{form.username}} {{form.username.errors}}</td>
 	</tr>
 	<tr class="d-flex">
 		<td class="col-3" id="first_name" >First name</th>
-		<td class="col-9">{{form.first_name}} {{form.first_name.error}}</td>
+		<td class="col-9">{{form.first_name}} {{form.first_name.errors}}</td>
 	</tr>
 	<tr class="d-flex">
 		<td class="col-3" id="last_name" >Last name</th>
-		<td class="col-9">{{form.last_name}} {{form.last_name.error}}</td>
+		<td class="col-9">{{form.last_name}} {{form.last_name.errors}}</td>
 	</tr>
 	<tr class="d-flex">
 		<td class="col-3" id="email" >email</th>
-		<td class="col-9">{{form.email}} {{form.email.error}}</td>
+		<td class="col-9">{{form.email}} {{form.email.errors}}</td>
 	</tr>
 </table>
     <button type="submit" value="Submit" class ="btn btn-dark">Update</button>

@@ -69,7 +69,7 @@ class EventEdit(BasicDetails):
                 {'type': 'plain', 'label': 'name',          'value': instance.name                      },
                 {'type': 'plain', 'label': 'event type',    'value': instance.get_value('eventtype')    },
                 {'type': 'plain', 'label': 'start date',    'value': instance.get_value('startdate')    },
-                {'type': 'plain', 'label': 'end date',      'value': instance.get_value('enddate')      },
+                {'type': 'plain', 'label': 'end date',      'value': instance.get_value('enddate', 'type')      },
                 {'type': 'plain', 'label': 'date comments', 'value': instance.date_comments             },
                 {'type': 'plain', 'label': 'persons',       'value': instance.get_value('persons')      },
                 {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()      },

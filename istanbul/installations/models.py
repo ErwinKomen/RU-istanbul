@@ -11,6 +11,7 @@ from django.urls import reverse
 from partial_date import PartialDateField
 from colorfield.fields import ColorField
 from unidecode import unidecode
+from datetime import datetime
 
 # idiosyncratics
 from partial_date import PartialDate
@@ -519,6 +520,29 @@ class EventType(models.Model, info):
     comments = models.TextField(default = '')
 
 
+class DateType(models.Model, info):
+    """A date type (fixed, open-ended)"""
+
+    # [0-1] The name of the date type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        sBack = self.name
+        return sBack
+
+    def get_default():
+        """Get default value"""
+
+        obj = DateType.objects.filter(name__iexact="fixed").first()
+        return obj
+
+
 class ImageType(models.Model, info):
     """An image type"""
 
@@ -823,6 +847,8 @@ class Event(models.Model, info):
     start_date = PartialDateField(null=True,blank=True)
     # [0-1] Year when event finished
     end_date = PartialDateField(null=True,blank=True)
+    # [0-1] Kind of end date
+    end_date_type = models.ForeignKey(DateType, null=True,blank=True, on_delete=models.SET_NULL)
     # [1] Comments on the dating (may be '')
     date_comments = models.TextField(default = '')
 
@@ -849,6 +875,27 @@ class Event(models.Model, info):
         # OLD: qs = self.eventpersonrelation_set.all()
         qs = self.eventpersonrelations.all()
         return qs
+
+    def check_adjust_end_date(self, do_save=False):
+        """Check and adjust end_date if needed"""
+
+        bResult = True
+        oErr = ErrHandle()
+        try:
+            if self.end_date_type and self.end_date_type.name == "open":
+                # Get the current year
+                year_now = datetime.now().year
+                # Get the event's current end_date
+                year_event = self.end_date.year
+                if year_event != year_now:
+                    # Adjust the `end_date`
+                    self.end_date = PartialDate("{}y".format(year_now))
+                    if do_save:
+                        self.save()
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("check_adjust_end_date")
+        return bResult
 
     def label(oItem, options = {}):
         """Construct a label from the three strings"""
@@ -941,6 +988,9 @@ class Event(models.Model, info):
             elif field == "enddate":
                 if not self.end_date is None:
                     sBack = self.end_date.year
+                    if "type" in options:
+                        # Add the end date type
+                        sBack = "{} ({})".format(sBack, self.end_date_type.description)
             elif field == "eventtype":
                 if self.event_type is None:
                     sBack = "(no event type)"
@@ -1016,6 +1066,47 @@ class Event(models.Model, info):
             msg = oErr.get_error_message()
             oErr.DoError("order_events")
         return None
+
+    def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+        """Make sure matters before saving are arranged
+        
+        1 - default `end_date_type`
+        2 - adjustment of `end_date`, if the `end_date_type` is `open`
+        """
+
+        oErr = ErrHandle()
+        try:
+            # Check if end_date_type is set
+            if not self.end_date_type:
+                # Set to default value
+                self.end_date_type = DateType.get_default()
+            # Check if date adjusting is needed
+            self.check_adjust_end_date(do_save=False)
+            # Perform the actual saving
+            response = super(Event, self).save(force_insert, force_update, using, update_fields)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Event/save")
+            response = None
+
+        # Return the response when saving
+        return response
+
+    def sync_end_dates():
+        """Synchronize the end dates"""
+
+        bResult = True
+        oErr = ErrHandle()
+        try:
+            for obj in Event.objects.all():
+                if not obj.check_adjust_end_date():
+                    bResult = False
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("sync_end_dates")
+            bResult = False
+        return bResult
 
 
 class Purpose(models.Model, info):
@@ -1361,7 +1452,11 @@ class Installation(models.Model, info):
         return bFound
 
     def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
-        """Make sure a default Status is saved"""
+        """Check and correct things before saving:
+        
+        - default Status
+        - simplified turkic names
+        """
 
         oErr = ErrHandle()
         try:
