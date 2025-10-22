@@ -34,6 +34,7 @@ from basic.utils import ErrHandle
 from basic.views import BasicDetails, add_rel_item, get_current_datetime, get_application_context
 from basic.models import Information
 from cms.views import add_cms_contents
+from cms.models import Chelp
 
 # @permission_required('utilities.add_generic')
 def home(request):
@@ -166,8 +167,16 @@ def edithelp(request):
     response = "-"
     oErr = ErrHandle()
     try:
+        # Create a list of User-defined help
+        chelplist = []
+        for obj in Chelp.objects.all().order_by('ctitle'):
+            short = "id_{:03}".format(obj.id)
+            oItem = dict(short=short, title=obj.get_title(), contents=obj.get_contents_markdown(keep=True) )
+            chelplist.append(oItem)
+
         template = "installations/editorhelp.html"
         context = dict(
+            chelplist = chelplist,
             page_name="Editor Help",
             title="Editor Help"
             )

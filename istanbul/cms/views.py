@@ -35,8 +35,8 @@ import re
 from istanbul.settings import APP_PREFIX, MEDIA_DIR, WRITABLE_DIR
 from basic.utils import ErrHandle
 from basic.views import get_application_context
-from cms.models import Citem, Cpage, Clocation
-from cms.forms import CitemForm, CpageForm, ClocationForm
+from cms.models import Citem, Cpage, Clocation, Chelp
+from cms.forms import CitemForm, CpageForm, ClocationForm, ChelpForm
 
 
 # ======= from RU-Basic ========================
@@ -634,5 +634,144 @@ class CitemListView(BasicList):
             oErr.DoError("CitemListView/get_field_value")
 
         return sBack, sTitle
+
+
+# ============= Chelp VIEWS ===========================
+
+
+class ChelpEdit(BasicDetails):
+    """Details and editing of a CMS content item"""
+
+    model = Chelp
+    mForm = ChelpForm
+    prefix = 'citem'
+    title = "Content item"
+    history_button = False
+    no_delete = True
+    mainitems = []
+
+    stype_edi_fields = ['ctitle', 'contents']
+        
+    # How to handle the app_moderator
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+        # field_keys = [None, None, 'clocation', None, 'contents', None, None]
+        field_keys = ['ctitle', 'contents', None, None]
+        try:
+            # Get the location id
+            is_superuser = user_is_superuser(self.request)
+            # Define the main items to show and edit
+            context['mainitems'] = [
+                {'type': 'plain', 'label': "Title:",        'value': instance.get_title()       },
+                {'type': 'line',  'label': "Contents:",     'value': instance.get_contents_markdown(keep=True)},
+                {'type': 'line',  'label': "Saved:",        'value': instance.get_saved()       },
+                {'type': 'line',  'label': "Created:",      'value': instance.get_created()     },
+                ]       
+
+            # Only moderators and superusers are to be allowed to create and delete content-items
+            if user_is_ingroup(self.request, app_moderator) or user_is_ingroup(self.request, app_developer): 
+                # Allow editing
+                for idx, oItem in enumerate(context['mainitems']):
+                    # Double check if the idx is okay
+                    if idx >= 0 and idx < len(field_keys):
+                        fk = field_keys[idx]
+                        if not fk is None:
+                            oItem['field_key'] = fk
+                    else:
+                        oErr.Status("ChelpEdit: index for field_key is out of range: {}".format(idx))
+
+                # Signal that we have select2
+                context['has_select2'] = True
+                # signal we can use basic buttons
+                context['use_basic_buttons'] = True
+                if is_superuser:
+                    self.no_delete = False
+            else:
+                # Make sure user cannot delete
+                self.no_delete = True
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Chelp/add_to_context")
+
+        # Return the context we have made
+        return context
+    
+
+class ChelpDetails(ChelpEdit):
+    """Just the HTML page"""
+    rtype = "html"
+
+
+class ChelpListView(BasicList):
+    """Search and list projects"""
+
+    model = Chelp 
+    listform = ChelpForm
+    prefix = "chelp"
+    has_select2 = True
+    sg_name = "Help item"     # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Help items"
+    new_button = False
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['ctitle', 'contents', 'saved', 'created']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Title',       'order': 'o=1', 'type': 'str', 'custom': 'title',       'linkdetails': True},
+        {'name': 'Contents',    'order': 'o=4', 'type': 'str', 'custom': 'contents',    'linkdetails': True,   'main': True},
+        {'name': 'Saved',       'order': 'o=5', 'type': 'str', 'custom': 'saved',       'align': 'right'},
+        {'name': 'Created',     'order': 'o=6', 'type': 'str', 'custom': 'created',     'align': 'right'}]
+                   
+    filters = [ {"name": "Title",         "id": "filter_title",     "enabled": False}
+               ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'title', 'dbfield': 'ctitle', 'keyS': 'ctitle'}
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        if context['is_app_moderator'] or context['is_app_developer']:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            pass
+        return context
+
+    # hier gaat het nog niet goed
+    def get_field_value(self, instance, custom):
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "saved":
+                # Get the correctly visible date
+                sBack = instance.get_saved()
+
+            elif custom == "created":
+                # Get the correctly visible date
+                sBack = instance.get_created()
+
+            elif custom == "title":
+                sBack = instance.get_title()
+
+            elif custom == "contents":
+                sBack = instance.get_contents_markdown(stripped=True)
+                # Shorten if needed
+                if len(sBack) > 100:
+                    sBack = "{}...".format(sBack[:100])
+            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ChelpListView/get_field_value")
+
+        return sBack, sTitle
+
+
+
 
 

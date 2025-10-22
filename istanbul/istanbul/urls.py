@@ -37,6 +37,7 @@ from accounts.views import RegisterView
 from cms.views import CitemDetails, CitemEdit,CitemListView, CitemSafe, \
     CpageDetails, CpageEdit, CpageListView, CpageAdd, \
     ClocationAdd, ClocationDetails, ClocationEdit, ClocationListView, \
+    ChelpDetails, ChelpEdit, ChelpListView, \
     csettings
 
 urlpatterns = [
@@ -115,6 +116,10 @@ urlpatterns = [
     re_path(r'^citem/edit(?:/(?P<pk>\d+))?/$', CitemEdit.as_view(), name='citem_edit'),
     re_path(r'^citem/safe(?:/(?P<pk>\d+))?/$', CitemSafe.as_view(), name='citem_safe'),
     re_path(r'^citem/settings', csettings, name='citem_settings'),
+
+    re_path(r'^chelp/list', ChelpListView.as_view(), name='chelp_list'),
+    re_path(r'^chelp/details(?:/(?P<pk>\d+))?/$', ChelpDetails.as_view(), name='chelp_details'),
+    re_path(r'^chelp/edit(?:/(?P<pk>\d+))?/$', ChelpEdit.as_view(), name='chelp_edit'),
 
     # Other stuff from EK
     re_path(r'^nlogin', nlogin, name='nlogin'),

@@ -194,3 +194,49 @@ class CitemForm(forms.ModelForm):
         # We do not really return anything from the init
         return None
 
+
+class ChelpForm(forms.ModelForm):
+    """CMS Help list and edit"""
+
+    typeaheads = []
+
+    class Meta:
+        ATTRS_FOR_FORMS = {'class': 'form-control'};
+
+        model = Chelp
+        fields = ['ctitle', 'contents']
+        widgets={
+            'ctitle': forms.TextInput(attrs={'style': 'width: 100%;', 'class': 'searching',
+                                             'placeholder': 'Title of the help topic'}),
+            'contents': forms.Textarea(attrs={'rows': 1, 'cols': 40, 'style': 'height: 40px; width: 100%;', 
+                                                      'class': 'searching', 'placeholder': 'Contents (use markdown to enter)...'})
+            }
+
+    def __init__(self, *args, **kwargs):
+        # Start by executing the standard handling
+        super(ChelpForm, self).__init__(*args, **kwargs)
+
+        oErr = ErrHandle()
+        try:
+            # Some fields are not required
+            self.fields['ctitle'].required = False
+            self.fields['contents'].required = False
+
+            # self.fields['clocation'].queryset = Clocation.objects.all().order_by('page__name', 'name')
+            # self.fields['pagelist'].queryset = Cpage.objects.all().order_by('name')
+
+            # Get the instance
+            if 'instance' in kwargs:
+                instance = kwargs['instance']
+
+                # self.fields['visibility'].initial = instance.visibility
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ChelpForm/init")
+
+        # We do not really return anything from the init
+        return None
+
+
+
+

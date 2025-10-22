@@ -16,58 +16,11 @@ import lxml.html
 from istanbul.settings import APP_PREFIX, WRITABLE_DIR, TIME_ZONE
 from basic.utils import *
 from basic.models import adapt_markdown, get_crpp_date, get_current_datetime, striphtml
-#from basic.views import 
-#from istanbul.basic.utils import *
-#from passim.seeker.models import build_abbr_list, STATUS_TYPE
 
 LONG_STRING=255
 STANDARD_LENGTH=100
 
 # ==================== Helper functions ====================================
-
-#def adapt_markdown(val, lowercase=False):
-#    """Call markdown, but perform some actions to make it a bit safer"""
-
-#    sBack = ""
-#    oErr = ErrHandle()
-#    try:
-#        if val != None:
-#            val = val.replace("***", "\*\*\*")
-#            sBack = mark_safe(markdown(val, safe_mode='escape', extensions=['tables']))
-#            sBack = sBack.replace("<p>", "")
-#            sBack = sBack.replace("</p>", "")
-#            if lowercase:
-#                sBack = sBack.lower()
-#            #print(sBack)
-#    except:
-#        msg = oErr.get_error_message()
-#        oErr.DoError("adapt_markdown")
-#    return sBack
-
-#def get_crpp_date(dtThis, readable=False):
-#    """Convert datetime to string"""
-
-#    if readable:
-#        # Convert the computer-stored timezone...
-#        dtThis = dtThis.astimezone(pytz.timezone(TIME_ZONE))
-#        # Model: yyyy-MM-dd'T'HH:mm:ss
-#        sDate = dtThis.strftime("%d/%B/%Y (%H:%M)")
-#    else:
-#        # Model: yyyy-MM-dd'T'HH:mm:ss
-#        sDate = dtThis.strftime("%Y-%m-%dT%H:%M:%S")
-#    return sDate
-
-#def get_current_datetime():
-#    """Get the current time"""
-#    return timezone.now()
-
-#def striphtml(data):
-#    sBack = data
-#    if not data is None and data != "":
-#        xml = lxml.html.document_fromstring(data)
-#        if not xml is None:
-#            sBack = xml.text_content()
-#    return sBack
 
 
 
@@ -417,5 +370,99 @@ class Citem(models.Model):
 
         # Return the response when saving
         return response
+
+
+class Chelp(models.Model):
+    """One content item for the content management system"""
+
+    # [1] Obligatory location of this content item
+    ctitle = models.CharField("Title", max_length=LONG_STRING, default="Topic??")
+
+    # [0-1] the markdown contents for the information
+    contents = models.TextField("Contents", null=True, blank=True)
+
+    # [1] Every manuscript has a status - this is *NOT* related to model 'Status'
+    stype = models.CharField("Status", max_length=5, default="man")
+    # [0-1] Status note
+    snote = models.TextField("Status note(s)", default="[]")
+
+    # [1] And a date: the date of saving this manuscript
+    created = models.DateTimeField(default=get_current_datetime)
+    saved = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        sBack = "-"
+        if not self.ctitle is None:
+            sBack = self.ctitle
+        return sBack
+
+    def get_contents(self):
+        sBack = "-"
+        oErr = ErrHandle()
+        try:
+            if not self.contents is None:
+                sBack = striphtml(self.contents)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Chelp/get_contents")
+        return sBack
+
+    def get_title(self):
+        sBack = ""
+        if self.ctitle:
+            sBack = self.ctitle
+        return sBack
+
+    def get_contents_markdown(self, stripped=False, retain=False, keep=False):
+        sBack = "-"
+        oErr = ErrHandle()
+        try:
+            # sBack = self.get_contents()
+            sBack = "-"
+            if stripped:
+                if not self.contents is None:
+                    sBack = self.contents
+                sBack = striphtml(markdown(sBack, safe_mode='escape', extensions=['tables']))
+            elif keep:
+                if not self.contents is None:
+                    sBack = self.contents
+                sBack = mark_safe(markdown(sBack, safe_mode='escape', extensions=['tables']))
+            else:
+                sBack = self.get_contents()
+                sBack = adapt_markdown(sBack)
+                if retain:
+                    sBack = sBack.replace("<a ", "<a class='retain' ")
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Chelp/get_contents_markdown")
+        return sBack
+
+    def get_created(self):
+        sCreated = get_crpp_date(self.created, True)
+        return sCreated
+
+    def get_saved(self):
+        if self.saved is None:
+            self.saved = self.created
+            self.save()
+        sSaved = get_crpp_date(self.saved, True)
+        return sSaved
+
+    def save(self, force_insert = False, force_update = False, using = None, update_fields = None):
+
+        oErr = ErrHandle()
+        try:
+            # Adapt the save date
+            self.saved = get_current_datetime()
+            response = super(Chelp, self).save(force_insert, force_update, using, update_fields)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Chelp.save")
+            response = None
+
+        # Return the response when saving
+        return response
+
 
 
