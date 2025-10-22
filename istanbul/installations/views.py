@@ -137,7 +137,7 @@ def contact(request):
     return response
 
 def about(request):
-    """Renders the contact page."""
+    """Renders the about page."""
     assert isinstance(request, HttpRequest)
     response = "-"
     oErr = ErrHandle()
@@ -151,6 +151,30 @@ def about(request):
 
         # Add context items from the CMS system
         context = add_cms_contents('about', context)
+
+        # Show the about page
+        response = render(request, template, context)
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("installations/about")
+        response = msg
+    return response
+
+def edithelp(request):
+    """Renders the editorhelp page."""
+    assert isinstance(request, HttpRequest)
+    response = "-"
+    oErr = ErrHandle()
+    try:
+        template = "installations/editorhelp.html"
+        context = dict(
+            page_name="Editor Help",
+            title="Editor Help"
+            )
+        context = get_application_context(request, context)
+
+        # Add context items from the CMS system
+        context = add_cms_contents('edithelp', context)
 
         # Show the about page
         response = render(request, template, context)

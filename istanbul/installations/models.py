@@ -1276,8 +1276,8 @@ class Installation(models.Model, info):
         try:
             if field == "events":
                 # Sort the events by DATE if possible
-                for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by('start_date', 'end_date', 'name'):
-                    # url = reverse('installations:edit_event', kwargs={'pk': oItem['id']})
+                for oItem in self.events.all().values('id', 'name', 'start_date', 'end_date').order_by(
+                        'start_date', 'end_date', 'name'):
                     url = reverse('event_details', kwargs={'pk': oItem['id']})
                     # options={'skipname': instance.english_name}
                     label = Event.label(oItem, options={'skipname': self.english_name})

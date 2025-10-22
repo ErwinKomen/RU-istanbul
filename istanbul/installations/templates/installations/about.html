@@ -65,49 +65,5 @@
     </div>
   </div>
 
-  {% if is_app_editor %}
-    <section>
-      <h1 class="text-center">Editor help section</h1>
-      <div class="row">
-        <!-- Left column -->
-        <div class="col-md-6">
-          <div class="card card-header collapsed" data-toggle="collapse" data-target="#help_hyperlink">
-            <span>Creating hyperlinks</span>
-          </div>
-          <div id="help_hyperlink" class="card card-body collapse">
-            <p>
-              Many of the <span class="kw">description</span> fields allow adding hyperlinks.
-              Here is an example of how such a link can be added.
-            </p>
-            <p>What the editor enters in the <span class="kw">description</span> field:</p>
-            <pre style="background-color: lightgoldenrodyellow;">Please visit our [university site](https://www.ru.nl).</pre>
-            <p>What the user sees in the <span class="kw">description</span> field:</p>
-            <p style="background-color: lightgoldenrodyellow;">Please visit our <a href="https://www.ru.nl">university site</a>.</p>
-          </div>
-        </div>
-
-        <!-- Right column -->
-        <div class="col-md-6">
-          <div class="card card-header collapsed" data-toggle="collapse" data-target="#help_orderimg">
-            <span>Order images</span>
-          </div>
-          <div id="help_orderimg" class="card card-body collapse">
-            <p>The order of the <bold>images</bold> that belong to an <span class="kw">installation</span> can be changed this way:</p>
-            <ul>
-              <li>Locate the installation and go to its <b>details</b> view.</li>
-              <li>Click the button <span class="btn btn-sm jumbo-2">Picture order...</span> at the bottom.</li>
-              <li>Scroll down, order images by drag-and-drop (using tghe 'order' column).</li>
-              <li>Press the red button <span class="btn btn-sm jumbo-4">Save</span> to fix the order.</li>
-              <li>Use the <span class="btn btn-sm jumbo-1">Cancel</span> button to return to the original order.</li>
-            </ul>
-            To verify whether the process has been successful, re-load the page and check the current image order.
-          </div>
-        </div>
-      </div>
-
-
-    </section>
-  {% endif %}
-
 </div>
 {% endblock %}
