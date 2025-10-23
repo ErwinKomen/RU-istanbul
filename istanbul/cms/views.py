@@ -687,11 +687,21 @@ class ChelpEdit(BasicDetails):
                 context['has_select2'] = True
                 # signal we can use basic buttons
                 context['use_basic_buttons'] = True
-                if is_superuser:
-                    self.no_delete = False
+
+                # if is_superuser:
+                #     self.no_delete = False
+                self.no_delete = False
             else:
                 # Make sure user cannot delete
                 self.no_delete = True
+                # Try indicate permission readonly
+                context['permission'] = "readonly"
+
+            # Propogate the no_delete feature
+            context['no_delete'] = self.no_delete
+
+            # Always use basic buttons
+            context['use_basic_buttons'] = True
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Chelp/add_to_context")
