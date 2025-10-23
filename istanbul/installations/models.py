@@ -666,8 +666,8 @@ class Image(models.Model, info):
             # Get the number of the image, depending on the options
             image = self.image_file.url
             descr = self.description
-            sTitle = descr if descr else self.title
-            sInfo = sTitle
+            sTitle = self.title if self.title else "(no title)"
+            sInfo = descr if descr else self.title
             sClass = "stalla-image" # Was: col-md-12
 
             if self.get_itype() == "geojson":
