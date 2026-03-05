@@ -34,6 +34,10 @@ XSENDFILE = config('XSENDFILE', True, cast=bool)
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
+# SECURITY WARNING: don't run with debug turned on in production!
+# DEBUG = True
+DEBUG = config('DEBUG')
+
 APP_PREFIX = ""
 USE_REDIS = False
 ADMIN_SITE_URL = ""
@@ -47,9 +51,8 @@ else:
     APP_PREFIX = ""
     ADMIN_SITE_URL = '/'
     USE_REDIS = True
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+    # Make really sure that debug is False in production
+    DEBUG = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY =  config('SECRET_KEY')
