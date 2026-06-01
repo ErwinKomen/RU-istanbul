@@ -369,3 +369,4 @@ FodyWeavers.xsd
 /istanbul/static
 /istanbul/cms/
 /istanbul/installations/fa_v4.txt
+/istanbul/mapview/static/mapview/scripts/leaflet-src-old.js

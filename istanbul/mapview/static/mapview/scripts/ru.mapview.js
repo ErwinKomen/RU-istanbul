@@ -26,8 +26,14 @@ var ru = (function ($, ru) {
                       ' contributors &copy; <a href="https://carto.com/attribution">CARTO</a>',
         attribution_carto = '&copy; <a href="https://carto.com/attribution">CARTO</a>',
         attribution = '&copy; <a href="https://www.openstreetmap.org/copyright" title="Open Street Map">OSM</a>',
-        tiles = L.tileLayer(tileUrl, { attribution }),
-        mapview_tiles = L.tileLayer(tileUrl, { attribution }),
+      tiles = L.tileLayer(tileUrl, {
+        'attribution': attribution,
+        'referrerPolicy': 'strict-origin',
+      }),
+      mapview_tiles = L.tileLayer(tileUrl, {
+        'attribution': attribution,
+        'referrerPolicy': 'strict-origin',
+      }),
         //mapview_tiles = L.tileLayer(tileUrl, {
         //  maxZoom: 20,
         //  subdomain: ['mt0']
@@ -978,7 +984,11 @@ var ru = (function ($, ru) {
           if (options['maptype'] === "carto") {
             mapview_tiles = L.tileLayer(tileUrl_carto, { attribution_carto });
           } else {
-            mapview_tiles = L.tileLayer(tileUrl_osm, { attribution });
+            // mapview_tiles = L.tileLayer(tileUrl_osm, { attribution });
+            mapview_tiles = L.tileLayer(tileUrl_osm, {
+              referrerPolicy: 'strict-origin',
+              attribution: attribution
+            });
           }
 
           // Get the map_id and the id_filter
