@@ -661,7 +661,7 @@ class ChelpEdit(BasicDetails):
         # field_keys = [None, None, 'clocation', None, 'contents', None, None]
         field_keys = ['ctitle', 'contents', None, None]
         try:
-            # Get the location id
+            # Get special permission
             is_superuser = user_is_superuser(self.request)
             # Define the main items to show and edit
             context['mainitems'] = [
@@ -671,8 +671,12 @@ class ChelpEdit(BasicDetails):
                 {'type': 'line',  'label': "Created:",      'value': instance.get_created()     },
                 ]       
 
+            allow_superuser = is_superuser and instance.stype == "su"
+            allow_moderator = ( user_is_ingroup(self.request, app_moderator) or \
+                user_is_ingroup(self.request, app_developer) ) and instance.stype != "su"
             # Only moderators and superusers are to be allowed to create and delete content-items
-            if user_is_ingroup(self.request, app_moderator) or user_is_ingroup(self.request, app_developer): 
+            # Only "SU" is allowed to edit items with stype == "su"
+            if allow_moderator or allow_superuser: 
                 # Allow editing
                 for idx, oItem in enumerate(context['mainitems']):
                     # Double check if the idx is okay
@@ -690,13 +694,22 @@ class ChelpEdit(BasicDetails):
 
                 # if is_superuser:
                 #     self.no_delete = False
-                # obsolete
-                self.no_delete = False
+                if instance.stype == "nod":
+                    self.no_delete = True
+                else:
+                    self.no_delete = False
+
+                # If this is a superuser he/she may see and edit the 'stype'
+                if is_superuser:
+                    oItem = dict(type="line", label="Stype:", value=instance.stype, field_key="ta_stype")
+                    context['mainitems'].append(oItem)
             else:
                 # Make sure user cannot delete
                 self.no_delete = True
                 # Try indicate permission readonly
                 context['permission'] = "readonly"
+                context["is_app_moderator"] = False
+                self.permission = context['permission']
 
             # Propogate the no_delete feature
             context['no_delete'] = self.no_delete
@@ -709,6 +722,26 @@ class ChelpEdit(BasicDetails):
 
         # Return the context we have made
         return context
+
+    def before_save(self, form, instance):
+        """Before Citem is saved"""
+
+        bResult = True
+        msg = ""
+        oErr = ErrHandle()
+        try:
+            # Get special permission
+            is_superuser = user_is_superuser(self.request)
+            if is_superuser:
+                # Make sure that the `ta_stype` is being taken into consideration
+                ta_stype_value = form.cleaned_data["ta_stype"]
+                if instance.stype != ta_stype_value:
+                    form.instance.stype = ta_stype_value
+                    # Now it will get saved
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ChelpEdit/before_save")
+        return bResult, msg
     
 
 class ChelpDetails(ChelpEdit):

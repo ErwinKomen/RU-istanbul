@@ -84,6 +84,16 @@ var ru = (function ($, ru) {
                 ru.istanbul.show_picture(elThis);
               });
 
+              // Set the class of images in the 'navigation' series
+              $("img").each(function (idx, el) {
+                var alt_text = "";
+
+                alt_text = $(el).attr("alt");
+                if (alt_text.startsWith("Navigation help")) {
+                  $(el).addClass("navigation-help");
+                }
+              });
+
             } catch (ex) {
               private_methods.errMsg("init_events", ex);
             }

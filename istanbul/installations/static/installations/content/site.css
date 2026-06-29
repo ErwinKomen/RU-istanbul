@@ -333,3 +333,13 @@ td ul.errorlist li {
     margin: 0;
 }
 
+/* set max width of images in navigation help */
+img.navigation-help {
+    max-width: 1200px;
+}
+
+td.hoverable img {
+    width: 100%;
+    object-fit: contain;
+}
+

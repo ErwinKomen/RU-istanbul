@@ -198,6 +198,8 @@ class CitemForm(forms.ModelForm):
 class ChelpForm(forms.ModelForm):
     """CMS Help list and edit"""
 
+    ta_stype = forms.CharField(label=_("Stype"), required=False,
+                widget=forms.TextInput(attrs={'class': 'typeahead searching input-sm', 'placeholder': 'Stype...', 'style': 'width: 100%;'}))
     typeaheads = []
 
     class Meta:
@@ -228,6 +230,8 @@ class ChelpForm(forms.ModelForm):
             # Get the instance
             if 'instance' in kwargs:
                 instance = kwargs['instance']
+
+                self.fields['ta_stype'].initial = instance.stype
 
                 # self.fields['visibility'].initial = instance.visibility
         except:
