@@ -2158,7 +2158,7 @@ var ru = (function ($, ru) {
                       $(elAfterDetails).removeClass("hidden");
                       // Perform init again
                       ru.basic.init_events();
-                      ru.btchub.init_typeahead();
+                      // ru.btchub.init_typeahead();
                     }
                   }
                   }

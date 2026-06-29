@@ -169,14 +169,19 @@ def edithelp(request):
     try:
         # Create a list of User-defined help
         chelplist = []
+        chelptitle = ""
         for obj in Chelp.objects.all().order_by('ctitle'):
-            short = "id_{:03}".format(obj.id)
-            oItem = dict(short=short, title=obj.get_title(), contents=obj.get_contents_markdown(keep=True) )
-            chelplist.append(oItem)
+            if obj.get_title() == "chelptitle":
+                chelptitle = obj.contents
+            else:
+                short = "id_{:03}".format(obj.id)
+                oItem = dict(short=short, title=obj.get_title(), contents=obj.get_contents_markdown(keep=True) )
+                chelplist.append(oItem)
 
         template = "installations/editorhelp.html"
         context = dict(
             chelplist = chelplist,
+            chelptitle = chelptitle,
             page_name="Editor Help",
             title="Editor Help"
             )
