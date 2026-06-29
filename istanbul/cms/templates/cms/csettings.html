@@ -1,0 +1,119 @@
+{% extends "utilities/base.html" %}
+{% load getattribute %}
+
+
+{% block head %}
+  {% load static %}
+  <link rel="stylesheet" type="text/css" href="{% static 'basic/content/basic.css' %}" />
+  <link rel="stylesheet" href="{% static 'basic/content/font-awesome.min.css' %}" />
+  <title>{{page_name}}</title>
+{% endblock %}
+
+{% block content %}
+  <div class="flex-row">
+    <div class="col-md-12">
+      <h3>
+        <span>Moderator settings</span>
+        {% if is_app_moderator %}
+          <span class="pull-right">
+            <a role="button" class="btn btn-xs jumbo-1"
+               href="{% url 'chelp_list' %}">Editor help list</a>
+          </span>
+        {% endif %}
+      </h3>
+      <p>
+        <span>User: <code>{{user.username}}</code></span>
+      </p>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Left pane -->
+    <div class="col-md-6">
+      <!-- Link to setting the introductory text -->
+      <div class="card ">
+        <div class="card-header bg-info text-white">
+          <h4>
+            <span>Introductory text</span>
+            <span class="pull-right">
+              <a role="button" class="btn btn-xs jumbo-1 fa fa-pencil" style="color: black;"
+                 title="Edit the introductory text"
+                 href="{% url 'citem_safe' intro_id %}"></a>
+            </span>
+          </h4>
+        </div>
+        <div class="card-body bg-light">
+          {{intro_text|safe}}
+        </div>
+      </div>
+
+      <div>&nbsp;</div>
+
+      <!-- Help for adding or editing a user -->
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h4>Adding or editing a user</h4>
+        </div>
+        <div class="card-body bg-light">
+          Work with users straight from the <a href="/admin/auth/user/">admin menu</a>.
+
+          <ul>
+            <li>
+              <b>Add a user</b>: press top-right "ADD USER +".
+              Then add the username (plain, lower case, no spaces or other symbols).
+              Add a password (have the user change it later on), and Save it.
+              Next fill in first name, last name, email address.
+              Grant "Staff user" permission.
+              Then make sure that the "Chosen groups" have <code>istanbul_user</code>.
+            </li>
+            <li>
+              <b>Editing rights</b>: Find the user in the list, and click it in order to edit its settings.
+              Next, make sure to add <code>istanbul_editor</code>, so as to grant editing rights to the user.
+              Should editing rights need to be revoked, double click the <code>istanbul_editor</code>,
+              so that it moves out of the "chosen groups" list.
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div>&nbsp;</div>
+
+      <!-- Help for editors -->
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h4>Lijst met hulp voor editors</h4>
+        </div>
+        <div class="card-body bg-light">
+          Add or edit help for editors by going to the
+          <a role="button" class="btn btn-xs jumbo-1" href="/chelp/list">Editor help list</a>.
+          Select either the existing "Editor's handbook'" to edit the contents of that section.
+          Or add a new section for the "Editor help" page.
+        </div>
+      </div>
+
+    </div>
+     
+    <!-- Right pane -->
+    <div class="col-md-6">
+
+      <!-- Link to setting the about text -->
+      <div class="card ">
+        <div class="card-header bg-info text-white">
+          <h4>
+            <span>About text</span>
+            <span class="pull-right">
+              <a role="button" class="btn btn-xs jumbo-1 fa fa-pencil" style="color: black;"
+                  title="Edit the about text"
+                  href="{% url 'citem_safe' about_id %}"></a>
+            </span>
+          </h4>
+        </div>
+        <div class="card-body bg-light">
+          {{about_text|safe}}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+{% endblock content %}

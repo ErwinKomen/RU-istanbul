@@ -690,6 +690,7 @@ class ChelpEdit(BasicDetails):
 
                 # if is_superuser:
                 #     self.no_delete = False
+                # obsolete
                 self.no_delete = False
             else:
                 # Make sure user cannot delete
