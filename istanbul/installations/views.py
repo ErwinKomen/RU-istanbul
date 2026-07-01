@@ -139,6 +139,7 @@ def contact(request):
 
 def about(request):
     """Renders the about page."""
+
     assert isinstance(request, HttpRequest)
     response = "-"
     oErr = ErrHandle()
@@ -161,8 +162,36 @@ def about(request):
         response = msg
     return response
 
+def navihelp(request):
+    """Renders the navigation-help page."""
+
+    assert isinstance(request, HttpRequest)
+    response = "-"
+    oErr = ErrHandle()
+    try:
+        template = "installations/navihelp.html"
+        context = dict(
+            page_name="Navigation",
+            title="Navigation"
+            )
+        context = get_application_context(request, context)
+
+        # Locate and add the navigation help page
+        obj = Chelp.objects.filter(ctitle__iexact="navigation").first()
+        if obj:
+            context['cms_navihelptext'] = obj.get_contents_markdown(keep=True)
+
+        # Show the navihelp page
+        response = render(request, template, context)
+    except:
+        msg = oErr.get_error_message()
+        oErr.DoError("installations/about")
+        response = msg
+    return response
+
 def edithelp(request):
     """Renders the editorhelp page."""
+
     assert isinstance(request, HttpRequest)
     response = "-"
     oErr = ErrHandle()
