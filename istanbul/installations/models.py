@@ -998,7 +998,8 @@ class Event(models.Model, info):
                     sBack = self.event_type.name
             elif field == "installations":
                 # Sort the installations by their English name, if possible
-                for oItem in self.installation_set.all().values('id', 'english_name').order_by('english_name'):
+                for oItem in self.installation_set.exclude(installation_status__name="hide").values(
+                    'id', 'english_name').order_by('english_name'):
                     url = reverse('installation_details', kwargs={'pk': oItem['id']})
                     label = Installation.label(oItem)
                     sItem = "<span class='badge installation-title gr'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
@@ -1057,7 +1058,7 @@ class Event(models.Model, info):
         oErr = ErrHandle()
         try:
             # Get the (best candidate for the) related installation
-            obj = EventInstallationRelation.objects.filter(event=self).first()
+            obj = EventInstallationRelation.objects.filter(event=self).exclude(installation_status__name="hide").first()
             if not obj is None:
                 installation = obj.installation
                 # Perform re-ordering

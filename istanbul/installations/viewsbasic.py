@@ -81,7 +81,7 @@ class EventEdit(BasicDetails):
             context['editview'] = reverse("installations:edit_event", kwargs={'pk': instance.id})
 
             # Get the (best candidate for the) related installation
-            obj = EventInstallationRelation.objects.filter(event=instance).first()
+            obj = EventInstallationRelation.objects.filter(event=instance).exclude(installation_status__name="hide").first()
             if not obj is None:
                 installation = obj.installation
                 # Get a list of event id's that are 'part of' the related installation
@@ -274,7 +274,7 @@ class EventDetails(EventEdit):
 
                 rel_list = []
                 index = 1 
-                qs = instance.installation_set.all().order_by('english_name')
+                qs = instance.installation_set.exclude(installation_status__name="hide").order_by('english_name')
                 for item in qs:
                     installation = item
                     url = reverse("installation_details", kwargs={'pk': installation.id})
@@ -490,7 +490,7 @@ class ImageDetails(ImageEdit):
             if resizable: installations['gridclass'] = "resizable"
 
             rel_list = []
-            qs = instance.installation_set.all().order_by('english_name')
+            qs = instance.installation_set.exclude(installation_status__name="hide").order_by('english_name')
             for item in qs:
                 installation = item
                 url = reverse("installation_details", kwargs={'pk': installation.id})
