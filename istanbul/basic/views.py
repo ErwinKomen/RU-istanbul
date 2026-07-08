@@ -26,6 +26,7 @@ import os
 import base64
 import csv
 import openpyxl
+import copy
 from openpyxl.utils.cell import get_column_letter
 from io import StringIO
 
@@ -823,6 +824,7 @@ class BasicList(ListView):
     lst_typeaheads = []
     sort_order = ""
     col_wrap = ""
+    col_show = ""
     fontawesome_already = False
     param_list = []
     # extend_template = "layout.html"
@@ -930,6 +932,7 @@ class BasicList(ListView):
 
         context['sortOrder'] = self.sort_order
         context['colWrap'] = self.col_wrap
+        context['colShow'] = self.col_show
 
         context['new_button'] = self.new_button
         context['add_text'] = self.add_text
@@ -1452,6 +1455,29 @@ class BasicList(ListView):
                         if idx+1 in lColWrap:
                             # Indicate that this column must be hidden
                             oHead['colwrap'] = True
+
+            colshow = self.qd.get("s", None)
+            if colshow != None:
+                self.col_show = colshow.strip()
+                if colshow != "" and colshow[0] == "[":
+                    # Process the column showping
+                    lColShow = json.loads(colshow)
+                    for idx, oHead in enumerate(self.order_heads):
+                        if idx+1 in lColShow:
+                            # Indicate that this column must be shown
+                            oHead['colshow'] = True
+                            # If it has autohide, set it off
+                            if "autohide" in oHead:
+                                oHead['autohide'] = "off"
+            else:
+                # Default: set self.col_show to include all columns, unless wrap or autohide on
+                lColShow = []
+                for idx, oHead in enumerate(self.order_heads):
+                    autohide = oHead.get("autohide")
+                    if autohide is None or autohide == "off":
+                        lColShow.append(idx + 1)
+                self.col_show = copy.copy(lColShow)
+
 
             # Determine the length
             self.entrycount = 0 if qs is None else qs.count()   # len(qs)

@@ -34,6 +34,7 @@ var ru = (function ($, ru) {
         loc_relatedRow = null,  // Row being dragged
         loc_params = "",
         loc_colwrap = [],       // Column wrapping
+        loc_colshow = [],       // Column showing (can override autohide)
         loc_sWaiting = " <span class=\"glyphicon glyphicon-refresh glyphicon-refresh-animate\"></span>",
         loc_bManuSaved = false,
         loc_keyword = [],           // Keywords that can belong to a sermongold or a sermondescr
@@ -158,7 +159,8 @@ var ru = (function ($, ru) {
        */
       colwrap_switch: function (colnum, set) {
         var lColWrap = null,
-            elW = null,
+            elW = null,   // Column hiding
+            elS = null,   // column showing
             idx = -1;
 
         try {
@@ -176,6 +178,22 @@ var ru = (function ($, ru) {
           // Set the correct 'w' parameter
           elW = document.getElementsByName("w");
           $(elW).val(JSON.stringify(loc_colwrap));
+
+          // Get the current value
+          idx = loc_colshow.indexOf(colnum);
+          if (set) {
+            if (idx >= 0) {
+              loc_colshow.splice(idx, 1);
+            }
+          } else {
+            if (idx < 0) {
+              loc_colshow.push(colnum);
+            }
+          }
+          // Set the correct 's' parameter
+          elS = document.getElementsByName("s");
+          $(elS).val(JSON.stringify(loc_colshow));
+
         } catch (ex) {
           private_methods.errMsg("colwrap_switch", ex);
           return "";
@@ -1451,7 +1469,9 @@ var ru = (function ($, ru) {
             object_id = "",
             targetid = null,
             elW = null,
+            elS = null,
             sColwrap = "",
+            sColshow = "",
             post_loads = [],
             sHtml = "";
 
@@ -1480,6 +1500,17 @@ var ru = (function ($, ru) {
               loc_colwrap = [];
             } else {
               loc_colwrap = JSON.parse(sColwrap);
+            }
+          }
+
+          // Set the value of loc_colshow
+          elS = document.getElementsByName("s");
+          if ($(elS).length > 0) {
+            sColshow = $(elS).val();
+            if (sColshow === "") {
+              loc_colshow = [];
+            } else {
+              loc_colshow = JSON.parse(sColshow);
             }
           }
 

@@ -354,6 +354,29 @@ class LiteratureForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
+class LiteratureSearchForm(forms.ModelForm):
+    """Facilitate searching and browsing through literature"""
+
+    any = forms.CharField(**dchar)
+    code = forms.CharField(**dchar)
+    title= forms.CharField(**dchar)
+    author= forms.CharField(**dchar)
+    editor= forms.CharField(**dchar)
+    publisher= forms.CharField(**dchar)
+    place= forms.CharField(**dchar)
+    year= forms.CharField(**dchar)
+    journal= forms.CharField(**dchar)
+    volume= forms.CharField(**dchar)
+    page_numbers= forms.CharField(**dchar)
+    issue= forms.CharField(**dchar)
+    description = forms.CharField(**dtext)
+    comments = forms.CharField(**dtext)
+    
+    class Meta:
+        model = Literature
+        fields = []
+
+
 # ================================= Helper model forms ========================================
 
 

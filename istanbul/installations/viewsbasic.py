@@ -37,6 +37,7 @@ from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import EventLiteratureRelationForm
 # Search forms
 from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
+from .forms import LiteratureSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -1494,8 +1495,9 @@ class LiteratureEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={
-            'model_name': 'Literature', 'app_name': 'installations'})
+        # self.listview = reverse('utilities:list_view', kwargs={
+        #     'model_name': 'Literature', 'app_name': 'installations'})
+        self.listview = reverse('literature_list')
         return None
 
     def check_hlist(self, instance):
@@ -1691,6 +1693,174 @@ class LiteratureDetails(LiteratureEdit):
         sHtml = "\n".join(html)
         # Return out HTML string
         return sHtml
+
+
+class LiteratureList(BasicList):
+    """List and search view for Literature"""
+
+    model = Literature 
+    listform = LiteratureSearchForm
+    prefix = "lit"
+    has_select2 = True
+    sg_name = "Literature"          # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Literature"      # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['title', 'code', 'author', 'editor','publisher', 'place', 'journal', 'volume',
+                 'page_numbers', 'issue', 'eventcount']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Title',       'order': 'o=1', 'type': 'str', 'custom': 'title',       'linkdetails': True, 'allowwrap': True},
+        {'name': 'Code',        'order': 'o=2', 'type': 'str', 'custom': 'code',        'linkdetails': True}, #, 'main': True     },
+        {'name': 'Author',      'order': 'o=3', 'type': 'str', 'custom': 'author',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Editor',      'order': 'o=4', 'type': 'str', 'custom': 'editor',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Publisher',   'order': 'o=5', 'type': 'str', 'custom': 'publisher',   'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Place',       'order': 'o=6', 'type': 'str', 'custom': 'place',       'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Journal',     'order': 'o=7', 'type': 'str', 'custom': 'journal',     'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Volume',      'order': 'o=8', 'type': 'str', 'custom': 'volume',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Page numbers','order': 'o=9', 'type': 'str', 'custom': 'page_numbers','linkdetails': True, 'autohide': 'on'},
+        {'name': 'Issue',       'order': 'o=10', 'type': 'str', 'custom': 'issue',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Events',      'order': 'o=11', 'type': 'int', 'custom': 'eventcount', 'linkdetails': True, 'allowwrap': True},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "Title",       "id": "filter_title",       "enabled": False},
+        {"name": "Code",        "id": "filter_code",        "enabled": False},
+        {"name": "Author",      "id": "filter_author",      "enabled": False},
+        {"name": "Editor",      "id": "filter_editor",      "enabled": False},
+        {"name": "Publisher",   "id": "filter_publisher",   "enabled": False},
+        {"name": "Place",       "id": "filter_place",       "enabled": False},
+        {"name": "Journal",     "id": "filter_journal",     "enabled": False},
+        {"name": "Volume",      "id": "filter_volume",      "enabled": False},
+        {"name": "Page numbers","id": "filter_pages",       "enabled": False},
+        {"name": "Issue",       "id": "filter_issue",       "enabled": False},
+        {"name": "Text",        "id": "filter_text",        "enabled": False},
+        {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',       'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'title',     'dbfield': 'title',         'keyS': 'title'},
+            {'filter': 'code',      'dbfield': 'code',          'keyS': 'code'},
+            {'filter': 'author',    'dbfield': 'author',        'keyS': 'author'},
+            {'filter': 'editor',    'dbfield': 'editor',        'keyS': 'editor'},
+            {'filter': 'publisher', 'dbfield': 'publisher',     'keyS': 'publisher'},
+            {'filter': 'place',     'dbfield': 'place',         'keyS': 'place'},
+            {'filter': 'journal',   'dbfield': 'journal',       'keyS': 'journal'},
+            {'filter': 'volume',    'dbfield': 'volume',        'keyS': 'volume'},
+            {'filter': 'pages',     'dbfield': 'page_numbers',  'keyS': 'page_numbers'},
+            {'filter': 'issue',     'dbfield': 'issue',         'keyS': 'issue'},
+            {'filter': 'text',      'dbfield': 'text',          'keyS': 'text'},
+            {'filter': 'comments',  'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def initializations(self):
+        # Perform standard initialization
+        response = super(LiteratureList, self).initializations()
+
+        oErr = ErrHandle()
+        try:
+            if user_is_authenticated(self.request):
+                iCount = 0
+                # Check aggregate installation count
+                with transaction.atomic():
+                    for obj in Literature.objects.all():
+                        # Calculate
+                        event_count = obj.eventliteraturerelation_set.all().count()
+                        if obj.eventcount != event_count:
+                            obj.eventcount = event_count
+                            obj.save()
+                            iCount += 1
+
+                # Report on performance
+                oErr.Status("Literature eventcount initializations: {}".format(iCount))
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("")
+
+        # Return nothing
+        return None
+
+    def add_to_context(self, context, initial):
+        may_add = context['is_app_moderator'] or context['is_app_developer']
+        if may_add:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            self.basic_add = reverse("installations:add_literature")
+            context['basic_add'] = self.basic_add
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            # elif custom == "title":
+            #     sBack = instance.get_value("title_truncated")
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LiteratureList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(title__icontains=str_any) | \
+                    Q(code__icontains=str_any) | \
+                    Q(author__icontains=str_any) | \
+                    Q(editor__icontains=str_any) | \
+                    Q(publisher__icontains=str_any) | \
+                    Q(place__icontains=str_any) | \
+                    Q(journal__icontains=str_any) | \
+                    Q(volume__icontains=str_any) | \
+                    Q(page_numbers__icontains=str_any) | \
+                    Q(issue__icontains=str_any) | \
+                    Q(text__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+            # # Check for statuslist
+            # istatuslist = fields.get("istatuslist")
+            # if istatuslist is None or len(istatuslist) == 0:
+            #     # Make sure only the 'show' ones are actually shown
+            #     lstExclude.append(Q(installation_status__name="hide"))
+
+            # # Possibly adapt the 'name' field to also match:
+            # #   field `simple_name` for simple ascii names
+            # #   fields: `original_name`, `ottoman_name`, 
+            # english_name = fields.get("english_name")
+            # if not english_name is None and english_name != "":
+            #     fields["english_name"] = Q(english_name__icontains=english_name) | \
+            #         Q(original_name__icontains=english_name) | \
+            #         Q(ottoman_name__icontains=english_name) | \
+            #         Q(turkish_name__icontains=english_name) | \
+            #         Q(simple_name__icontains=english_name)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LiteratureList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 
 
 # --------------------- Person ----------------------------------------------

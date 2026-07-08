@@ -1547,6 +1547,10 @@ class Literature(models.Model, info):
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
 
+    # =========== Aggregate fields =======================
+    # [1] Number of events with this literature
+    eventcount = models.IntegerField(default=0)
+
     def get_description_md(self):
         """Get description, but then processed by markdown"""
 
@@ -1567,7 +1571,18 @@ class Literature(models.Model, info):
         lst_value = []
         oErr = ErrHandle()
         try:
-            if field == "author" and self.author:
+            if field == "title":
+                if self.title:
+                    sBack = self.title
+            elif field == "title_truncated":
+                if self.title:
+                    sBack = self.title
+                    if len(sBack) > 85:
+                        sBack = "{}...".format(sBack[:85])
+            elif field == "code":
+                if self.code:
+                    sBack = self.code
+            elif field == "author" and self.author:
                 sBack = self.author
             elif field == "editor" and self.editor:
                 sBack = self.editor
@@ -1585,6 +1600,9 @@ class Literature(models.Model, info):
                 sBack = self.issue
             elif field == "pages" and self.page_numbers:
                 sBack = self.page_numbers
+            elif field == "eventcount":
+                if not self.eventcount is None:
+                    sBack = "{}".format(self.eventcount)
 
         except:
             msg = oErr.get_error_message()
