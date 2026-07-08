@@ -8,7 +8,7 @@ from django.contrib.auth.models import User, Group
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import transaction
 from django.db.models import Q, Prefetch, Count, F
-from django.db.models.functions import Lower
+from django.db.models.functions import Lower, Collate
 from django.db.models.query import QuerySet 
 from django.forms.models import model_to_dict
 from django.http import HttpRequest, HttpResponse, HttpResponseRedirect, JsonResponse, FileResponse
@@ -481,6 +481,7 @@ def make_ordering(qs, qd, order_default, order_cols, order_heads):
         sType = 'str'
         order = []
         colnum = ""
+
         # reset 'used' feature for all heads
         for item in order_heads: item['used'] = None
 

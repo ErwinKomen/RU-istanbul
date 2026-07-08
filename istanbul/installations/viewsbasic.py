@@ -82,7 +82,8 @@ class EventEdit(BasicDetails):
             context['editview'] = reverse("installations:edit_event", kwargs={'pk': instance.id})
 
             # Get the (best candidate for the) related installation
-            obj = EventInstallationRelation.objects.filter(event=instance).exclude(installation_status__name="hide").first()
+            obj = EventInstallationRelation.objects.filter(event=instance).exclude(
+                installation__installation_status__name="hide").first()
             if not obj is None:
                 installation = obj.installation
                 # Get a list of event id's that are 'part of' the related installation
@@ -953,10 +954,11 @@ class InstallationList(BasicList):
     new_button = False              # Normally this is false, unless this is someone with editing rights
     fontawesome_already = True      # Already have fontawesome
     start_with_list = True          # Start with listview
-    order_cols = ['english_name', 'installation_type__name', '', '', '']
+    order_cols = ['srch_english_name', 'installation_type__name', '', '', '']
     order_default = order_cols
     order_heads = [
-        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname',  'allowwrap': True, 'linkdetails': True,  'main': True},
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'instalname',  'allowwrap': True, 
+         'linkdetails': True,  'main': True, 'ignore_accents': True},
         {'name': 'Type',        'order': 'o=2', 'type': 'str', 'custom': 'instaltype'               },
         {'name': 'Purposes',    'order': '',    'type': 'str', 'custom': 'purposes',    'allowwrap': True                 },
         {'name': 'Persons',     'order': '',    'type': 'str', 'custom': 'evpersons',   'allowwrap': True},
@@ -1712,7 +1714,8 @@ class LiteratureList(BasicList):
     order_heads = [
         {'name': 'Title',       'order': 'o=1', 'type': 'str', 'custom': 'title',       'linkdetails': True, 'allowwrap': True},
         {'name': 'Code',        'order': 'o=2', 'type': 'str', 'custom': 'code',        'linkdetails': True}, #, 'main': True     },
-        {'name': 'Author',      'order': 'o=3', 'type': 'str', 'custom': 'author',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Author',      'order': 'o=3', 'type': 'str', 'custom': 'author',      'linkdetails': True, 
+         'allowwrap': True, 'autohide': 'on'},
         {'name': 'Editor',      'order': 'o=4', 'type': 'str', 'custom': 'editor',      'linkdetails': True, 'autohide': 'on'},
         {'name': 'Publisher',   'order': 'o=5', 'type': 'str', 'custom': 'publisher',   'linkdetails': True, 'autohide': 'on'},
         {'name': 'Place',       'order': 'o=6', 'type': 'str', 'custom': 'place',       'linkdetails': True, 'autohide': 'on'},

@@ -1058,7 +1058,8 @@ class Event(models.Model, info):
         oErr = ErrHandle()
         try:
             # Get the (best candidate for the) related installation
-            obj = EventInstallationRelation.objects.filter(event=self).exclude(installation_status__name="hide").first()
+            obj = EventInstallationRelation.objects.filter(event=self).exclude(
+                installation__installation_status__name="hide").first()
             if not obj is None:
                 installation = obj.installation
                 # Perform re-ordering
@@ -1246,6 +1247,9 @@ class Installation(models.Model, info):
     # [0-1] Whether the installation still exists
     still_exists = models.BooleanField(blank=True,null=True)
 
+    # ==================== Proper searching ==============================
+    srch_english_name = models.CharField(max_length=1000,blank=True,null=True)
+
     # ==================== Links to other objects ========================
     # [0-1] Status of installation editing
     installation_status = models.ForeignKey(InstallationStatus,**dargs)
@@ -1324,7 +1328,8 @@ class Installation(models.Model, info):
                 # qs = Person.objects.filter(eventpersonrelations__event__installation=self)
                 # for oItem in qs.values('id', 'name', 'start_reign', 'end_reign', 'ptype__symbol__name').order_by('name'):
 
-                qs = EventPersonRelation.objects.filter(event__installation=self)
+                qs = EventPersonRelation.objects.filter(event__installation=self).exclude(
+                    event__isnull=True).exclude(person__isnull=True)
                 for oEvPer in qs.order_by(
                         'person__start_reign', 'person__birth_year', 'event__start_date', 'person__name').values(
                         'person__id', 'person__name', 'person__start_reign', 'person__end_reign', 
@@ -1501,6 +1506,9 @@ class Installation(models.Model, info):
                 sSimple = unidecode(sTurkic)
                 if self.simple_name != sSimple:
                     self.simple_name = sSimple
+            sDecoded = unidecode(self.english_name).lower()
+            if sDecoded and sDecoded != self.srch_english_name:
+                self.srch_english_name = sDecoded
             # Continue with regular saving
             response = super(Installation, self).save(force_insert, force_update, using, update_fields)
 
