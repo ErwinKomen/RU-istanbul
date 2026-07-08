@@ -1121,6 +1121,10 @@ class Purpose(models.Model, info):
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
 
+    # =========== Aggregate fields =======================
+    # [1] Number of installations with this purpose
+    instcount = models.IntegerField(default=0)
+
     def __str__(self):
         sBack = ""
         if self.name:
@@ -1146,6 +1150,32 @@ class Purpose(models.Model, info):
         sBack = ""
         if self.name:
             sBack = self.name
+        return sBack
+
+    def get_value(self, field, sep=None, options={}):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
+            elif field == "instcount":
+                if not self.instcount is None:
+                    sBack = "{}".format(self.instcount)
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Purpose/get_value")
+
         return sBack
 
 

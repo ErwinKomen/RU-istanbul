@@ -164,7 +164,10 @@ def edit_model(request, name_space, model_name, app_name, instance_id = None,
                         nfe = [ "{}: {}".format(k, v) for k,v in form.errors.items() ]
                     print('form invalid:',nfe)
                     show_messages(request,'form_invalid', model_name, form)
-                    x = form['start_date'].errors
+
+                    # Debugging
+                    # x = form['start_date'].errors
+                    
             print('post part done',delta(start))
 
             # Adapt forms (post-POST)

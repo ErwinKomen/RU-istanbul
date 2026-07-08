@@ -520,6 +520,16 @@ class PurposeForm(forms.ModelForm):
 		fields = 'name,description,comments'.split(',')
 
 
+class PurposeSearchForm(forms.ModelForm):
+    name = forms.CharField(**dchar)
+    description = forms.CharField(**dtext)
+    comments = forms.CharField(**dtext)
+
+    class Meta:
+        model = Purpose
+        fields = []
+
+
 class StyleForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
 	line_thickness = forms.IntegerField(**dnumber)

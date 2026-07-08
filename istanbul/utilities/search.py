@@ -439,50 +439,62 @@ class Field:
 		
 
 class Order:
-	def __init__(self,request=None, model_name=None,order=''):
-		'''get the order and direction from the request and set it in such a 
-		way that it can be used in a filter call.
-		'''
+    def __init__(self,request=None, model_name=None,order=''):
+        '''get the order and direction from the request and set it in such a 
+        way that it can be used in a filter call.
+        '''
 
-		oErr = ErrHandle()
-		try:
-			if order:
-				self.order_by = order
-				self.direction = 'ascending'
-				self.order_results = True if order else False
-			else:
-				self.request = request
-				self.model_name = model_name
-				self.set_values()
-				self.order_results = True if request else False
-		except:
-			msg = oErr.get_error_message()
-			oErr.DoError("Order/init")
+        oErr = ErrHandle()
+        try:
+            if order:
+                self.order_by = order
+                self.direction = 'ascending'
+                self.order_results = True if order else False
+            else:
+                self.request = request
+                self.model_name = model_name
+                self.set_values()
+                self.order_results = True if request else False
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Order/init")
 
-	def set_values(self):
-		if self.request:
-			temp = self.request.GET.get('order_by')
-			tquery = self.request.GET.get('query')
-			if temp: 
-				order_by,old_order,old_direction,tquery = temp.split(',')
-				if order_by == old_order:
-					direction = 'descending' if old_direction == 'ascending' else 'ascending'
-				else: direction = 'ascending'
-			else: 
-				order_by = get_foreign_keydict()[self.model_name.lower()]
-				direction = 'ascending'
-		else: 
-			tquery, order_by, direction = None, None, None
-			
-		if tquery == None: query = ''
-		else: query =tquery
+    def set_values(self):
+        oErr = ErrHandle()
+        dic_model_field = {"institutiontype": "institution_type",
+                           "eventtype": "event_type"}
+        try:
+            if self.request:
+                temp = self.request.GET.get('order_by')
+                tquery = self.request.GET.get('query')
+                if temp: 
+                    order_by,old_order,old_direction,tquery = temp.split(',')
+                    if order_by == old_order:
+                        direction = 'descending' if old_direction == 'ascending' else 'ascending'
+                    else: direction = 'ascending'
+                else: 
+                    # OLD order_by = get_foreign_keydict()[self.model_name.lower()]
+                    model_name = self.model_name.lower()
+                    fk_name = model_name
+                    if fk_name in dic_model_field:
+                        fk_name = dic_model_field[fk_name]
+                    order_by = get_foreign_keydict().get(fk_name)
+                    direction = 'ascending'
+            else: 
+                tquery, order_by, direction = None, None, None
+            
+            if tquery == None: query = ''
+            else: query =tquery
 
-		self.order_by = order_by
-		self.query = query
-		self.direction = direction
+            self.order_by = order_by
+            self.query = query
+            self.direction = direction
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Order/set_values")
 
-	def __repr__(self):
-		return self.order_by + ', ' + self.direction
+    def __repr__(self):
+        return self.order_by + ', ' + self.direction
 
 def get_fields(model_name,app_name):
 	'''Get field names from a model (for now ignore many to one relations. 

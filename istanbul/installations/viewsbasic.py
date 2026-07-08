@@ -21,7 +21,8 @@ from .models import Person, EventPersonRelation
 from .models import Institution, EventInstitutionRelation
 from .models import Location, LocType
 from .models import PersonSymbol, PersonType
-from .forms import SystemForm, PersonForm, InstallationForm, InstallationSearchForm
+# Regular forms
+from .forms import SystemForm, PersonForm, InstallationForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
 from .forms import systeminstallation_formset, installationsystem_formset
@@ -32,14 +33,15 @@ from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import LocationForm, PersonSymbolForm, PersonTypeForm
 from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
-from .forms import ImageSearchForm
 from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import EventLiteratureRelationForm
+# Search forms
+from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
 from basic.utils import ErrHandle
-from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime, get_application_context, user_is_superuser
+from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime, get_application_context, user_is_authenticated, user_is_superuser
 from mapview.views import MapView
 
 
@@ -2160,7 +2162,8 @@ class PurposeEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Purpose', 'app_name': 'installations' })
+        # self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Purpose', 'app_name': 'installations' })
+        self.listview = reverse('purpose_list')
         return None
 
     def add_to_context(self, context, instance):
@@ -2211,7 +2214,8 @@ class PurposeDetails(PurposeEdit):
             if resizable: installations['gridclass'] = "resizable"
 
             rel_list = []
-            qs = instance.installation_set.all().order_by('english_name')
+            # OLD: qs = instance.installation_set.all().order_by('english_name')
+            qs = instance.installation_set.exclude(installation_status__name="hide").order_by('english_name')
             for item in qs:
                 installation = item
                 url = reverse("installation_details", kwargs={'pk': installation.id})
@@ -2256,6 +2260,94 @@ class PurposeDetails(PurposeEdit):
 
         # Return the context we have made
         return context
+
+
+class PurposeList(BasicList):
+    """List and search view for Purpose"""
+
+    model = Purpose 
+    listform = PurposeSearchForm
+    prefix = "purp"
+    has_select2 = True
+    sg_name = "Purpose"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Purposes"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'instcount']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',            'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
+        {'name': 'Installations',   'order': 'o=2', 'type': 'int', 'custom': 'instcount',   'linkdetails': True               },
+        ]
+                   
+    filters = [ 
+        {"name": "Name",            "id": "filter_name",        "enabled": False},
+        {"name": "Description",     "id": "filter_description", "enabled": False},
+        {"name": "Comments",        "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def initializations(self):
+        # Perform standard initialization
+        response = super(PurposeList, self).initializations()
+
+        oErr = ErrHandle()
+        try:
+            if user_is_authenticated(self.request):
+                iCount = 0
+                # Check aggregate installation count
+                with transaction.atomic():
+                    for obj in Purpose.objects.all():
+                        # Calculate
+                        inst_count = obj.installation_set.exclude(installation_status__name="hide").count()
+                        if obj.instcount != inst_count:
+                            obj.instcount = inst_count
+                            obj.save()
+                            iCount += 1
+
+                # Report on performance
+                oErr.Status("Purpose instcount initializations: {}".format(iCount))
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("")
+
+        # Return nothing
+        return None
+
+    def add_to_context(self, context, initial):
+        may_add = context['is_app_moderator'] or context['is_app_developer']
+        if may_add:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            self.basic_add = reverse("installations:add_purpose")
+            context['basic_add'] = self.basic_add
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PurposeList/get_field_value")
+
+        return sBack, sTitle
 
 
 # --------------------- System ----------------------------------------------

@@ -25,7 +25,7 @@ from installations.viewsbasic import SystemDetails, SystemEdit, \
     InstallationDetails, InstallationEdit, InstallationList, InstallationMap, InstallationListMap, InstallationFocusMap, \
     InstallationTypeDetails, InstallationTypeEdit, \
     PersonEdit, PersonDetails, \
-    PurposeEdit, PurposeDetails, \
+    PurposeEdit, PurposeDetails, PurposeList, \
     LocationEdit, LocationDetails, \
     LiteratureEdit, LiteratureDetails, \
     EventEdit, EventDetails, EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
@@ -84,6 +84,7 @@ urlpatterns = [
 
 	re_path('purpose/edit(?:/(?P<pk>\d+))?/$', PurposeEdit.as_view(), name='purpose_edit'),
 	re_path('purpose/details(?:/(?P<pk>\d+))?/$', PurposeDetails.as_view(), name='purpose_details'),
+	re_path('purpose/list/$', PurposeList.as_view(), name='purpose_list'),
 
 	re_path('system/edit(?:/(?P<pk>\d+))?/$', SystemEdit.as_view(), name='system_edit'),
 	re_path('system/details(?:/(?P<pk>\d+))?/$', SystemDetails.as_view(), name='system_details'),
