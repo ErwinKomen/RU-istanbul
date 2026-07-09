@@ -66,6 +66,27 @@ class SystemForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
+class SystemSearchForm(forms.ModelForm):
+    """Facilitate searching and browsing through System"""
+
+    any = forms.CharField(**dchar)
+    original_name = forms.CharField(**dchar)
+    ottoman_name = forms.CharField(**dchar)
+    english_name = forms.CharField(**dchar)
+    turkish_name = forms.CharField(**dchar)
+    simple_name = forms.CharField(**dchar)
+    description = forms.CharField(**dtext)
+    comments = forms.CharField(**dtext)
+    location = forms.ModelChoiceField(
+        queryset = Location.objects.all(),
+        widget = LocationWidget(**dselect2),
+        required = False)
+    
+    class Meta:
+        model = System
+        fields = []
+
+
 class InstallationForm(forms.ModelForm):
 	original_name = forms.CharField(**dchar)
 	ottoman_name = forms.CharField(**dchar)

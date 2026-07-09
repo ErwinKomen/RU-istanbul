@@ -37,7 +37,7 @@ from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import EventLiteratureRelationForm
 # Search forms
 from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
-from .forms import LiteratureSearchForm
+from .forms import LiteratureSearchForm, SystemSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -2534,7 +2534,8 @@ class SystemEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'System', 'app_name': 'installations' })
+        # self.listview = reverse('utilities:list_view', kwargs={'model_name': 'System', 'app_name': 'installations' })
+        self.listview = reverse("system_list")
         return None
 
     def add_to_context(self, context, instance):
@@ -2590,7 +2591,8 @@ class SystemDetails(SystemEdit):
 
             rel_list = []
             qs = SystemInstallationRelation.objects.filter(
-                system=instance, installation__isnull=False).order_by(
+                system=instance, installation__isnull=False).exclude(
+                installation__installation_status__name="hide").order_by(
                     'start_date', 'end_date', 'installation__english_name')
             for item in qs:
                 installation = item.installation
@@ -2637,4 +2639,107 @@ class SystemDetails(SystemEdit):
         # Return the context we have made
         return context
 
+
+class SystemList(BasicList):
+    """List and search view for System"""
+
+    model = System 
+    listform = SystemSearchForm
+    prefix = "sys"
+    has_select2 = True
+    sg_name = "System"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Systems"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['english_name', 'turkish_name', 'original_name', 'ottoman_name', 'simple_name', 'location__name']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'English name',    'order': 'o=1', 'type': 'str', 'custom': 'english_name',    'linkdetails': True,  'main': True},
+        {'name': 'Turkish name',    'order': 'o=2', 'type': 'str', 'custom': 'turkish_name',    'linkdetails': True               },
+        {'name': 'Original name',   'order': 'o=3', 'type': 'str', 'custom': 'original_name',   'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Ottoman name',    'order': 'o=4', 'type': 'str', 'custom': 'ottoman_name',    'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Simple name',     'order': 'o=5', 'type': 'str', 'custom': 'simple_name',     'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Location',        'order': 'o=6', 'type': 'str', 'custom': 'location',        'linkdetails': True, 'autohide': 'on'},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",             "id": "filter_any",         "enabled": False},
+        {"name": "English name",    "id": "filter_engname",     "enabled": False},
+        {"name": "Original name",   "id": "filter_orgname",     "enabled": False},
+        {"name": "Ottoman name",    "id": "filter_ottname",     "enabled": False},
+        {"name": "Turkish name",    "id": "filter_turname",     "enabled": False},
+        {"name": "Simple name",     "id": "filter_simname",     "enabled": False},
+        {"name": "Location",        "id": "filter_location",    "enabled": False},
+        {"name": "Description",     "id": "filter_description", "enabled": False},
+        {"name": "Comments",        "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'engname',       'dbfield': 'english_name',  'keyS': 'english_name'},
+            {'filter': 'orgname',       'dbfield': 'original_name', 'keyS': 'original_name'},
+            {'filter': 'ottname',       'dbfield': 'ottoman_name',  'keyS': 'ottoman_name'},
+            {'filter': 'turname',       'dbfield': 'turkish_name',  'keyS': 'turkish_name'},
+            {'filter': 'simname',       'dbfield': 'simple_name',   'keyS': 'simple_name'},
+            {'filter': 'location',      'dbfield': 'location',      'keyS': 'location'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        may_add = context['is_app_moderator'] or context['is_app_developer']
+        if may_add:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            self.basic_add = reverse("installations:add_system")
+            context['basic_add'] = self.basic_add
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(english_name__icontains=str_any) | \
+                    Q(original_name__icontains=str_any) | \
+                    Q(ottoman_name__icontains=str_any) | \
+                    Q(turkish_name__icontains=str_any) | \
+                    Q(simple_name__icontains=str_any) | \
+                    Q(location__name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 

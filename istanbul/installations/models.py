@@ -289,13 +289,31 @@ class System(models.Model, info):
         lst_value = []
         oErr = ErrHandle()
         try:
-            if field == "name":
+            if field == "name" or field == "english_name":
                 if not self.english_name is None:
                     sBack = self.english_name
+            elif field == "original_name":
+                if not self.original_name is None:
+                    sBack = self.original_name
+            elif field == "ottoman_name":
+                if not self.ottoman_name is None:
+                    sBack = self.ottoman_name
+            elif field == "turkish_name":
+                if not self.turkish_name is None:
+                    sBack = self.turkish_name
+            elif field == "simple_name":
+                if not self.simple_name is None:
+                    sBack = self.simple_name
             elif field == "location":
                 # Get the location details
                 if not self.location is None:
                     sBack = self.location.get_value(html=True)
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
         except:
             msg = oErr.get_error_message()
             oErr.DoError("System/get_value")

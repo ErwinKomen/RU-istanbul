@@ -21,7 +21,7 @@ from . import settings
 from . import views
 from installations.views import nlogin, login_as_user, npermission  #, \
 #    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
-from installations.viewsbasic import SystemDetails, SystemEdit, \
+from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     InstallationDetails, InstallationEdit, InstallationList, InstallationMap, InstallationListMap, InstallationFocusMap, \
     InstallationTypeDetails, InstallationTypeEdit, \
     PersonEdit, PersonDetails, \
@@ -89,6 +89,7 @@ urlpatterns = [
 
 	re_path('system/edit(?:/(?P<pk>\d+))?/$', SystemEdit.as_view(), name='system_edit'),
 	re_path('system/details(?:/(?P<pk>\d+))?/$', SystemDetails.as_view(), name='system_details'),
+	re_path('system/list/$', SystemList.as_view(), name='system_list'),
 
 	re_path('location/edit(?:/(?P<pk>\d+))?/$', LocationEdit.as_view(), name='location_edit'),
 	re_path('location/details(?:/(?P<pk>\d+))?/$', LocationDetails.as_view(), name='location_details'),
