@@ -15,8 +15,8 @@ from .models import PersonSymbol, PersonType
 from .models import ExternalLink
 
 
-from .widgets import SystemWidget, ReligionWidget, GenderWidget, PersonsWidget
-from .widgets import InstitutionTypeWidget,InstitutionsWidget,ImagesWidget
+from .widgets import SystemWidget, ReligionWidget, ReligionsWidget, GenderWidget, GendersWidget, PersonsWidget
+from .widgets import InstitutionTypeWidget,InstitutionTypesWidget, InstitutionsWidget,ImagesWidget
 from .widgets import InstitutionWidget, EventRoleWidget
 from .widgets import EventTypeWidget,StyleWidget,FigureWidget, DateTypeWidget
 from .widgets import InstallationTypeWidget,InstallationStatusWidget,InstallationWidget
@@ -24,7 +24,7 @@ from .widgets import InstallationTypesWidget,InstallationStatusesWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
 from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
-from .widgets import PersonSymbolWidget, PersonSymbolsWidget, PersonTypeWidget
+from .widgets import PersonSymbolWidget, PersonSymbolsWidget, PersonTypeWidget, PersonTypesWidget
 from .widgets import ImageTypeWidget, ImageTypesWidget
 
 # From our own application
@@ -34,7 +34,13 @@ from basic.utils import ErrHandle
 
 
 dattr = {'attrs':{'style':'width:100%', 'class': 'searching'}}
+dattr_30 = {'attrs':{'style':'width:30%', 'class': 'searching'}}
+dattr_30b = {'attrs':{'style':'width:30%', 'class': 'searching', 'placeholder': 'from...'}}
+dattr_30e = {'attrs':{'style':'width:30%', 'class': 'searching', 'placeholder': 'until...'}}
 dchar = {'widget':forms.TextInput(**dattr),'required':False}
+dchar_30 = {'widget':forms.TextInput(**dattr_30),'required':False}
+dchar_30b = {'widget':forms.TextInput(**dattr_30b),'required':False}
+dchar_30e = {'widget':forms.TextInput(**dattr_30e),'required':False}
 dchar_required = {'widget':forms.TextInput(**dattr),'required':True}
 dtext = {'widget':forms.Textarea(attrs={'style':'width:100%','rows':3}),
 	'required':False}
@@ -42,6 +48,7 @@ dgps = {'widget':forms.NumberInput(**dattr), 'required':False}
 dnumber= {'widget':forms.NumberInput(attrs={'style':'width:100%','rows':3}),
 	'required':False}
 dselect2 = make_select2_attr(input_length = 0)
+dselect2_50p = make_select2_attr(input_length = 0, width="50")
 dselect2n2 = make_select2_attr(input_length = 2)
 
 
@@ -188,6 +195,32 @@ class PersonForm(forms.ModelForm):
 		return response
 
 
+class PersonSearchForm(forms.ModelForm):
+	name = forms.CharField(**dchar)
+	genderlist = forms.ModelMultipleChoiceField(
+		queryset = Gender.objects.all(),
+		widget = GendersWidget(**dselect2),
+		required = False)
+	religionlist = forms.ModelMultipleChoiceField(
+		queryset = Religion.objects.all(),
+		widget = ReligionsWidget(**dselect2),
+		required = False)
+	ptypelist = forms.ModelMultipleChoiceField(
+		queryset = PersonType.objects.all().order_by('name'),
+		widget = PersonTypesWidget(**dselect2),
+		required = False)
+	birth_year = forms.CharField(**dchar_30b)
+	death_year = forms.CharField(**dchar_30e)
+	start_reign = forms.CharField(**dchar_30b)
+	end_reign = forms.CharField(**dchar_30e)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Person
+		fields = []
+
+
 class LocationForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
 	loctype = forms.ModelChoiceField(
@@ -236,6 +269,32 @@ class InstitutionForm(forms.ModelForm):
 		fields = fields.split(',')
 
 
+class InstitutionSearchForm(forms.ModelForm):
+    """Facilitate searching and browsing through System"""
+
+    any = forms.CharField(**dchar)
+    original_name = forms.CharField(**dchar)
+    ottoman_name = forms.CharField(**dchar)
+    english_name = forms.CharField(**dchar)
+    turkish_name = forms.CharField(**dchar)
+    simple_name = forms.CharField(**dchar)
+    description = forms.CharField(**dtext)
+    comments = forms.CharField(**dtext)
+    religionlist = forms.ModelMultipleChoiceField(
+        queryset = Religion.objects.all(),
+        widget = ReligionsWidget(**dselect2),
+        required = False)
+    instypelist = forms.ModelMultipleChoiceField(
+        queryset = InstitutionType.objects.all().order_by('name'),
+        widget = InstitutionTypesWidget(**dselect2),
+        required = False)
+    
+    class Meta:
+        model = Institution
+        fields = []
+
+
+
 class ReligionForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
 	description = forms.CharField(**dtext)
@@ -244,6 +303,16 @@ class ReligionForm(forms.ModelForm):
 	class Meta:
 		model = Religion
 		fields = 'name,description,comments'.split(',')
+
+
+class ReligionSearchForm(forms.ModelForm):
+	name = forms.CharField(**dchar)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Religion
+		fields = []
 
 
 class EventForm(forms.ModelForm):

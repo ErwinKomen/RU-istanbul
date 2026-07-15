@@ -243,6 +243,29 @@ class Religion(models.Model, info):
             oErr.DoError("Religion/get_description_md")
         return sBack
 
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("Religion/get_value")
+
+        return sBack
+
 
 class System(models.Model, info):
     """A water system, such as a 'waterway' - a channel"""
@@ -400,15 +423,36 @@ class Person(models.Model, info):
         oErr = ErrHandle()
         try:
 
-            if field == "gender":
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field == "gender":
                 if not self.gender is None:
                     sBack = self.gender.name
             elif field == "religion":
                 if not self.religion is None:
                     sBack = self.religion.name
+            elif field == "birth_year":
+                if not self.birth_year is None:
+                    sBack = self.birth_year
+            elif field == "death_year":
+                if not self.death_year is None:
+                    sBack = self.death_year
+            elif field == "start_reign":
+                if not self.start_reign is None:
+                    sBack = self.start_reign
+            elif field == "end_reign":
+                if not self.end_reign is None:
+                    sBack = self.end_reign
             elif field == "type":
                 if not self.ptype is None:
                     sBack = self.ptype.get_fullname()
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Person/get_value")
@@ -490,12 +534,33 @@ class Institution(models.Model, info):
         oErr = ErrHandle()
         try:
 
-            if field == "instittype":
+            if field == "name" or field == "english_name":
+                if not self.english_name is None:
+                    sBack = self.english_name
+            elif field == "original_name":
+                if not self.original_name is None:
+                    sBack = self.original_name
+            elif field == "ottoman_name":
+                if not self.ottoman_name is None:
+                    sBack = self.ottoman_name
+            elif field == "turkish_name":
+                if not self.turkish_name is None:
+                    sBack = self.turkish_name
+            elif field == "simple_name":
+                if not self.simple_name is None:
+                    sBack = self.simple_name
+            elif field in  ["instittype", "instype"]:
                 if not self.institution_type is None:
                     sBack = self.institution_type.name
             elif field == "religion":
                 if not self.religion is None:
                     sBack = self.religion.name
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Institution/get_value")

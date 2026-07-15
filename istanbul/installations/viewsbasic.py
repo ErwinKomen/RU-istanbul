@@ -21,6 +21,7 @@ from .models import Person, EventPersonRelation
 from .models import Institution, EventInstitutionRelation
 from .models import Location, LocType
 from .models import PersonSymbol, PersonType
+from .models import Religion
 # Regular forms
 from .forms import SystemForm, PersonForm, InstallationForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
@@ -35,9 +36,12 @@ from .forms import LocationForm, PersonSymbolForm, PersonTypeForm
 from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
 from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import EventLiteratureRelationForm
+from .forms import ReligionForm, ReligionSearchForm
+
 # Search forms
 from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
-from .forms import LiteratureSearchForm, SystemSearchForm
+from .forms import LiteratureSearchForm, SystemSearchForm, PersonSearchForm
+from .forms import InstitutionSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -1381,7 +1385,8 @@ class InstitutionEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Institution', 'app_name': 'installations' })
+        # self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Institution', 'app_name': 'installations' })
+        self.listview = reverse('institution_list')
         return None
 
     def add_to_context(self, context, instance):
@@ -1484,6 +1489,126 @@ class InstitutionDetails(InstitutionEdit):
 
         # Return the context we have made
         return context
+
+
+class InstitutionList(BasicList):
+    """List and search view for Institution"""
+
+    model = Institution 
+    listform = InstitutionSearchForm
+    prefix = "inst"
+    has_select2 = True
+    sg_name = "Institution"         # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Institutions"    # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    # 'english_name', 'turkish_name', 'original_name', 'ottoman_name', 'simple_name', 'location__name'
+    order_cols = ['english_name', 'turkish_name', 'original_name', 'ottoman_name', 'simple_name',
+                 'institution_type__name', 'religion__name']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'English name',    'order': 'o=1', 'type': 'str', 'custom': 'english_name',    'linkdetails': True,  'main': True},
+        {'name': 'Turkish name',    'order': 'o=2', 'type': 'str', 'custom': 'turkish_name',    'linkdetails': True               },
+        {'name': 'Original name',   'order': 'o=3', 'type': 'str', 'custom': 'original_name',   'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Ottoman name',    'order': 'o=4', 'type': 'str', 'custom': 'ottoman_name',    'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Simple name',     'order': 'o=5', 'type': 'str', 'custom': 'simple_name',     'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Institution type','order': 'o=6', 'type': 'str', 'custom': 'institution_type','linkdetails': True, 'autohide': 'on'},
+        {'name': 'Religion',        'order': 'o=7', 'type': 'str', 'custom': 'religion',        'linkdetails': True, 'autohide': 'on'},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "English name",    "id": "filter_engname",     "enabled": False},
+        {"name": "Original name",   "id": "filter_orgname",     "enabled": False},
+        {"name": "Ottoman name",    "id": "filter_ottname",     "enabled": False},
+        {"name": "Turkish name",    "id": "filter_turname",     "enabled": False},
+        {"name": "Simple name",     "id": "filter_simname",     "enabled": False},
+        {"name": "Institution type","id": "filter_itype",       "enabled": False},
+        {"name": "Religion",        "id": "filter_religion",    "enabled": False},
+        {"name": "Description",     "id": "filter_description", "enabled": False},
+        {"name": "Comments",        "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'engname',       'dbfield': 'english_name',  'keyS': 'english_name'},
+            {'filter': 'orgname',       'dbfield': 'original_name', 'keyS': 'original_name'},
+            {'filter': 'ottname',       'dbfield': 'ottoman_name',  'keyS': 'ottoman_name'},
+            {'filter': 'turname',       'dbfield': 'turkish_name',  'keyS': 'turkish_name'},
+            {'filter': 'simname',       'dbfield': 'simple_name',   'keyS': 'simple_name'},
+            {'filter': 'itype',         'fkfield': 'institution_type','keyFk': 'name', 
+             'keyList': 'instypelist',    'infield': 'name'},
+            {'filter': 'religion',      'fkfield': 'religion',          'keyFk': 'name', 
+             'keyList': 'religionlist',    'infield': 'name'},
+            {'filter': 'description',   'dbfield': 'text',          'keyS': 'text'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_institution")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(english_name__icontains=str_any) | \
+                    Q(original_name__icontains=str_any) | \
+                    Q(ottoman_name__icontains=str_any) | \
+                    Q(turkish_name__icontains=str_any) | \
+                    Q(simple_name__icontains=str_any) | \
+                    Q(institution_type__name__icontains=str_any) | \
+                    Q(religion__name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 
 
 # --------------------- Literature ------------------------------------
@@ -1788,13 +1913,21 @@ class LiteratureList(BasicList):
         return None
 
     def add_to_context(self, context, initial):
-        may_add = context['is_app_moderator'] or context['is_app_developer']
-        if may_add:
-            # Allow creation of new item(s)
-            self.new_button = True
-            context['new_button'] = self.new_button
-            self.basic_add = reverse("installations:add_literature")
-            context['basic_add'] = self.basic_add
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_literature")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LiteratureList/add_to_context")
         return context
 
     def get_field_value(self, instance, custom):
@@ -1877,7 +2010,8 @@ class PersonEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Person', 'app_name': 'installations' })
+        # self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Person', 'app_name': 'installations' })
+        self.listview = reverse('person_list')
         return None
 
     def add_to_context(self, context, instance):
@@ -1985,6 +2119,124 @@ class PersonDetails(PersonEdit):
 
         # Return the context we have made
         return context
+
+
+class PersonList(BasicList):
+    """List and search view for Person"""
+
+    model = Person 
+    listform = PersonSearchForm
+    prefix = "per"
+    has_select2 = True
+    sg_name = "Person"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Persons"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'gender__name', 'birth_year', 'death_year', 'start_reign', 'end_reign',
+                 'ptype__name', 'religion__name']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
+        {'name': 'Gender',      'order': 'o=2', 'type': 'str', 'custom': 'gender',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Born',        'order': 'o=3', 'type': 'int', 'custom': 'birth_year',  'linkdetails': True               },
+        {'name': 'Died',        'order': 'o=4', 'type': 'int', 'custom': 'death_year',  'linkdetails': True               },
+        {'name': 'Start reign', 'order': 'o=5', 'type': 'int', 'custom': 'start_reign', 'linkdetails': True               },
+        {'name': 'End reign',   'order': 'o=6', 'type': 'int', 'custom': 'end_reign',   'linkdetails': True               },
+        {'name': 'Type',        'order': 'o=7', 'type': 'str', 'custom': 'type',        'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Religion',    'order': 'o=8', 'type': 'str', 'custom': 'religion',    'linkdetails': True, 'autohide': 'on'},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "Name",        "id": "filter_name",        "enabled": False},
+        {"name": "Gender",      "id": "filter_gender",      "enabled": False},
+        {"name": "Life",        "id": "filter_life",        "enabled": False},
+        {"name": "Reign",       "id": "filter_reign",       "enabled": False},
+        {"name": "Religion",    "id": "filter_religion",    "enabled": False},
+        {"name": "Type",        "id": "filter_ptype",       "enabled": False},
+        {"name": "Description", "id": "filter_description", "enabled": False},
+        {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'gender',        'fkfield': 'gender',        'keyFk': 'name', 
+             'keyList': 'genderlist',    'infield': 'name'},
+            {'filter': 'life',          'dbfield': 'birth_year__gte',   'keyS': 'birth_year'},
+            {'filter': 'life',          'dbfield': 'death_year__lte',   'keyS': 'death_year'},
+            {'filter': 'reign',         'dbfield': 'start_reign__gte',  'keyS': 'start_reign'},
+            {'filter': 'reign',         'dbfield': 'end_reign__lte',    'keyS': 'end_reign'},
+            {'filter': 'religion',      'fkfield': 'religion',          'keyFk': 'name', 
+             'keyList': 'religionlist',    'infield': 'name'},
+            {'filter': 'ptype',         'fkfield': 'ptype',         'keyFk': 'name', 
+             'keyList': 'ptypelist',    'infield': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_person")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(name__icontains=str_any) | \
+                    Q(gender___name__icontains=str_any) | \
+                    Q(religion__name__icontains=str_any) | \
+                    Q(ptype__name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("PersonList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 
 
 # --------------------- Person Symbol ------------------------------------
@@ -2523,6 +2775,239 @@ class PurposeList(BasicList):
         return sBack, sTitle
 
 
+# --------------------- Person ----------------------------------------------
+
+class ReligionEdit(BasicDetails):
+    """Simple view mode of [Religion]"""
+
+    model = Religion
+    mForm = ReligionForm
+    prefix = "rel"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        # self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Religion', 'app_name': 'installations' })
+        self.listview = reverse('religion_list')
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.name                  },
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()  },
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments              },
+            ]
+            context['title'] = "View Religion"
+            context['editview'] = reverse("installations:edit_religion", kwargs={'pk': instance.id})
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ReligionDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class ReligionDetails(ReligionEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(ReligionDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            resizable = True
+            index = 1 
+            sort_start = '<span class="sortable"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_int = '<span class="sortable integer"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
+            sort_end = '</span>'
+
+            # ============= List of Persons that link to this Religion ================
+            persons = dict(title="Persons connected to this Religion", prefix="evnt")
+            if resizable: persons['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = Person.objects.filter(religion=instance).order_by('name')
+            for item in qs:
+                person = item
+                url = reverse("person_details", kwargs={'pk': person.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of person
+                add_rel_item(rel_item, person.name, False, main=True, nowrap=False, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            persons['rel_list'] = rel_list
+
+            persons['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Person</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(persons)
+
+            # ============= List of Institutions that link to this Religion ================
+            institutions = dict(title="Institutions connected to this Religion", prefix="evnt")
+            if resizable: institutions['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = Institution.objects.filter(religion=instance).order_by(
+                'english_name', 'turkish_name', 'institution_type__name')
+            for item in qs:
+                institution = item
+                url = reverse("institution_details", kwargs={'pk': institution.id})
+                # url_relation = reverse("institutionperson_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of institution
+                add_rel_item(rel_item, institution.english_name, False, main=True, nowrap=False, link=url)
+
+                # Turkish name of institution
+                add_rel_item(rel_item, institution.turkish_name, False, main=True, nowrap=False, link=url)
+
+                # Type of institution
+                add_rel_item(rel_item, item.get_value('institution_type'), False, main=False, nowrap=True, link=url)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            institutions['rel_list'] = rel_list
+
+            institutions['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>English name</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Turkish name</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Institution type</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(institutions)
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ReligionDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class ReligionList(BasicList):
+    """List and search view for Religion"""
+
+    model = Religion 
+    listform = ReligionSearchForm
+    prefix = "per"
+    has_select2 = True
+    sg_name = "Religion"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Religions"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'description']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
+        {'name': 'Description', 'order': 'o=2', 'type': 'str', 'custom': 'description', 'linkdetails': True, 'autohide': 'on'},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "Name",        "id": "filter_name",        "enabled": False},
+        {"name": "Description", "id": "filter_description", "enabled": False},
+        {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_religion")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ReligionList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ReligionList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ReligionList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
+
+
 # --------------------- System ----------------------------------------------
 
 class SystemEdit(BasicDetails):
@@ -2689,13 +3174,21 @@ class SystemList(BasicList):
         ] 
 
     def add_to_context(self, context, initial):
-        may_add = context['is_app_moderator'] or context['is_app_developer']
-        if may_add:
-            # Allow creation of new item(s)
-            self.new_button = True
-            context['new_button'] = self.new_button
-            self.basic_add = reverse("installations:add_system")
-            context['basic_add'] = self.basic_add
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_system")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemList/add_to_context")
         return context
 
     def get_field_value(self, instance, custom):

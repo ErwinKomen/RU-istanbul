@@ -19,9 +19,9 @@
         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
           <a class="dropdown-item" href="{% url 'system_list' %}">System</a>
           <a class="dropdown-item" href="{% url 'installation_list'%}">Installation</a>
-          <a class="dropdown-item" href="{% url 'utilities:list_view' 'Person' 'installations' %}">Person</a>
-          <a class="dropdown-item" href="{% url 'utilities:list_view' 'Institution' 'installations' %}">Institution</a>
-          <a class="dropdown-item" href="{% url 'utilities:list_view' 'Religion' 'installations' %}">Religion</a>
+          <a class="dropdown-item" href="{% url 'person_list' %}">Person</a>
+          <a class="dropdown-item" href="{% url 'institution_list' %}">Institution</a>
+          <a class="dropdown-item" href="{% url 'religion_list' %}">Religion</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="{% url 'utilities:list_view' 'Event' 'installations' %}">Event</a>
           <a class="dropdown-item" href="{% url 'literature_list' %}">Literature</a>

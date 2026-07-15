@@ -24,15 +24,16 @@ from installations.views import nlogin, login_as_user, npermission  #, \
 from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     InstallationDetails, InstallationEdit, InstallationList, InstallationMap, InstallationListMap, InstallationFocusMap, \
     InstallationTypeDetails, InstallationTypeEdit, \
-    PersonEdit, PersonDetails, \
+    PersonEdit, PersonDetails, PersonList, \
     PurposeEdit, PurposeDetails, PurposeList, \
     LocationEdit, LocationDetails, \
     LiteratureEdit, LiteratureDetails, LiteratureList, \
     EventEdit, EventDetails, EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
-    InstitutionEdit, InstitutionDetails, \
+    InstitutionEdit, InstitutionDetails, InstitutionList, \
     ImageEdit, ImageDetails, ImageList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
-    PersonTypeEdit, PersonTypeDetails, PersonTypeList
+    PersonTypeEdit, PersonTypeDetails, PersonTypeList, \
+    ReligionEdit, ReligionDetails, ReligionList
 from accounts.views import RegisterView
 from cms.views import CitemDetails, CitemEdit,CitemListView, CitemSafe, \
     CpageDetails, CpageEdit, CpageListView, CpageAdd, \
@@ -75,6 +76,7 @@ urlpatterns = [
 
 	re_path('institution/edit(?:/(?P<pk>\d+))?/$', InstitutionEdit.as_view(), name='institution_edit'),
 	re_path('institution/details(?:/(?P<pk>\d+))?/$', InstitutionDetails.as_view(), name='institution_details'),
+	re_path('institution/list/$', InstitutionList.as_view(), name='institution_list'),
 
 	re_path('literature/edit(?:/(?P<pk>\d+))?/$', LiteratureEdit.as_view(), name='literature_edit'),
 	re_path('literature/details(?:/(?P<pk>\d+))?/$', LiteratureDetails.as_view(), name='literature_details'),
@@ -82,6 +84,7 @@ urlpatterns = [
 
 	re_path('person/edit(?:/(?P<pk>\d+))?/$', PersonEdit.as_view(), name='person_edit'),
 	re_path('person/details(?:/(?P<pk>\d+))?/$', PersonDetails.as_view(), name='person_details'),
+	re_path('person/list/$', PersonList.as_view(), name='person_list'),
 
 	re_path('purpose/edit(?:/(?P<pk>\d+))?/$', PurposeEdit.as_view(), name='purpose_edit'),
 	re_path('purpose/details(?:/(?P<pk>\d+))?/$', PurposeDetails.as_view(), name='purpose_details'),
@@ -90,6 +93,10 @@ urlpatterns = [
 	re_path('system/edit(?:/(?P<pk>\d+))?/$', SystemEdit.as_view(), name='system_edit'),
 	re_path('system/details(?:/(?P<pk>\d+))?/$', SystemDetails.as_view(), name='system_details'),
 	re_path('system/list/$', SystemList.as_view(), name='system_list'),
+
+	re_path('religion/edit(?:/(?P<pk>\d+))?/$', ReligionEdit.as_view(), name='religion_edit'),
+	re_path('religion/details(?:/(?P<pk>\d+))?/$', ReligionDetails.as_view(), name='religion_details'),
+	re_path('religion/list/$', ReligionList.as_view(), name='religion_list'),
 
 	re_path('location/edit(?:/(?P<pk>\d+))?/$', LocationEdit.as_view(), name='location_edit'),
 	re_path('location/details(?:/(?P<pk>\d+))?/$', LocationDetails.as_view(), name='location_details'),

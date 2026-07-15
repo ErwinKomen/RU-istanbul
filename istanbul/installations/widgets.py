@@ -101,6 +101,17 @@ class GenderWidget(ModelSelect2Widget):
         return Gender.objects.all().order_by('name')
 
 
+class GendersWidget(ModelSelect2MultipleWidget):
+    model = Gender
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return Gender.objects.all().order_by('name')
+
+
 class ImagesWidget(ModelSelect2MultipleWidget):
     model = Image
     search_fields = ['title__icontains']
@@ -191,6 +202,17 @@ class InstallationWidget(ModelSelect2Widget):
 
 
 class InstitutionTypeWidget(ModelSelect2Widget):
+    model = InstitutionType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return InstitutionType.objects.all().order_by('name')
+
+
+class InstitutionTypesWidget(ModelSelect2MultipleWidget):
     model = InstitutionType
     search_fields = ['name__icontains']
 
@@ -316,6 +338,17 @@ class PersonTypeWidget(ModelSelect2Widget):
         return PersonType.objects.all().order_by('name')
 
 
+class PersonTypesWidget(ModelSelect2MultipleWidget):
+    model = PersonType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return PersonType.objects.all().order_by('name')
+
+
 class PurposeWidget(ModelSelect2Widget):
     model = Purpose
     search_fields = ['name__icontains']
@@ -339,6 +372,17 @@ class PurposesWidget(ModelSelect2MultipleWidget):
 
 
 class ReligionWidget(ModelSelect2Widget):
+    model = Religion
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return Religion.objects.all().order_by('name')
+
+
+class ReligionsWidget(ModelSelect2MultipleWidget):
     model = Religion
     search_fields = ['name__icontains']
 
