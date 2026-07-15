@@ -18,7 +18,7 @@ from .models import ExternalLink
 from .widgets import SystemWidget, ReligionWidget, ReligionsWidget, GenderWidget, GendersWidget, PersonsWidget
 from .widgets import InstitutionTypeWidget,InstitutionTypesWidget, InstitutionsWidget,ImagesWidget
 from .widgets import InstitutionWidget, EventRoleWidget
-from .widgets import EventTypeWidget,StyleWidget,FigureWidget, DateTypeWidget
+from .widgets import EventTypeWidget,EventTypesWidget,StyleWidget,FigureWidget, DateTypeWidget,DateTypesWidget
 from .widgets import InstallationTypeWidget,InstallationStatusWidget,InstallationWidget
 from .widgets import InstallationTypesWidget,InstallationStatusesWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
@@ -26,6 +26,7 @@ from .widgets import EventWidget, EventsWidget, PersonWidget
 from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
 from .widgets import PersonSymbolWidget, PersonSymbolsWidget, PersonTypeWidget, PersonTypesWidget
 from .widgets import ImageTypeWidget, ImageTypesWidget
+from .widgets import FiguresWidget
 
 # From our own application
 from utils.select2 import  make_select2_attr
@@ -294,7 +295,6 @@ class InstitutionSearchForm(forms.ModelForm):
         fields = []
 
 
-
 class ReligionForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
 	description = forms.CharField(**dtext)
@@ -419,6 +419,33 @@ class EventForm(forms.ModelForm):
 					raise ValidationError("End date may not be before the start date")
 		# If all went well
 		return data
+
+
+class EventSearchForm(forms.ModelForm):
+	name = forms.CharField(**dchar)
+	start_date = forms.CharField(label="Date start", required=False, 
+			widget=forms.TextInput(attrs={'placeholder': 'Starting from...',  'style': 'width: 30%;', 'class': 'searching'}))
+	end_date = forms.CharField(label="Date end", required=False, 
+			widget=forms.TextInput(attrs={'placeholder': 'Until (including)...',  'style': 'width: 30%;', 'class': 'searching'}))
+	eventtypelist = forms.ModelMultipleChoiceField(queryset = EventType.objects.all(),
+		widget = EventTypesWidget(**dselect2),required = False)
+	endtypelist = forms.ModelMultipleChoiceField(queryset = DateType.objects.all(),
+		widget = DateTypesWidget(attrs={'style': 'width: 50%;', 'data-minimum-input-length': 0}),
+		required = False)
+	figurelist = forms.ModelMultipleChoiceField(queryset = Figure.objects.all(),
+		widget = FiguresWidget(**dselect2),required = False)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	# date_comments = forms.CharField(**dtext)
+	# #images = forms.ModelMultipleChoiceField(
+	# #	queryset = Image.objects.all(),
+	# #	widget = ImagesWidget(**dselect2),
+	# #	required = False)
+
+	class Meta:
+		model = Event
+		fields = []
 
 
 class LiteratureForm(forms.ModelForm):

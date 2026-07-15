@@ -19,7 +19,29 @@ class DateTypeWidget(ModelSelect2Widget):
         return DateType.objects.all().order_by('name')
 
 
+class DateTypesWidget(ModelSelect2MultipleWidget):
+    model = DateType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return DateType.objects.all().order_by('name')
+
+
 class EventTypeWidget(ModelSelect2Widget):
+    model = EventType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return EventType.objects.all().order_by('name')
+
+
+class EventTypesWidget(ModelSelect2MultipleWidget):
     model = EventType
     search_fields = ['name__icontains']
 
@@ -80,6 +102,17 @@ class EventRoleWidget(ModelSelect2Widget):
 
 
 class FigureWidget(ModelSelect2Widget):
+    model = Figure
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return Figure.objects.all().order_by('name')
+
+
+class FiguresWidget(ModelSelect2MultipleWidget):
     model = Figure
     search_fields = ['name__icontains']
 

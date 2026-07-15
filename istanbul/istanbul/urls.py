@@ -28,7 +28,8 @@ from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     PurposeEdit, PurposeDetails, PurposeList, \
     LocationEdit, LocationDetails, \
     LiteratureEdit, LiteratureDetails, LiteratureList, \
-    EventEdit, EventDetails, EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
+    EventEdit, EventDetails, EventList, \
+    EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
     InstitutionEdit, InstitutionDetails, InstitutionList, \
     ImageEdit, ImageDetails, ImageList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
@@ -59,6 +60,7 @@ urlpatterns = [
 
 	re_path('event/edit(?:/(?P<pk>\d+))?/$', EventEdit.as_view(), name='event_edit'),
 	re_path('event/details(?:/(?P<pk>\d+))?/$', EventDetails.as_view(), name='event_details'),
+	re_path('event/list/$', EventList.as_view(), name='event_list'),
 
 	re_path('image/edit(?:/(?P<pk>\d+))?/$', ImageEdit.as_view(), name='image_edit'),
 	re_path('image/details(?:/(?P<pk>\d+))?/$', ImageDetails.as_view(), name='image_details'),

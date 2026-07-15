@@ -1065,20 +1065,33 @@ class Event(models.Model, info):
         lst_value = []
         oErr = ErrHandle()
         try:
-            if field == "startdate":
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field in ["startdate", "start_date"]:
                 if not self.start_date is None:
                     sBack = self.start_date.year
-            elif field == "enddate":
+            elif field in ["enddate", "end_date"]:
                 if not self.end_date is None:
                     sBack = self.end_date.year
                     if "type" in options:
                         # Add the end date type
                         sBack = "{} ({})".format(sBack, self.end_date_type.description)
-            elif field == "eventtype":
+            elif field in [ "eventtype", "event_type"]:
                 if self.event_type is None:
                     sBack = "(no event type)"
                 else:
                     sBack = self.event_type.name
+            elif field == "end_date_type":
+                if self.end_date_type is None:
+                    sBack = "(no end_date_type)"
+                else:
+                    sBack = self.end_date_type.name
+            elif field == "figure":
+                if self.figure is None:
+                    sBack = "(no figure)"
+                else:
+                    sBack = self.figure.name
             elif field == "installations":
                 # Sort the installations by their English name, if possible
                 for oItem in self.installation_set.exclude(installation_status__name="hide").values(

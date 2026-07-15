@@ -41,7 +41,7 @@ from .forms import ReligionForm, ReligionSearchForm
 # Search forms
 from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
 from .forms import LiteratureSearchForm, SystemSearchForm, PersonSearchForm
-from .forms import InstitutionSearchForm
+from .forms import InstitutionSearchForm, EventSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -338,6 +338,121 @@ class EventDetails(EventEdit):
 
         # Return the context we have made
         return context
+
+
+class EventList(BasicList):
+    """List and search view for Event"""
+
+    model = Event 
+    listform = EventSearchForm
+    prefix = "evn"
+    has_select2 = True
+    sg_name = "Event"         # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Events"    # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'start_date', 'end_date', 'end_date_type', 
+                 'event_type__name', 'figure__name']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',            'linkdetails': True,  'main': True},
+        {'name': 'Start',       'order': 'o=2', 'type': 'int', 'custom': 'start_date',      'linkdetails': True               },
+        {'name': 'End',         'order': 'o=3', 'type': 'int', 'custom': 'end_date',        'linkdetails': True               },
+        {'name': 'End type',    'order': 'o=4', 'type': 'str', 'custom': 'end_date_type',   'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Event type',  'order': 'o=5', 'type': 'str', 'custom': 'event_type',      'linkdetails': True, 'autohide': 'on'},
+        {'name': 'Figure',      'order': 'o=6', 'type': 'str', 'custom': 'figure',          'linkdetails': True, 'autohide': 'on'},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "Name",        "id": "filter_name",        "enabled": False},
+        {"name": "Start",       "id": "filter_start",       "enabled": False},
+        {"name": "End",         "id": "filter_end",         "enabled": False},
+        {"name": "End type",    "id": "filter_endtype",     "enabled": False},
+        {"name": "Event type",  "id": "filter_eventtype",   "enabled": False},
+        {"name": "Figure",      "id": "filter_figure",      "enabled": False},
+        {"name": "Description", "id": "filter_description", "enabled": False},
+        {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'start',         'dbfield': 'start_date__gte',    'keyS': 'start_date'},
+            {'filter': 'end',           'dbfield': 'end_date__lte',      'keyS': 'end_date'},
+            {'filter': 'eventtype',     'fkfield': 'event_type','keyFk': 'name', 
+             'keyList': 'eventtypelist','infield': 'name'},
+            {'filter': 'endtype',       'fkfield': 'end_date_type','keyFk': 'name', 
+             'keyList': 'endtypelist',  'infield': 'name'},
+            {'filter': 'description',   'dbfield': 'text',          'keyS': 'text'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_event")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(name__icontains=str_any) | \
+                    Q(start_date__icontains=str_any) | \
+                    Q(end_date__icontains=str_any) | \
+                    Q(event_type__name__icontains=str_any) | \
+                    Q(end_type__name__icontains=str_any) | \
+                    Q(event_type__name__icontains=str_any) | \
+                    Q(figure__name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 
 
 # --------------------- EventLiterature ------------------------------------
