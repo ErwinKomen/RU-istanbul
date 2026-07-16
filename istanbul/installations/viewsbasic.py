@@ -14,7 +14,8 @@ import json
 from unidecode import unidecode
 
 # From own applicatino
-from .models import EventInstallationRelation, EventType, ImageInstallationRelation, System, Image, Installation, SystemInstallationRelation
+from .models import EventInstallationRelation, EventType, ImageInstallationRelation, System
+from .models import Image, Installation, SystemInstallationRelation, ImageSystemRelation
 from .models import InstallationType, Purpose
 from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
@@ -23,6 +24,7 @@ from .models import Location, LocType
 from .models import PersonSymbol, PersonType
 from .models import Religion
 from .models import TextType, EventRole, InstitutionType
+from .models import SystemLiteratureRelation
 # Regular forms
 from .forms import SystemForm, PersonForm, InstallationForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
@@ -38,6 +40,7 @@ from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
 from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import EventLiteratureRelationForm
 from .forms import ReligionForm, ReligionSearchForm
+from .forms import SystemLiteratureRelationForm
 # Forms based on BasicTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstitutionTypeForm
 from .forms import EventRoleForm, PersonTypeForm, PersonSymbolForm
@@ -732,6 +735,68 @@ class EventLiteratureRelationDetails(EventLiteratureRelationEdit):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("EventLiteratureRelationDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+# --------------------- EventLiterature ------------------------------------
+
+
+class SystemLiteratureRelationEdit(BasicDetails):
+    """Simple view mode of [SystemLiteratureRelation]"""
+
+    model = SystemLiteratureRelation
+    mForm = SystemLiteratureRelationForm
+    prefix = "evlit"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        self.listview = reverse('utilities:list_view', kwargs={
+            'model_name': 'SystemLiteratureRelation', 'app_name': 'installations'})
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'page number',   'value': instance.get_value("pages")},
+                {'type': 'plain', 'label': 'text type',     'value': instance.get_value("texttype")},
+                {'type': 'plain', 'label': 'text',          'value': instance.get_value("text")},
+            ]
+            context['title'] = "View installation type"
+            context['editview'] = reverse("installations:edit_systemliterature", kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemLiteratureRelationDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class SystemLiteratureRelationDetails(SystemLiteratureRelationEdit):
+    rtype = "html"
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        # First get the 'standard' context from TestsetEdit
+        context = super(SystemLiteratureRelationDetails, self).add_to_context(context, instance)
+
+        oErr = ErrHandle()
+        try:
+                
+            # Lists of related objects
+            related_objects = []
+
+            # Add all related objects to the context
+            context['related_objects'] = related_objects
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemLiteratureRelationDetails/add_to_context")
 
         # Return the context we have made
         return context
@@ -3634,6 +3699,73 @@ class SystemDetails(SystemEdit):
 
             # Add all related objects to the context
             context['related_objects'] = related_objects
+
+            # ============ List of Literature that links to this System ===========================================
+            literatures = dict(title="Literature connected to this System", prefix="litr", 
+                               classes="collapse", label="Literature")
+            if resizable: literatures['gridclass'] = "resizable"
+
+            rel_list = []
+            qs = SystemLiteratureRelation.objects.filter(system=instance, literature__isnull=False).order_by('literature__code')
+            for item in qs:
+                literature = item.literature
+                url = reverse("literature_details", kwargs={'pk': literature.id})
+                url_relation = reverse("systemliteraturerelation_details", kwargs={'pk': item.id})
+                # url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Code for this literature
+                add_rel_item(rel_item, literature.code, False, main=False, nowrap=False, link=url)
+
+                # Page number of this code
+                add_rel_item(rel_item, item.page_number, False, main=False, nowrap=True, link=url_relation)
+
+                ## Title of literature
+                #add_rel_item(rel_item, literature.title, False, main=False, nowrap=False, link=url)
+
+                # Excerpt on literature page
+                add_rel_item(rel_item, item.text, False, main=False, nowrap=False, link=url_relation)
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            literatures['rel_list'] = rel_list
+
+            literatures['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Code</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Page</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Excerpt</span>{}'.format(sort_start, sort_end), 
+                ]
+            related_objects.append(literatures)
+
+            # ============================ END OF RELATED OBJECTS ================================================
+
+            lHtml = []
+            if 'after_details' in context:
+                lHtml.append(context['after_details'])
+
+            # Figure out the list of images
+            lst_image = []
+            # Ordered queryset:
+            for obj_rel in ImageSystemRelation.objects.filter(system=instance).order_by('order'):
+                obj = obj_rel.image
+                # Get the general image-showing-HTML code
+                img_html, sTitle, sInfo = obj.get_image_html()
+                bGeojson = (not obj.geojson is None)
+                lst_image.append(dict(img=img_html, title=sTitle, info=sInfo, geojson=bGeojson))
+            if len(lst_image) > 0:
+                context['default'] = lst_image[0]
+            context['pictures'] = lst_image[1:]
+
+            # COmbine and show the additions
+            lHtml.append(render_to_string('installations/system_addition.html', context, self.request))
+            context['after_details'] = "\n".join(lHtml)
+
 
         except:
             msg = oErr.get_error_message()

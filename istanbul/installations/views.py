@@ -19,6 +19,7 @@ from .forms import EventForm, LiteratureForm, InstitutionForm
 from .forms import ReligionForm, ImageForm, FigureForm, StyleForm
 from .forms import LocationForm
 from .forms import systeminstallation_formset, installationsystem_formset
+from .forms import systemliterature_formset, literaturesystem_formset
 from .forms import eventliterature_formset, literatureevent_formset
 from .forms import eventperson_formset, personevent_formset
 from .forms import eventinstitution_formset, institutionevent_formset
@@ -26,7 +27,7 @@ from .forms import PurposeForm, EventRoleForm, InstitutionTypeForm
 from .forms import EventTypeForm, TextTypeForm, InstallationTypeForm
 from .forms import PersonSymbolForm, PersonTypeForm
 from .forms import installationextlink_formset
-from .forms import EventLiteratureRelationForm
+from .forms import EventLiteratureRelationForm, SystemLiteratureRelationForm
 from .forms import partial_year_to_date
 from utilities.views import edit_model
 # EK: adding detail views
@@ -241,8 +242,15 @@ def npermission(request):
 def edit_system(request, pk = None, focus = '', view = 'complete'):
     """Allow adding a new or editing an existing [System] instance"""
 
-    names = 'systeminstallation_formset'
+    names = 'systeminstallation_formset,systemliterature_formset'
     return edit_model(request, __name__, 'System','installations',pk,
+        formset_names = names, focus = focus, view = view)
+
+def edit_systemliterature(request, pk = None, focus = '', view = 'complete'):
+    """Allow adding an existing (not a new) [SystemLiteratureRelation] instance"""
+
+    names = ''
+    return edit_model(request, __name__, 'SystemLiteratureRelation','installations',pk,
         formset_names = names, focus = focus, view = view)
 
 # --------------------- Installation ----------------------------------------

@@ -533,6 +533,12 @@ class System(models.Model, info):
     # [0-1] Location of the system 
     location = models.ForeignKey(Location, null=True, blank=True, on_delete=models.SET_NULL, related_name="locationsystems")
 
+    # ==================== Many-to-many fields ===========================
+    # [0-1] Images related to this system
+    images = models.ManyToManyField("Image",blank=True,default= None, through="ImageSystemRelation")
+    # [0-1] Literature references related to this system
+    litrefs = models.ManyToManyField("Literature",blank=True,default= None, through="SystemLiteratureRelation")
+
     # ============= Standard fields ======================================
     # [1] Description of the system (can be just '')
     description = models.TextField(default = '')
@@ -578,6 +584,23 @@ class System(models.Model, info):
                 # Get the location details
                 if not self.location is None:
                     sBack = self.location.get_value("coordinates", html=True)
+            elif field == "literature":
+                # Get the literature that is linked to this system
+                qs = SystemLiteratureRelation.objects.filter(system__id=self).order_by(
+                    "literature__code", "page_number").values(
+                    "page_number", "text", "literature__code", "literature__id")
+                for oItem in qs:
+                    url = reverse("literature_details", kwargs={'pk': oItem['literature__id']})
+                    label = oItem['literature__code']
+                    page_number = oItem.get("page_number")
+                    if page_number:
+                        label = "{}: {}".format(label, page_number)
+                    sItem = "<span class='badge signature ot'><a class='nostyle' href='{}'>{}</a></span>".format(url, label)
+                    lst_value.append(sItem)
+                if sep:
+                    sBack = sep.join(lst_value)
+                else:
+                    sBack = "\n".join(lst_value)
             elif field == "description":
                 if not self.description is None:
                     sBack = self.description
@@ -1853,7 +1876,7 @@ class Literature(models.Model, info):
 
         except:
             msg = oErr.get_error_message()
-            oErr.DoError("EventLiteratureRelation/get_value")
+            oErr.DoError("Literature/get_value")
 
         return sBack
 
@@ -1928,6 +1951,54 @@ class EventLiteratureRelation(models.Model, info):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("EventLiteratureRelation/get_value")
+
+        return sBack
+
+
+class SystemLiteratureRelation(models.Model, info):
+    """Relation between a system and an literature"""
+
+    # [0-1] Year when link between system and installation started
+    page_number= models.CharField(max_length=100,blank=True,null=True)
+    # The text of the text itself
+    text = models.TextField(default = '')
+    # The file from which the text comes
+    text_file = models.FileField(upload_to='FILES/',null=True,blank=True)
+
+    # ==================== Links to other objects ========================
+    # [0-1] Link to text_type
+    text_type = models.ForeignKey(TextType,**dargs)
+    # [0-1] Link to system
+    system = models.ForeignKey(System,**dargs)
+    # [0-1] Link to literature
+    literature = models.ForeignKey(Literature,**dargs)
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this system-literature relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "texttype" and self.text_type:
+                sBack = self.text_type.name
+            elif field == "pages" and self.page_number:
+                sBack = self.page_number
+            elif field == "text" and self.text:
+                sBack = self.text
+            elif field == "systemname":
+                if self.system is None:
+                    sBack = "(No system)"
+                else:
+                    sBack = self.system.name
+            elif field == "startdate" and not self.system is None:
+                sBack = self.system.get_value("startdate")
+            elif field == "enddate" and not self.system is None:
+                sBack = self.system.get_value("enddate")
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemLiteratureRelation/get_value")
 
         return sBack
 
@@ -2050,6 +2121,37 @@ class ImageInstallationRelation(models.Model, info):
         except:
             msg = oErr.get_error_message()
             oErr.DoError("InstallationImageRelation/get_value")
+
+        return sBack
+
+
+class ImageSystemRelation(models.Model, info):
+    """Relation between a system and an image
+    
+    Note: this is true m2m - images can belong to multiple systems
+    """
+
+    # ==================== Links to other objects ========================
+    # [0-1] Link to image
+    image = models.ForeignKey(Image, on_delete=models.CASCADE, related_name="imagesystem_relations")
+    # [0-1] Link to system
+    system= models.ForeignKey(System, on_delete=models.CASCADE, related_name="imagesystem_relations")
+    # [0-1] Order of this image within the system
+    order = models.IntegerField(default = -1, blank=True, null=True)
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this system-image relation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "order" and self.order:
+                sBack = self.order
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("SystemImageRelation/get_value")
 
         return sBack
 

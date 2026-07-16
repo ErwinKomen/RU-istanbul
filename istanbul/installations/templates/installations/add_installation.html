@@ -196,27 +196,27 @@
           <th><i class="fa fa-times text-danger"></i></th>
         </tr>
         {% for f in installationsystem_formset.forms %}
-        {{f.media.css}}
-        <tr class="d-flex">
-          <td class="col-4">
-            {{f.system}}
-            {{f.system.errors}}
-          </td>
-          <td class="col-3">
-            {{f.start_date}}
-            {{f.start_date.errors}}
-          </td>
-          <td class="col-3">
-            {{f.end_date}}
-            {{f.end_date.errors}}
-          </td>
-          <td class="col-2">
-            {{f.is_part_of}}
-            {{f.is_part_of.errors}}
-          </td>
-          <td class="col-1">{{f.DELETE}} {{f.id}}</td>
-        </tr>
-        {{f.media.js}}
+          {{f.media.css}}
+          <tr class="d-flex">
+            <td class="col-4">
+              {{f.system}}
+              {{f.system.errors}}
+            </td>
+            <td class="col-3">
+              {{f.start_date}}
+              {{f.start_date.errors}}
+            </td>
+            <td class="col-3">
+              {{f.end_date}}
+              {{f.end_date.errors}}
+            </td>
+            <td class="col-2">
+              {{f.is_part_of}}
+              {{f.is_part_of.errors}}
+            </td>
+            <td class="col-1">{{f.DELETE}} {{f.id}}</td>
+          </tr>
+          {{f.media.js}}
         {% endfor %}
       </table>
     </div>
@@ -229,19 +229,19 @@
           <th><i class="fa fa-times text-danger"></i></th>
         </tr>
         {% for f in installationextlink_formset.forms %}
-        {{f.media.css}}
-        <tr class="d-flex">
-          <td class="col-3">
-            {{f.name}}
-            {{f.name.errors}}
-          </td>
-          <td class="col-9">
-            {{f.url}}
-            {{f.url.errors}}
-          </td>
-          <td class="col-1">{{f.DELETE}} {{f.id}}</td>
-        </tr>
-        {{f.media.js}}
+          {{f.media.css}}
+          <tr class="d-flex">
+            <td class="col-3">
+              {{f.name}}
+              {{f.name.errors}}
+            </td>
+            <td class="col-9">
+              {{f.url}}
+              {{f.url.errors}}
+            </td>
+            <td class="col-1">{{f.DELETE}} {{f.id}}</td>
+          </tr>
+          {{f.media.js}}
         {% endfor %}
       </table>
     </div>

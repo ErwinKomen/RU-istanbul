@@ -81,6 +81,15 @@
 				        </td>
             </tr>
             <tr class="d-flex">
+              <th class="col-2">images</th>
+              <td class="col-8">{{form.images}}{{form.images.errors}}</td>
+              <td>
+                <a class="btn btn-link btn-sm ml-auto" target="_blank"
+                   href="{% url 'installations:add_image'  'inline' %}"
+                   role="button"><i class="fa fa-plus"></i></a>
+              </td>
+            </tr>
+            <tr class="d-flex">
                 <th class="col-2">description</th>
                 <td class="col-8">
 					      {{form.description}} 
@@ -135,28 +144,50 @@
             {% for f in systeminstallation_formset.forms %}
 				{{f.media.css}}
                 <tr class ="d-flex">
-                    <td class="col-4">
-						{{f.installation}} 
-						{{f.installation.errors}}
-					</td>
-                    <td class="col-3">
-						{{f.start_date}} 
-						{{f.start_date.errors}}
-					</td>
-                    <td class="col-3">
-						{{f.end_date}} 
-						{{f.end_date.errors}}
-					</td>
-                    <td class="col-2">
-						{{f.is_part_of}} 
-						{{f.is_part_of.errors}}
-					</td>
+                    <td class="col-4">{{f.installation}} {{f.installation.errors}}</td>
+                    <td class="col-3">{{f.start_date}} {{f.start_date.errors}}</td>
+                    <td class="col-3">{{f.end_date}} {{f.end_date.errors}}</td>
+                    <td class="col-2">{{f.is_part_of}} {{f.is_part_of.errors}}</td>
                     <td class="col-1">{{f.DELETE}} {{f.id}}</td>
                 </tr>
 			{{f.media.js}}
             {% endfor %}
         </table>
     </div>
+
+    <div class="tab-pane fade" id="Literature">
+        {{systemliterature_formset.management_form}}
+        <table class="table table-sm">
+          <tr class ="d-flex">
+            <th class="col-2">literature
+              <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+                  href ="{% url 'installations:add_literature'  'inline'%}" role="button">
+                <i class="fa fa-plus"></i></a>
+            </th>
+            <th class="col-1">page</th>
+            <th class="col-3">text</th>
+            <th class="col-3">file</th>
+            <th class="col-2">type
+              <a class = "btn btn-link btn-sm ml-auto" target = "_blank"
+                  href ="{% url 'installations:add_texttype'  'inline' %}" role="button">
+                <i class="fa fa-plus"></i></a>
+            <th><i class="fa fa-times text-danger"></i></th>
+          </tr>
+          {% for f in systemliterature_formset.forms %}
+				    {{f.media.css}}
+              <tr class ="d-flex">
+                <td class="col-2">{{f.literature}} {{f.system.errors}}</td>
+                <td class="col-1">{{f.page_number}} {{f.page_number.errors}}</td>
+                <td class="col-3">{{f.text}} {{f.text.errors}}</td>
+                <td class="col-3">{{f.text_file}} {{f.text_file.errors}}</td>
+                <td class="col-2">{{f.text_type}} {{f.text_type.errors}}</td>
+                <td class="col-1">{{f.DELETE}} {{f.id}}</td>
+              </tr>
+			      {{f.media.js}}
+          {% endfor %}
+        </table>
+    </div>
+
 </div>
 
 {% endif %}

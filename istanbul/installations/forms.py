@@ -10,6 +10,7 @@ from .models import Purpose,InstallationType,InstallationStatus,Installation,Lit
 from .models import SystemInstallationRelation,TextType,DateType
 from .models import EventLiteratureRelation, EventRole, InstitutionType
 from .models import EventInstitutionRelation,EventPersonRelation
+from .models import SystemLiteratureRelation
 from .models import Location, LocType
 from .models import PersonSymbol, PersonType
 from .models import ExternalLink
@@ -66,11 +67,15 @@ class SystemForm(forms.ModelForm):
 		queryset = Location.objects.all(),
 		widget = LocationWidget(**dselect2),
 		required = False)
+	images = forms.ModelMultipleChoiceField(
+		queryset = Image.objects.all(),
+		widget = ImagesWidget(**dselect2),
+		required = False)
 
 	class Meta:
 		model = System
 		fields = 'original_name,ottoman_name,english_name,turkish_name'
-		fields += ',description,comments,location'
+		fields += ',description,comments,location,images'
 		fields = fields.split(',')
 
 
@@ -815,6 +820,29 @@ class SystemInstallationRelationForm(forms.ModelForm):
 		return response
 
 
+class SystemLiteratureRelationForm(forms.ModelForm):
+	system = forms.ModelChoiceField(
+		queryset = System.objects.all(),
+		widget = SystemWidget(**dselect2),
+		required = False)
+	literature = forms.ModelChoiceField(
+		queryset = Literature.objects.all(),
+		widget = LiteratureWidget(**dselect2),
+		required = False)
+	page_number= forms.CharField(**dchar)
+	text = forms.CharField(**dtext)
+	text_type = forms.ModelChoiceField(
+		queryset = TextType.objects.all(),
+		widget = TextTypeWidget(**dselect2),
+		required = False)
+
+	class Meta:
+		model = SystemLiteratureRelation
+		fields = 'system,literature,page_number,text'
+		fields += ',text_file,text_type'
+		fields = fields.split(',')
+
+
 class EventLiteratureRelationForm(forms.ModelForm):
 	event = forms.ModelChoiceField(
 		queryset = Event.objects.all(),
@@ -907,6 +935,13 @@ eventliterature_formset = forms.inlineformset_factory(
 literatureevent_formset = forms.inlineformset_factory(
 	Literature,EventLiteratureRelation,
 	form = EventLiteratureRelationForm, extra = 1)
+
+systemliterature_formset = forms.inlineformset_factory(
+	System,SystemLiteratureRelation,
+	form = SystemLiteratureRelationForm, extra = 1)
+literaturesystem_formset = forms.inlineformset_factory(
+	Literature,SystemLiteratureRelation,
+	form = SystemLiteratureRelationForm, extra = 1)
 
 eventinstitution_formset = forms.inlineformset_factory(
 	Event,EventInstitutionRelation,

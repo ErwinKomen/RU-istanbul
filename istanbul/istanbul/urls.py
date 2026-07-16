@@ -34,7 +34,8 @@ from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     ImageEdit, ImageDetails, ImageList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
     PersonTypeEdit, PersonTypeDetails, PersonTypeList, \
-    ReligionEdit, ReligionDetails, ReligionList
+    ReligionEdit, ReligionDetails, ReligionList, \
+    SystemLiteratureRelationEdit, SystemLiteratureRelationDetails
 # Based on BasicEdit, BasicList
 from installations.viewsbasic import \
     EventTypeEdit, EventTypeDetails, EventTypeList, \
@@ -65,6 +66,9 @@ urlpatterns = [
 	# ================== Views ===================================
 	re_path('eventliterature/edit(?:/(?P<pk>\d+))?/$', EventLiteratureRelationEdit.as_view(), name='eventliteraturerelation_edit'),
 	re_path('eventliterature/details(?:/(?P<pk>\d+))?/$', EventLiteratureRelationDetails.as_view(), name='eventliteraturerelation_details'),
+
+	re_path('systemliterature/edit(?:/(?P<pk>\d+))?/$', SystemLiteratureRelationEdit.as_view(), name='systemliteraturerelation_edit'),
+	re_path('systemliterature/details(?:/(?P<pk>\d+))?/$', SystemLiteratureRelationDetails.as_view(), name='systemliteraturerelation_details'),
 
 	re_path('event/edit(?:/(?P<pk>\d+))?/$', EventEdit.as_view(), name='event_edit'),
 	re_path('event/details(?:/(?P<pk>\d+))?/$', EventDetails.as_view(), name='event_details'),

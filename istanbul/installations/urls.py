@@ -104,6 +104,9 @@ urlpatterns = [
 	path('edit_eventliterature/<int:pk>',views.edit_eventliterature, name = 'edit_eventliterature'),
 	path('edit_eventliterature/<int:pk>/<str:focus>',views.edit_eventliterature, name = 'edit_eventliterature'),
 
+	path('edit_systemliterature/<int:pk>',views.edit_systemliterature, name = 'edit_systemliterature'),
+	path('edit_systemliterature/<int:pk>/<str:focus>',views.edit_systemliterature, name = 'edit_systemliterature'),
+
 	path('edit_purpose/<int:pk>',views.edit_purpose, name = 'edit_purpose'),
 	path('edit_purpose/<int:pk>/<str:focus>',views.edit_purpose, name = 'edit_purpose'),
 
