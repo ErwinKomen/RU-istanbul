@@ -71,28 +71,45 @@ class Location(models.Model, info):
             sBack = self.loctype.name
         return sBack
 
-    def get_value(self, html=False):
-        """Get the value of the location"""
+    def get_value(self, field, html=False):
+        """Get the value(s) of 'field' associated with this installation"""
 
         sBack = ""
+        lst_value = []
         oErr = ErrHandle()
         try:
-            lst_loc = []
-            # Start with the coordinates
-            lst_loc.append("[{},{}]".format(self.x_coordinate, self.y_coordinate))
-            if html:
-                # Possibly add a location type
-                if not self.loctype is None:
-                    lst_loc.append(self.loctype.name)
-                # Add the name of the location
-                if not self.name is None and self.name != "":
-                    lst_loc.append("(={})".format(self.name))
-            sBack = " ".join(lst_loc)
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field == "coordinate":
+                sBack = "{}-{}".format(self.x_coordinate, self.y_coordinate)
+            elif field == "coordinates":
+                lst_loc = []
+                lst_loc.append("[{},{}]".format(self.x_coordinate, self.y_coordinate))
+                if html:
+                    # Possibly add a location type
+                    if not self.loctype is None:
+                        lst_loc.append(self.loctype.name)
+                    # Add the name of the location
+                    if not self.name is None and self.name != "":
+                        lst_loc.append("(={})".format(self.name))
+                sBack = " ".join(lst_loc)
+            elif field == "loctype":
+                if self.loctype:
+                    sBack = self.loctype.name
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+
         except:
             msg = oErr.get_error_message()
             oErr.DoError("Location/get_value")
 
-        return sBack
+        return sBack    
+
 
 
 class PersonSymbol(models.Model, info):
@@ -330,7 +347,7 @@ class System(models.Model, info):
             elif field == "location":
                 # Get the location details
                 if not self.location is None:
-                    sBack = self.location.get_value(html=True)
+                    sBack = self.location.get_value("coordinates", html=True)
             elif field == "description":
                 if not self.description is None:
                     sBack = self.description
@@ -1304,7 +1321,30 @@ class InstallationType(models.Model, info):
             msg = oErr.get_error_message()
             oErr.DoError("InstallationType/get_description_md")
         return sBack
-    
+
+    def get_value(self, field, sep=None, options={}):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationType/get_value")
+
+        return sBack    
+
 
 class InstallationStatus(models.Model, info):
     """An installation type"""
@@ -1522,7 +1562,7 @@ class Installation(models.Model, info):
             elif field == "location":
                 # Get the location details
                 if not self.location is None:
-                    sBack = self.location.get_value(html=True)
+                    sBack = self.location.get_value("coordinate", html=True)
             elif field == "extlinks":
                 # Get the external links
                 lst_item = self.installation_extlinks.all().order_by("name").values(

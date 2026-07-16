@@ -316,6 +316,17 @@ class LocTypeWidget(ModelSelect2Widget):
         return LocType.objects.all().order_by('name')
 
 
+class LocTypesWidget(ModelSelect2MultipleWidget):
+    model = LocType
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return LocType.objects.all().order_by('name')
+
+
 class PersonWidget(ModelSelect2Widget):
     model = Person
     search_fields = ['name__icontains']

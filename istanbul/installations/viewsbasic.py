@@ -41,7 +41,8 @@ from .forms import ReligionForm, ReligionSearchForm
 # Search forms
 from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
 from .forms import LiteratureSearchForm, SystemSearchForm, PersonSearchForm
-from .forms import InstitutionSearchForm, EventSearchForm
+from .forms import InstitutionSearchForm, EventSearchForm, InstallationTypeSearchForm
+from .forms import LocationSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -1439,8 +1440,9 @@ class InstallationTypeEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={
-            'model_name': 'InstallationType', 'app_name': 'installations'})
+        # self.listview = reverse('utilities:list_view', kwargs={
+        #     'model_name': 'InstallationType', 'app_name': 'installations'})
+        self.listview = reverse('installationtype_details')
         return None
 
     def add_to_context(self, context, instance):
@@ -1487,6 +1489,100 @@ class InstallationTypeDetails(InstallationTypeEdit):
 
         # Return the context we have made
         return context
+
+
+class InstallationTypeList(BasicList):
+    """List and search view for InstallationType"""
+
+    model = InstallationType 
+    listform = InstallationTypeSearchForm
+    prefix = "instp"
+    has_select2 = True
+    sg_name = "Installation Type"         # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Installation Types"    # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'description']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True, 'main': True},
+        {'name': 'Description', 'order': 'o=2', 'type': 'str', 'custom': 'description', 'linkdetails': True, 
+         'autohide': 'on', 'allowwrap': True},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "Name",        "id": "filter_name",        "enabled": False},
+        {"name": "Description", "id": "filter_description", "enabled": False},
+        {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_installationtype")
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationTypeList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationTypeList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationTypeList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
 
 
 # --------------------- Institution ----------------------------------------
@@ -2640,7 +2736,8 @@ class LocationEdit(BasicDetails):
     mainitems = []
 
     def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Location', 'app_name': 'installations' })
+        #self.listview = reverse('utilities:list_view', kwargs={'model_name': 'Location', 'app_name': 'installations' })
+        self.listview = reverse("location_list")
         return None
 
     def add_to_context(self, context, instance):
@@ -2689,6 +2786,92 @@ class LocationEdit(BasicDetails):
 
 class LocationDetails(LocationEdit):
     rtype = "html"
+
+
+class LocationList(BasicList):
+    """List and search view for Location"""
+
+    model = Location 
+    listform = LocationSearchForm
+    prefix = "loc"
+    has_select2 = True
+    sg_name = "Location"       # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Locations"  # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'loctype', 'x_coordinate;y_coordinate']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
+        {'name': 'Type',        'order': 'o=2', 'type': 'str', 'custom': 'loctype',     'linkdetails': True               },
+        {'name': 'Coordinate',  'order': 'o=3', 'type': 'str', 'custom': 'coordinate',  'linkdetails': True               },
+        ]
+                   
+    filters = [ 
+        {"name": "Name",            "id": "filter_name",        "enabled": False},
+        {"name": "Type",            "id": "filter_loctype",     "enabled": False},
+        {"name": "X Coordinate",    "id": "filter_xcoord",      "enabled": False},
+        {"name": "Y Coordinate",    "id": "filter_ycoord",      "enabled": False},
+        {"name": "Description",     "id": "filter_description", "enabled": False},
+        {"name": "Comments",        "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'xcoord',        'dbfield': 'x_coordinate__gte',   'keyS': 'start_xcoord'},
+            {'filter': 'xcoord',        'dbfield': 'x_coordinate__lte',   'keyS': 'end_xcoord'},
+            {'filter': 'ycoord',        'dbfield': 'y_coordinate__gte',   'keyS': 'start_ycoord'},
+            {'filter': 'ycoord',        'dbfield': 'y_coordinate__lte',   'keyS': 'end_ycoord'},
+            {'filter': 'loctype',       'fkfield': 'loctype','keyFk': 'name', 
+             'keyList': 'loctypelist',  'infield': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def initializations(self):
+        # Perform standard initialization
+        response = super(LocationList, self).initializations()
+
+        oErr = ErrHandle()
+        try:
+            if user_is_authenticated(self.request):
+                iCount = 0
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("")
+
+        # Return nothing
+        return None
+
+    def add_to_context(self, context, initial):
+        may_add = context['is_app_moderator'] or context['is_app_developer']
+        if may_add:
+            # Allow creation of new item(s)
+            self.new_button = True
+            context['new_button'] = self.new_button
+            self.basic_add = reverse("installations:add_purpose")
+            context['basic_add'] = self.basic_add
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            else:
+                sBack = instance.get_value(custom)            
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("LocationList/get_field_value")
+
+        return sBack, sTitle
 
 
 # --------------------- Purpose ----------------------------------------------

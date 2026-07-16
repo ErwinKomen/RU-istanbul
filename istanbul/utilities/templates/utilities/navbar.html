@@ -32,13 +32,13 @@
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="{% url 'utilities:list_view' 'EventType' 'installations' 100 %}">Event type</a>
             <a class="dropdown-item" href="{% url 'utilities:list_view' 'TextType' 'installations' 100 %}">Text type</a>
-            <a class="dropdown-item" href="{% url 'utilities:list_view' 'InstallationType' 'installations' %}">Installation type</a>
+            <a class="dropdown-item" href="{% url 'installationtype_list' %}">Installation type</a>
             <a class="dropdown-item" href="{% url 'utilities:list_view' 'InstitutionType' 'installations' %}">Institution type</a>
             <a class="dropdown-item" href="{% url 'utilities:list_view' 'EventRole' 'installations' %}">Event role</a>
             <a class="dropdown-item" href="{% url 'persontype_list' %}">Person type</a>
             <a class="dropdown-item" href="{% url 'personsymbol_list' %}">Person symbol</a>
             <a class="dropdown-item" href="{% url 'purpose_list' %}">Purpose</a>
-            <a class="dropdown-item" href="{% url 'utilities:list_view' 'Location' 'installations' %}">Location</a>
+            <a class="dropdown-item" href="{% url 'location_list' %}">Location</a>
           {% endif %}
         </div>
       </li>

@@ -23,10 +23,10 @@ from installations.views import nlogin, login_as_user, npermission  #, \
 #    SystemDetails, SystemEdit, InstallationDetails, InstallationEdit
 from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     InstallationDetails, InstallationEdit, InstallationList, InstallationMap, InstallationListMap, InstallationFocusMap, \
-    InstallationTypeDetails, InstallationTypeEdit, \
+    InstallationTypeDetails, InstallationTypeEdit, InstallationTypeList, \
     PersonEdit, PersonDetails, PersonList, \
     PurposeEdit, PurposeDetails, PurposeList, \
-    LocationEdit, LocationDetails, \
+    LocationEdit, LocationDetails, LocationList, \
     LiteratureEdit, LiteratureDetails, LiteratureList, \
     EventEdit, EventDetails, EventList, \
     EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
@@ -75,6 +75,7 @@ urlpatterns = [
 
 	re_path('instaltype/edit(?:/(?P<pk>\d+))?/$', InstallationTypeEdit.as_view(), name='installationtype_edit'),
 	re_path('instaltype/details(?:/(?P<pk>\d+))?/$', InstallationTypeDetails.as_view(), name='installationtype_details'),
+	re_path('instaltype/list/$', InstallationTypeList.as_view(), name='installationtype_list'),
 
 	re_path('institution/edit(?:/(?P<pk>\d+))?/$', InstitutionEdit.as_view(), name='institution_edit'),
 	re_path('institution/details(?:/(?P<pk>\d+))?/$', InstitutionDetails.as_view(), name='institution_details'),
@@ -102,6 +103,7 @@ urlpatterns = [
 
 	re_path('location/edit(?:/(?P<pk>\d+))?/$', LocationEdit.as_view(), name='location_edit'),
 	re_path('location/details(?:/(?P<pk>\d+))?/$', LocationDetails.as_view(), name='location_details'),
+	re_path('location/list/$', LocationList.as_view(), name='location_list'),
 
     # ================ Helper views for types =====================================================
 	re_path('personsymbol/edit(?:/(?P<pk>\d+))?/$', PersonSymbolEdit.as_view(), name='personsymbol_edit'),

@@ -23,7 +23,7 @@ from .widgets import InstallationTypeWidget,InstallationStatusWidget,Installatio
 from .widgets import InstallationTypesWidget,InstallationStatusesWidget
 from .widgets import TextTypeWidget,LiteratureWidget,PurposesWidget
 from .widgets import EventWidget, EventsWidget, PersonWidget
-from .widgets import LocTypeWidget, LocationWidget, SystemsWidget
+from .widgets import LocTypeWidget, LocTypesWidget, LocationWidget, SystemsWidget
 from .widgets import PersonSymbolWidget, PersonSymbolsWidget, PersonTypeWidget, PersonTypesWidget
 from .widgets import ImageTypeWidget, ImageTypesWidget
 from .widgets import FiguresWidget
@@ -245,6 +245,32 @@ class LocationForm(forms.ModelForm):
 		response = super(LocationForm, self).save(commit=commit)
 		# Return the save response
 		return response
+
+
+class LocationSearchForm(forms.ModelForm):
+	name = forms.CharField(**dchar)
+	loctype = forms.ModelChoiceField(
+		queryset = LocType.objects.all(),
+		widget = LocTypeWidget(**dselect2),
+		required = False)
+	loctypelist = forms.ModelMultipleChoiceField(
+		queryset = LocType.objects.all(),
+		widget = LocTypesWidget(**dselect2),
+		required = False)
+	start_xcoord = forms.CharField(required=False, 
+		widget=forms.TextInput(attrs={'style':'width:30%', 'placeholder': 'X-coordinate start (latitude)'}))
+	end_xcoord = forms.CharField(required=False, 
+		widget=forms.TextInput(attrs={'style':'width:30%', 'placeholder': 'X-coordinate end (latitude)'}))
+	start_ycoord = forms.CharField(required=False, 
+		widget=forms.TextInput(attrs={'style':'width:30%', 'placeholder': 'Y-coordinate start (longitude)'}))
+	end_ycoord = forms.CharField(required=False, 
+		widget=forms.TextInput(attrs={'style':'width:30%', 'placeholder': 'Y-coordinate end (latitude)'}))
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = Location
+		fields = []
 
 
 class InstitutionForm(forms.ModelForm):
@@ -585,6 +611,16 @@ class InstallationTypeForm(forms.ModelForm):
 		model = InstallationType
 		fields = 'name,description,comments'.split(',')
 	
+
+class InstallationTypeSearchForm(forms.ModelForm):
+	name = forms.CharField(**dchar)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		model = InstallationType
+		fields = []
+
 
 class InstitutionTypeForm(forms.ModelForm):
 	name = forms.CharField(**dchar_required)
