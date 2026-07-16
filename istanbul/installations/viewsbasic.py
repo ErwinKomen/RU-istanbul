@@ -14,7 +14,7 @@ import json
 from unidecode import unidecode
 
 # From own applicatino
-from .models import EventInstallationRelation, ImageInstallationRelation, System, Image, Installation, SystemInstallationRelation
+from .models import EventInstallationRelation, EventType, ImageInstallationRelation, System, Image, Installation, SystemInstallationRelation
 from .models import InstallationType, Purpose
 from .models import Event, EventLiteratureRelation, Literature
 from .models import Person, EventPersonRelation
@@ -22,6 +22,7 @@ from .models import Institution, EventInstitutionRelation
 from .models import Location, LocType
 from .models import PersonSymbol, PersonType
 from .models import Religion
+from .models import TextType, EventRole, InstitutionType
 # Regular forms
 from .forms import SystemForm, PersonForm, InstallationForm
 from .forms import EventForm, LiteratureForm, InstitutionForm
@@ -37,12 +38,15 @@ from .forms import PersonTypeSearchForm, PersonSymbolSearchForm
 from .forms import ExternalLinkForm, installationextlink_formset
 from .forms import EventLiteratureRelationForm
 from .forms import ReligionForm, ReligionSearchForm
+# Forms based on BasicTypeForm
+from .forms import EventTypeForm, TextTypeForm, InstitutionTypeForm
+from .forms import EventRoleForm, PersonTypeForm, PersonSymbolForm
 
 # Search forms
 from .forms import ImageSearchForm, PurposeSearchForm, InstallationSearchForm
 from .forms import LiteratureSearchForm, SystemSearchForm, PersonSearchForm
 from .forms import InstitutionSearchForm, EventSearchForm, InstallationTypeSearchForm
-from .forms import LocationSearchForm
+from .forms import LocationSearchForm, BasicTypeSearchForm
 from .forms import partial_year_to_date
 
 # EK: adding detail views
@@ -50,6 +54,221 @@ from basic.utils import ErrHandle
 from basic.views import BasicDetails, BasicList, add_rel_item, get_current_datetime, get_application_context, user_is_authenticated, user_is_superuser
 from mapview.views import MapView
 
+
+# --------------------- BasicType ------------------------------------
+
+class BasicTypeEdit(BasicDetails):
+    """Simple view mode of [BasicType]"""
+
+    model = None                # Provide the model name
+    model_name = ""             # Helper
+    mForm = None
+    prefix = "btype"
+    mainitems = []
+
+    def custom_init(self, instance, **kwargs):
+        # make sure we have the modelname in lower case
+        self.model_name = self.model.__name__.lower()
+        # The listview is generic
+        self.listview = reverse('{}_list'.format(self.model_name))
+        return None
+
+    def add_to_context(self, context, instance):
+        """Add to the existing context"""
+
+        oErr = ErrHandle()
+
+        try:
+            context['mainitems'] = [
+                {'type': 'plain', 'label': 'name',          'value': instance.name},
+                {'type': 'plain', 'label': 'description',   'value': instance.get_description_md()},
+                {'type': 'plain', 'label': 'comments',      'value': instance.comments},
+            ]
+            context['title'] = "View installation type"
+            context['editview'] = reverse("installations:edit_{}".format(self.model_name), kwargs={'pk': instance.id})
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("BasicTypeDetails/add_to_context")
+
+        # Return the context we have made
+        return context
+
+
+class BasicTypeDetails(BasicTypeEdit):
+    rtype = "html"
+
+
+class BasicTypeList(BasicList):
+    """List and search view for BasicType"""
+
+    model = None 
+    model_name = ""
+    listform = BasicTypeSearchForm
+    prefix = "btype"
+    has_select2 = True
+    sg_name = "Basic Type"         # This is the name as it appears e.g. in "Add a new XXX" (in the basic listview)
+    plural_name = "Basic Types"    # As displayed
+    new_button = False              # Normally this is false, unless this is someone with editing rights
+    fontawesome_already = True      # Already have fontawesome
+    order_cols = ['name', 'description']
+    order_default = order_cols
+    order_heads = [
+        {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True, 'main': True},
+        {'name': 'Description', 'order': 'o=2', 'type': 'str', 'custom': 'description', 'linkdetails': True, 
+         'autohide': 'on', 'allowwrap': True},
+        ]
+                   
+    filters = [ 
+        {"name": "Any",         "id": "filter_any",         "enabled": False},
+        {"name": "Name",        "id": "filter_name",        "enabled": False},
+        {"name": "Description", "id": "filter_description", "enabled": False},
+        {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        ]
+    searches = [
+        {'section': '', 'filterlist': [
+            {'filter': 'any',           'dbfield': '$dummy',        'keyS': 'any'},
+            {'filter': 'name',          'dbfield': 'name',          'keyS': 'name'},
+            {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
+            {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            ]
+         } 
+        ] 
+
+    def add_to_context(self, context, initial):
+        oErr = ErrHandle()
+        try:
+            # All people (including non-users) should see the listview
+            context['authenticated'] = True
+
+            self.model_name = self.model.__name__.lower()
+
+            may_add = context['is_app_moderator'] or context['is_app_developer']
+            if may_add:
+                # Allow creation of new item(s)
+                self.new_button = True
+                context['new_button'] = self.new_button
+                self.basic_add = reverse("installations:add_{}".format(self.model_name))
+                context['basic_add'] = self.basic_add
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("BasicTypeList/add_to_context")
+        return context
+
+    def get_field_value(self, instance, custom):
+        """Define what is actually displayed"""
+
+        sBack = ""
+        sTitle = ""
+        html = []
+        oErr = ErrHandle()
+        try:
+            if custom == "description":
+                sBack = instance.get_description_md()
+            elif custom == "name":
+                if instance.name:
+                    sBack = instance.name
+            elif custom == "comments":
+                if instance.comments:
+                    sBack = instance.comments
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("BasicTypeList/get_field_value")
+
+        return sBack, sTitle
+
+    def adapt_search(self, fields):
+        # Adapt the search to the keywords that *may* be shown
+        lstExclude=[]
+        qAlternative = None
+        oErr = ErrHandle()
+
+        try:
+            # Is the Any field used?
+            str_any = fields.get("any")
+            if str_any:
+                # Use the any field for filtering
+                qAny = Q(name__icontains=str_any) | \
+                    Q(description__icontains=str_any) | \
+                    Q(comments__icontains=str_any)
+                fields["any"] = qAny
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("BasicTypeList/adapt_search")
+        
+        return fields, lstExclude, qAlternative
+
+
+# ------------------ Event Type -------------------------------------------
+
+
+class EventTypeEdit(BasicTypeEdit):
+    model = EventType
+    mForm = EventTypeForm
+
+
+class EventTypeDetails(EventTypeEdit):
+    rtype = "html"
+
+
+class EventTypeList(BasicTypeList):
+    model = EventType
+    sg_name = "Event Type"
+    plural_name = "Event Types"
+
+
+# ------------------ Text Type -------------------------------------------
+
+
+class TextTypeEdit(BasicTypeEdit):
+    model = TextType
+    mForm = TextTypeForm
+
+
+class TextTypeDetails(TextTypeEdit):
+    rtype = "html"
+
+
+class TextTypeList(BasicTypeList):
+    model = TextType
+    sg_name = "Text Type"
+    plural_name = "Text Types"
+
+
+# ------------------ Institution Type -------------------------------------------
+
+
+class InstitutionTypeEdit(BasicTypeEdit):
+    model = InstitutionType
+    mForm = InstitutionTypeForm
+
+
+class InstitutionTypeDetails(InstitutionTypeEdit):
+    rtype = "html"
+
+
+class InstitutionTypeList(BasicTypeList):
+    model = InstitutionType
+    sg_name = "Institution Type"
+    plural_name = "Institution Types"
+
+
+# ------------------ Event Role -------------------------------------------
+
+
+class EventRoleEdit(BasicTypeEdit):
+    model = EventRole
+    mForm = EventRoleForm
+
+
+class EventRoleDetails(EventRoleEdit):
+    rtype = "html"
+
+
+class EventRoleList(BasicTypeList):
+    model = EventRole
+    sg_name = "Event Role"
+    plural_name = "Event Roles"
 
 
 # --------------------- Event ----------------------------------------------
@@ -2639,7 +2858,8 @@ class PersonTypeList(BasicList):
     order_heads = [
         {'name': 'Name',        'order': 'o=1', 'type': 'str', 'custom': 'name',        'linkdetails': True,  'main': True},
         {'name': 'Symbol',      'order': '',    'type': 'str', 'custom': 'symbol',      'linkdetails': True               },
-        {'name': 'Description', 'order': '',    'type': 'str', 'custom': 'description', 'linkdetails': True               },
+        {'name': 'Description', 'order': '',    'type': 'str', 'custom': 'description', 'linkdetails': True, 
+         'allowwrap': True, 'width': '300px'},
         ]
                    
     filters = [ 
@@ -3533,4 +3753,7 @@ class SystemList(BasicList):
             oErr.DoError("SystemList/adapt_search")
         
         return fields, lstExclude, qAlternative
+
+
+
 

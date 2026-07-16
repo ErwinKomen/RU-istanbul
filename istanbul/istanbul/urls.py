@@ -35,6 +35,14 @@ from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
     PersonTypeEdit, PersonTypeDetails, PersonTypeList, \
     ReligionEdit, ReligionDetails, ReligionList
+# Based on BasicEdit, BasicList
+from installations.viewsbasic import \
+    EventTypeEdit, EventTypeDetails, EventTypeList, \
+    TextTypeEdit, TextTypeDetails, TextTypeList, \
+    InstitutionTypeEdit, InstitutionTypeDetails, InstitutionTypeList, \
+    EventRoleEdit, EventRoleDetails, EventRoleList, \
+    PersonTypeEdit, PersonTypeDetails, PersonTypeList, \
+    PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList
 from accounts.views import RegisterView
 from cms.views import CitemDetails, CitemEdit,CitemListView, CitemSafe, \
     CpageDetails, CpageEdit, CpageListView, CpageAdd, \
@@ -106,6 +114,22 @@ urlpatterns = [
 	re_path('location/list/$', LocationList.as_view(), name='location_list'),
 
     # ================ Helper views for types =====================================================
+	re_path('eventtype/edit(?:/(?P<pk>\d+))?/$', EventTypeEdit.as_view(), name='eventtype_edit'),
+	re_path('eventtype/details(?:/(?P<pk>\d+))?/$', EventTypeDetails.as_view(), name='eventtype_details'),
+	re_path('eventtype/list/$', EventTypeList.as_view(), name='eventtype_list'),
+
+	re_path('texttype/edit(?:/(?P<pk>\d+))?/$', TextTypeEdit.as_view(), name='texttype_edit'),
+	re_path('texttype/details(?:/(?P<pk>\d+))?/$', TextTypeDetails.as_view(), name='texttype_details'),
+	re_path('texttype/list/$', TextTypeList.as_view(), name='texttype_list'),
+
+	re_path('institutiontype/edit(?:/(?P<pk>\d+))?/$', InstitutionTypeEdit.as_view(), name='institutiontype_edit'),
+	re_path('institutiontype/details(?:/(?P<pk>\d+))?/$', InstitutionTypeDetails.as_view(), name='institutiontype_details'),
+	re_path('institutiontype/list/$', InstitutionTypeList.as_view(), name='institutiontype_list'),
+
+	re_path('eventrole/edit(?:/(?P<pk>\d+))?/$', EventRoleEdit.as_view(), name='eventrole_edit'),
+	re_path('eventrole/details(?:/(?P<pk>\d+))?/$', EventRoleDetails.as_view(), name='eventrole_details'),
+	re_path('eventrole/list/$', EventRoleList.as_view(), name='eventrole_list'),
+
 	re_path('personsymbol/edit(?:/(?P<pk>\d+))?/$', PersonSymbolEdit.as_view(), name='personsymbol_edit'),
 	re_path('personsymbol/details(?:/(?P<pk>\d+))?/$', PersonSymbolDetails.as_view(), name='personsymbol_details'),
 	re_path('personsymbol/list/$', PersonSymbolList.as_view(), name='personsymbol_list'),

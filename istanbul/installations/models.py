@@ -31,6 +31,209 @@ MAXPARAMLEN = 255
 # ========================== Helper classes =================================
 
 
+class DateType(models.Model, info):
+    """A date type (fixed, open-ended)"""
+
+    # [0-1] The name of the date type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        sBack = self.name
+        return sBack
+
+    def get_default():
+        """Get default value"""
+
+        obj = DateType.objects.filter(name__iexact="fixed").first()
+        return obj
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("DateType/get_description_md")
+        return sBack
+
+
+class EventRole(models.Model, info):
+    """Role of the event (e.g: builder, finisher, founder, inaugurator)"""
+
+    # [0-1] Name of the event role
+    name = models.CharField(max_length=100,blank=True,null=True)
+    # ================== Standard fields ==================================
+    # [1] Description of the person (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventRole/get_description_md")
+        return sBack
+
+
+class EventType(models.Model, info):
+    """An event type"""
+
+    # [0-1] The name of the event type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("EventType/get_description_md")
+        return sBack
+
+
+class ImageType(models.Model, info):
+    """An image type"""
+
+    # [0-1] The name of the image type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("ImageType/get_description_md")
+        return sBack
+
+
+class InstallationType(models.Model, info):
+    """An installation type"""
+
+    # [0-1] The name of the installation type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationType/get_description_md")
+        return sBack
+
+    def get_value(self, field):
+        """Get the value(s) of 'field' associated with this installation"""
+
+        sBack = ""
+        lst_value = []
+        oErr = ErrHandle()
+        try:
+            if field == "name":
+                if not self.name is None:
+                    sBack = self.name
+            elif field == "comments":
+                if not self.comments is None:
+                    sBack = self.comments
+            elif field == "description":
+                if not self.description is None:
+                    sBack = self.description
+
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstallationType/get_value")
+
+        return sBack    
+
+
+class InstitutionType(models.Model, info):
+    """An institution type"""
+
+    # [0-1] The name of the institution type
+    name = models.CharField(max_length=300,blank=True,null=True)
+
+    # =========== Standard fields ========================
+    # [1] Description of this object (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("InstitutionType/get_description_md")
+        return sBack
+
+
 class LocType(models.Model):
     """Type of location/settlement"""
 
@@ -109,7 +312,6 @@ class Location(models.Model, info):
             oErr.DoError("Location/get_value")
 
         return sBack    
-
 
 
 class PersonSymbol(models.Model, info):
@@ -233,6 +435,34 @@ class PersonType(models.Model, info):
         if obj is None:
             obj = PersonType.objects.create(name=type_name)
         return obj
+
+
+class TextType(models.Model, info):
+    """Type of text"""
+
+    # [0-1] Name of the text type
+    name = models.CharField(max_length=100,blank=True,null=True)
+    # ================== Standard fields ==================================
+    # [1] Description of the person (may be '')
+    description = models.TextField(default = '')
+    # [1] Additional info (not visible for end user - can be just '')
+    comments = models.TextField(default = '')
+
+    def __str__(self):
+        return self.name
+
+    def get_description_md(self):
+        """Get description, but then processed by markdown"""
+
+        sBack = ""
+        oErr = ErrHandle()
+        try:
+            if self.description != "":
+                sBack = adapt_markdown(self.description)
+        except:
+            msg = oErr.get_error_message()
+            oErr.DoError("TextType/get_description_md")
+        return sBack
 
 
 # ========================== Main classes ===================================
@@ -477,32 +707,6 @@ class Person(models.Model, info):
         return sBack
 
 
-class InstitutionType(models.Model, info):
-    """An institution type"""
-
-    # [0-1] The name of the institution type
-    name = models.CharField(max_length=300,blank=True,null=True)
-
-    # =========== Standard fields ========================
-    # [1] Description of this object (may be '')
-    description = models.TextField(default = '')
-    # [1] Additional info (not visible for end user - can be just '')
-    comments = models.TextField(default = '')
-
-    def get_description_md(self):
-        """Get description, but then processed by markdown"""
-
-        sBack = ""
-        oErr = ErrHandle()
-        try:
-            if self.description != "":
-                sBack = adapt_markdown(self.description)
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("InstitutionType/get_description_md")
-        return sBack
-
-
 class Institution(models.Model, info):
     """An institution type"""
 
@@ -605,55 +809,6 @@ class Institution(models.Model, info):
 
         # Return the response when saving
         return response
-
-
-class EventType(models.Model, info):
-    """An event type"""
-
-    # [0-1] The name of the event type
-    name = models.CharField(max_length=300,blank=True,null=True)
-
-    # =========== Standard fields ========================
-    # [1] Description of this object (may be '')
-    description = models.TextField(default = '')
-    # [1] Additional info (not visible for end user - can be just '')
-    comments = models.TextField(default = '')
-
-
-class DateType(models.Model, info):
-    """A date type (fixed, open-ended)"""
-
-    # [0-1] The name of the date type
-    name = models.CharField(max_length=300,blank=True,null=True)
-
-    # =========== Standard fields ========================
-    # [1] Description of this object (may be '')
-    description = models.TextField(default = '')
-    # [1] Additional info (not visible for end user - can be just '')
-    comments = models.TextField(default = '')
-
-    def __str__(self):
-        sBack = self.name
-        return sBack
-
-    def get_default():
-        """Get default value"""
-
-        obj = DateType.objects.filter(name__iexact="fixed").first()
-        return obj
-
-
-class ImageType(models.Model, info):
-    """An image type"""
-
-    # [0-1] The name of the image type
-    name = models.CharField(max_length=300,blank=True,null=True)
-
-    # =========== Standard fields ========================
-    # [1] Description of this object (may be '')
-    description = models.TextField(default = '')
-    # [1] Additional info (not visible for end user - can be just '')
-    comments = models.TextField(default = '')
 
 
 class Image(models.Model, info):
@@ -1294,58 +1449,6 @@ class Purpose(models.Model, info):
         return sBack
 
 
-class InstallationType(models.Model, info):
-    """An installation type"""
-
-    # [0-1] The name of the installation type
-    name = models.CharField(max_length=300,blank=True,null=True)
-
-    # =========== Standard fields ========================
-    # [1] Description of this object (may be '')
-    description = models.TextField(default = '')
-    # [1] Additional info (not visible for end user - can be just '')
-    comments = models.TextField(default = '')
-
-    def __str__(self):
-        return self.name
-
-    def get_description_md(self):
-        """Get description, but then processed by markdown"""
-
-        sBack = ""
-        oErr = ErrHandle()
-        try:
-            if self.description != "":
-                sBack = adapt_markdown(self.description)
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("InstallationType/get_description_md")
-        return sBack
-
-    def get_value(self, field, sep=None, options={}):
-        """Get the value(s) of 'field' associated with this installation"""
-
-        sBack = ""
-        lst_value = []
-        oErr = ErrHandle()
-        try:
-            if field == "name":
-                if not self.name is None:
-                    sBack = self.name
-            elif field == "comments":
-                if not self.comments is None:
-                    sBack = self.comments
-            elif field == "description":
-                if not self.description is None:
-                    sBack = self.description
-
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("InstallationType/get_value")
-
-        return sBack    
-
-
 class InstallationStatus(models.Model, info):
     """An installation type"""
 
@@ -1779,20 +1882,6 @@ class SystemInstallationRelation(models.Model, info):
     description = models.TextField(default = '')
     # [1] Additional info (not visible for end user - can be just '')
     comments = models.TextField(default = '')
-
-
-class TextType(models.Model, info):
-    """Type of text"""
-
-    # [0-1] Name of the text type
-    name = models.CharField(max_length=100,blank=True,null=True)
-
-
-class EventRole(models.Model, info):
-    """Role of the event (e.g: builder, finisher, founder, inaugurator)"""
-
-    # [0-1] Name of the event role
-    name = models.CharField(max_length=100,blank=True,null=True)
 
 
 class EventLiteratureRelation(models.Model, info):

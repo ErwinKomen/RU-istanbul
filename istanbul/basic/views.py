@@ -1232,7 +1232,7 @@ class BasicList(ListView):
                             classes.append("tdnowrap")
                 else:
                     if 'width' in head and len(head['width']) > 0:
-                        fobj['styles'] = "width: {};".format(head['width'])
+                        fobj['styles'] = "min-width: {};".format(head['width'])
                     else:
                         fobj['styles'] = "width: 100px;"
                     if not 'allowwrap' in head or not head['allowwrap']:

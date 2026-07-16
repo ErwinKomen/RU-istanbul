@@ -30,11 +30,11 @@
           <a class="dropdown-item" href="{% url 'utilities:list_view' 'Style' 'installations' 100 %}">Style</a>
           {% if authenticated %}
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="{% url 'utilities:list_view' 'EventType' 'installations' 100 %}">Event type</a>
-            <a class="dropdown-item" href="{% url 'utilities:list_view' 'TextType' 'installations' 100 %}">Text type</a>
+            <a class="dropdown-item" href="{% url 'eventtype_list' %}">Event type</a>
+            <a class="dropdown-item" href="{% url 'texttype_list' %}">Text type</a>
             <a class="dropdown-item" href="{% url 'installationtype_list' %}">Installation type</a>
-            <a class="dropdown-item" href="{% url 'utilities:list_view' 'InstitutionType' 'installations' %}">Institution type</a>
-            <a class="dropdown-item" href="{% url 'utilities:list_view' 'EventRole' 'installations' %}">Event role</a>
+            <a class="dropdown-item" href="{% url 'institutiontype_list' %}">Institution type</a>
+            <a class="dropdown-item" href="{% url 'eventrole_list' %}">Event role</a>
             <a class="dropdown-item" href="{% url 'persontype_list' %}">Person type</a>
             <a class="dropdown-item" href="{% url 'personsymbol_list' %}">Person symbol</a>
             <a class="dropdown-item" href="{% url 'purpose_list' %}">Purpose</a>

@@ -520,6 +520,61 @@ class LiteratureSearchForm(forms.ModelForm):
         fields = []
 
 
+# ================================= Basic type model and search forms =========================
+
+
+class BasicTypeSearchForm(forms.Form):
+	name = forms.CharField(**dchar)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+
+class BasicTypeForm(forms.ModelForm):
+	name = forms.CharField(**dchar_required)
+	description = forms.CharField(**dtext)
+	comments = forms.CharField(**dtext)
+
+	class Meta:
+		# model = InstallationType
+		fields = 'name,description,comments'.split(',')
+	
+
+class EventTypeForm(BasicTypeForm):
+    class Meta:
+        model = EventType
+        fields = 'name,description,comments'.split(',')
+
+
+class TextTypeForm(BasicTypeForm):
+    class Meta:
+        model = TextType
+        fields = 'name,description,comments'.split(',')
+
+
+class InstitutionTypeForm(BasicTypeForm):
+    class Meta:
+        model = InstitutionType
+        fields = 'name,description,comments'.split(',')
+
+
+class EventRoleForm(BasicTypeForm):
+    class Meta:
+        model = EventRole
+        fields = 'name,description,comments'.split(',')
+
+
+# class PersonTypeForm(BasicTypeForm):
+#     class Meta:
+#         model = EventType
+
+
+# class PersonSymbolForm(BasicTypeForm):
+#     class Meta:
+#         model = PersonSymbol
+
+
+
+
 # ================================= Helper model forms ========================================
 
 
