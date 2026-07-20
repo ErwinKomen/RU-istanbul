@@ -3,6 +3,7 @@ from .models import Institution,EventType,Image,Style,Figure,Event,DateType
 from .models import Purpose,InstallationType,InstallationStatus, Installation,Literature
 from .models import TextType, EventRole, LocType, Location
 from .models import PersonSymbol, PersonType, ImageType
+from .models import EventLiteratureRelation
 
 from django_select2.forms import ModelSelect2Widget, ModelSelect2MultipleWidget
 
@@ -28,6 +29,17 @@ class DateTypesWidget(ModelSelect2MultipleWidget):
     
     def get_queryset(self):
         return DateType.objects.all().order_by('name')
+
+
+class EventLiteratureRelationsWidget(ModelSelect2MultipleWidget):
+    model = EventLiteratureRelation
+    search_fields = ['name__icontains']
+
+    def label_from_instance(self,obj):
+        return obj.name
+    
+    def get_queryset(self):
+        return EventLiteratureRelation.objects.all().order_by('name')
 
 
 class EventTypeWidget(ModelSelect2Widget):

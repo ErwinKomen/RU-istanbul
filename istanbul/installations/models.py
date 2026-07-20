@@ -1990,11 +1990,14 @@ class SystemLiteratureRelation(models.Model, info):
                 if self.system is None:
                     sBack = "(No system)"
                 else:
-                    sBack = self.system.name
-            elif field == "startdate" and not self.system is None:
-                sBack = self.system.get_value("startdate")
-            elif field == "enddate" and not self.system is None:
-                sBack = self.system.get_value("enddate")
+                    sBack = self.system.get_value("name")
+            elif field == "turkish_name":
+                if self.system is None:
+                    sBack = "(No system)"
+                else:
+                    sBack = self.system.get_value("turkish_name")
+            elif field == "location" and not self.system is None:
+                sBack = self.system.get_value("location")
 
         except:
             msg = oErr.get_error_message()

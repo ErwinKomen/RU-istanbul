@@ -141,27 +141,31 @@ class InstallationForm(forms.ModelForm):
 
 
 class InstallationSearchForm(forms.ModelForm):
-	english_name = forms.CharField(**dchar)
-	itypelist = forms.ModelMultipleChoiceField(
-		queryset = InstallationType.objects.all(),
-		widget = InstallationTypesWidget(**dselect2),
-		required = False)
-	istatuslist = forms.ModelMultipleChoiceField(
-		queryset = InstallationStatus.objects.all(),
-		widget = InstallationStatusesWidget(**dselect2),
-		required = False)
-	eventlist = forms.ModelMultipleChoiceField(queryset = Event.objects.all(),widget = EventsWidget(**dselect2),required = False)
-	purplist = forms.ModelMultipleChoiceField(queryset = Purpose.objects.all(),widget = PurposesWidget(**dselect2),required = False)
-	perslist = forms.ModelMultipleChoiceField(required=False,queryset=Person.objects.all(),widget = PersonsWidget(**dselect2))
-	systemlist = forms.ModelMultipleChoiceField(queryset = System.objects.all(),widget = SystemsWidget(**dselect2),required = False)
-	start_date = forms.CharField(label="Date start", required=False, 
-			widget=forms.TextInput(attrs={'placeholder': 'Starting from...',  'style': 'width: 30%;', 'class': 'searching'}))
-	end_date = forms.CharField(label="Date end", required=False, 
-			widget=forms.TextInput(attrs={'placeholder': 'Until (including)...',  'style': 'width: 30%;', 'class': 'searching'}))
+    english_name = forms.CharField(**dchar)
+    itypelist = forms.ModelMultipleChoiceField(
+        queryset = InstallationType.objects.all(),
+        widget = InstallationTypesWidget(**dselect2),
+        required = False)
+    istatuslist = forms.ModelMultipleChoiceField(
+        queryset = InstallationStatus.objects.all(),
+        widget = InstallationStatusesWidget(**dselect2),
+        required = False)
+    eventlist = forms.ModelMultipleChoiceField(queryset = Event.objects.all(),widget = EventsWidget(**dselect2),required = False)
+    purplist = forms.ModelMultipleChoiceField(queryset = Purpose.objects.all(),widget = PurposesWidget(**dselect2),required = False)
+    perslist = forms.ModelMultipleChoiceField(required=False,queryset=Person.objects.all(),widget = PersonsWidget(**dselect2))
+    systemlist = forms.ModelMultipleChoiceField(queryset = System.objects.all(),widget = SystemsWidget(**dselect2),required = False)
+    start_date = forms.CharField(label="Date start", required=False, 
+            widget=forms.TextInput(attrs={'placeholder': 'Starting from...',  'style': 'width: 30%;', 'class': 'searching'}))
+    end_date = forms.CharField(label="Date end", required=False, 
+            widget=forms.TextInput(attrs={'placeholder': 'Until (including)...',  'style': 'width: 30%;', 'class': 'searching'}))
+    evtypelist = forms.ModelMultipleChoiceField(
+        queryset = EventType.objects.all().order_by('name'),
+        widget = EventTypesWidget(**dselect2),
+        required = False)
 
-	class Meta:
-		model = Installation
-		fields = ['english_name']
+    class Meta:
+        model = Installation
+        fields = ['english_name']
 
 
 class PersonForm(forms.ModelForm):
@@ -202,29 +206,33 @@ class PersonForm(forms.ModelForm):
 
 
 class PersonSearchForm(forms.ModelForm):
-	name = forms.CharField(**dchar)
-	genderlist = forms.ModelMultipleChoiceField(
-		queryset = Gender.objects.all(),
-		widget = GendersWidget(**dselect2),
-		required = False)
-	religionlist = forms.ModelMultipleChoiceField(
-		queryset = Religion.objects.all(),
-		widget = ReligionsWidget(**dselect2),
-		required = False)
-	ptypelist = forms.ModelMultipleChoiceField(
-		queryset = PersonType.objects.all().order_by('name'),
-		widget = PersonTypesWidget(**dselect2),
-		required = False)
-	birth_year = forms.CharField(**dchar_30b)
-	death_year = forms.CharField(**dchar_30e)
-	start_reign = forms.CharField(**dchar_30b)
-	end_reign = forms.CharField(**dchar_30e)
-	description = forms.CharField(**dtext)
-	comments = forms.CharField(**dtext)
+    name = forms.CharField(**dchar)
+    genderlist = forms.ModelMultipleChoiceField(
+        queryset = Gender.objects.all(),
+        widget = GendersWidget(**dselect2),
+        required = False)
+    religionlist = forms.ModelMultipleChoiceField(
+        queryset = Religion.objects.all(),
+        widget = ReligionsWidget(**dselect2),
+        required = False)
+    ptypelist = forms.ModelMultipleChoiceField(
+        queryset = PersonType.objects.all().order_by('name'),
+        widget = PersonTypesWidget(**dselect2),
+        required = False)
+    birth_year = forms.CharField(**dchar_30b)
+    death_year = forms.CharField(**dchar_30e)
+    start_reign = forms.CharField(**dchar_30b)
+    end_reign = forms.CharField(**dchar_30e)
+    description = forms.CharField(**dtext)
+    comments = forms.CharField(**dtext)
+    evtypelist = forms.ModelMultipleChoiceField(
+        queryset = EventType.objects.all().order_by('name'),
+        widget = EventTypesWidget(**dselect2),
+        required = False)
 
-	class Meta:
-		model = Person
-		fields = []
+    class Meta:
+        model = Person
+        fields = []
 
 
 class LocationForm(forms.ModelForm):
@@ -319,6 +327,10 @@ class InstitutionSearchForm(forms.ModelForm):
     instypelist = forms.ModelMultipleChoiceField(
         queryset = InstitutionType.objects.all().order_by('name'),
         widget = InstitutionTypesWidget(**dselect2),
+        required = False)
+    evtypelist = forms.ModelMultipleChoiceField(
+        queryset = EventType.objects.all().order_by('name'),
+        widget = EventTypesWidget(**dselect2),
         required = False)
     
     class Meta:
@@ -519,6 +531,10 @@ class LiteratureSearchForm(forms.ModelForm):
     issue= forms.CharField(**dchar)
     description = forms.CharField(**dtext)
     comments = forms.CharField(**dtext)
+    evtypelist = forms.ModelMultipleChoiceField(
+        queryset = EventType.objects.all().order_by('name'),
+        widget = EventTypesWidget(**dselect2),
+        required = False)
     
     class Meta:
         model = Literature

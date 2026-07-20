@@ -387,8 +387,8 @@ class EventDetails(EventEdit):
             for item in qs:
                 literature = item.literature
                 url = reverse("literature_details", kwargs={'pk': literature.id})
-                url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
-                # url_relation = None
+                # url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
+                url_relation = url
                 rel_item = []
                 
                 # Order number for this item
@@ -678,128 +678,130 @@ class EventList(BasicList):
         return fields, lstExclude, qAlternative
 
 
-# --------------------- EventLiterature ------------------------------------
+# # --------------------- EventLiterature ------------------------------------
 
 
-class EventLiteratureRelationEdit(BasicDetails):
-    """Simple view mode of [EventLiteratureRelation]"""
+# class EventLiteratureRelationEdit(BasicDetails):
+#     """Simple view mode of [EventLiteratureRelation]"""
 
-    model = EventLiteratureRelation
-    mForm = EventLiteratureRelationForm
-    prefix = "evlit"
-    mainitems = []
+#     model = EventLiteratureRelation
+#     mForm = EventLiteratureRelationForm
+#     prefix = "evlit"
+#     mainitems = []
 
-    def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={
-            'model_name': 'EventLiteratureRelation', 'app_name': 'installations'})
-        return None
+#     def custom_init(self, instance, **kwargs):
+#         self.listview = reverse('utilities:list_view', kwargs={
+#             'model_name': 'EventLiteratureRelation', 'app_name': 'installations'})
+#         return None
 
-    def add_to_context(self, context, instance):
-        """Add to the existing context"""
+#     def add_to_context(self, context, instance):
+#         """Add to the existing context"""
 
-        oErr = ErrHandle()
+#         oErr = ErrHandle()
 
-        try:
-            context['mainitems'] = [
-                {'type': 'plain', 'label': 'page number',   'value': instance.get_value("pages")},
-                {'type': 'plain', 'label': 'text type',     'value': instance.get_value("texttype")},
-                {'type': 'plain', 'label': 'text',          'value': instance.get_value("text")},
-            ]
-            context['title'] = "View installation type"
-            context['editview'] = reverse("installations:edit_eventliterature", kwargs={'pk': instance.id})
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("EventLiteratureRelationDetails/add_to_context")
+#         try:
+#             context['mainitems'] = [
+#                 {'type': 'plain', 'label': 'page number',   'value': instance.get_value("pages")},
+#                 {'type': 'plain', 'label': 'text type',     'value': instance.get_value("texttype")},
+#                 {'type': 'plain', 'label': 'text',          'value': instance.get_value("text")},
+#             ]
+#             context['title'] = "View installation type"
+#             context['editview'] = reverse("installations:edit_eventliterature", kwargs={'pk': instance.id})
+#         except:
+#             msg = oErr.get_error_message()
+#             oErr.DoError("EventLiteratureRelationDetails/add_to_context")
 
-        # Return the context we have made
-        return context
+#         # Return the context we have made
+#         return context
 
 
-class EventLiteratureRelationDetails(EventLiteratureRelationEdit):
-    rtype = "html"
+# class EventLiteratureRelationDetails(EventLiteratureRelationEdit):
+#     rtype = "html"
 
-    def add_to_context(self, context, instance):
-        """Add to the existing context"""
+#     def add_to_context(self, context, instance):
+#         """Add to the existing context"""
 
-        # First get the 'standard' context from TestsetEdit
-        context = super(EventLiteratureRelationDetails, self).add_to_context(context, instance)
+#         # First get the 'standard' context from TestsetEdit
+#         context = super(EventLiteratureRelationDetails, self).add_to_context(context, instance)
 
-        oErr = ErrHandle()
-        try:
+#         oErr = ErrHandle()
+#         try:
                 
-            # Lists of related objects
-            related_objects = []
+#             # Lists of related objects
+#             related_objects = []
 
-            # Add all related objects to the context
-            context['related_objects'] = related_objects
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("EventLiteratureRelationDetails/add_to_context")
+#             # Add all related objects to the context
+#             context['related_objects'] = related_objects
+#         except:
+#             msg = oErr.get_error_message()
+#             oErr.DoError("EventLiteratureRelationDetails/add_to_context")
 
-        # Return the context we have made
-        return context
-
-
-# --------------------- EventLiterature ------------------------------------
+#         # Return the context we have made
+#         return context
 
 
-class SystemLiteratureRelationEdit(BasicDetails):
-    """Simple view mode of [SystemLiteratureRelation]"""
-
-    model = SystemLiteratureRelation
-    mForm = SystemLiteratureRelationForm
-    prefix = "evlit"
-    mainitems = []
-
-    def custom_init(self, instance, **kwargs):
-        self.listview = reverse('utilities:list_view', kwargs={
-            'model_name': 'SystemLiteratureRelation', 'app_name': 'installations'})
-        return None
-
-    def add_to_context(self, context, instance):
-        """Add to the existing context"""
-
-        oErr = ErrHandle()
-
-        try:
-            context['mainitems'] = [
-                {'type': 'plain', 'label': 'page number',   'value': instance.get_value("pages")},
-                {'type': 'plain', 'label': 'text type',     'value': instance.get_value("texttype")},
-                {'type': 'plain', 'label': 'text',          'value': instance.get_value("text")},
-            ]
-            context['title'] = "View installation type"
-            context['editview'] = reverse("installations:edit_systemliterature", kwargs={'pk': instance.id})
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("SystemLiteratureRelationDetails/add_to_context")
-
-        # Return the context we have made
-        return context
+# # --------------------- EventLiterature ------------------------------------
 
 
-class SystemLiteratureRelationDetails(SystemLiteratureRelationEdit):
-    rtype = "html"
+# class SystemLiteratureRelationEdit(BasicDetails):
+#     """Simple view mode of [SystemLiteratureRelation]"""
 
-    def add_to_context(self, context, instance):
-        """Add to the existing context"""
+#     model = SystemLiteratureRelation
+#     mForm = SystemLiteratureRelationForm
+#     titlesg = "System-literature relation"
+#     prefix = "syslit"
+#     mainitems = []
 
-        # First get the 'standard' context from TestsetEdit
-        context = super(SystemLiteratureRelationDetails, self).add_to_context(context, instance)
+#     def custom_init(self, instance, **kwargs):
+#         # self.listview = reverse('utilities:list_view', kwargs={
+#         #     'model_name': 'SystemLiteratureRelation', 'app_name': 'installations'})
+#         self.listview = reverse("systemliteraturerelation_list")
+#         return None
 
-        oErr = ErrHandle()
-        try:
+#     def add_to_context(self, context, instance):
+#         """Add to the existing context"""
+
+#         oErr = ErrHandle()
+
+#         try:
+#             context['mainitems'] = [
+#                 {'type': 'plain', 'label': 'page number',   'value': instance.get_value("pages")},
+#                 {'type': 'plain', 'label': 'text type',     'value': instance.get_value("texttype")},
+#                 {'type': 'plain', 'label': 'text',          'value': instance.get_value("text")},
+#             ]
+#             context['title'] = "View installation type"
+#             context['editview'] = reverse("installations:edit_systemliterature", kwargs={'pk': instance.id})
+#         except:
+#             msg = oErr.get_error_message()
+#             oErr.DoError("SystemLiteratureRelationDetails/add_to_context")
+
+#         # Return the context we have made
+#         return context
+
+
+# class SystemLiteratureRelationDetails(SystemLiteratureRelationEdit):
+#     rtype = "html"
+
+#     def add_to_context(self, context, instance):
+#         """Add to the existing context"""
+
+#         # First get the 'standard' context from TestsetEdit
+#         context = super(SystemLiteratureRelationDetails, self).add_to_context(context, instance)
+
+#         oErr = ErrHandle()
+#         try:
                 
-            # Lists of related objects
-            related_objects = []
+#             # Lists of related objects
+#             related_objects = []
 
-            # Add all related objects to the context
-            context['related_objects'] = related_objects
-        except:
-            msg = oErr.get_error_message()
-            oErr.DoError("SystemLiteratureRelationDetails/add_to_context")
+#             # Add all related objects to the context
+#             context['related_objects'] = related_objects
+#         except:
+#             msg = oErr.get_error_message()
+#             oErr.DoError("SystemLiteratureRelationDetails/add_to_context")
 
-        # Return the context we have made
-        return context
+#         # Return the context we have made
+#         return context
 
 
 # --------------------- Image ----------------------------------------
@@ -1213,8 +1215,8 @@ class InstallationDetails(InstallationEdit):
                 literature = item.literature
                 event = item.event
                 url = reverse("literature_details", kwargs={'pk': literature.id})
-                url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
-                # url_relation = None
+                # url_relation = reverse("eventliteraturerelation_details", kwargs={'pk': item.id})
+                url_relation = url
                 url_event = reverse('event_details', kwargs={'pk': event.id})
                 rel_item = []
                 
@@ -1374,8 +1376,9 @@ class InstallationList(BasicList):
         {"name": "Type",            "id": "filter_itype",       "enabled": False},
         {"name": "Purpose",         "id": "filter_purpose",     "enabled": False},
         {"name": "Person",          "id": "filter_person",      "enabled": False},
-        {"name": "Event",           "id": "filter_event",       "enabled": False},
         {"name": "System",          "id": "filter_system",      "enabled": False},
+        {"name": "Event",           "id": "filter_event",       "enabled": False},
+        {"name": "Event type",      "id": "filter_evtype",      "enabled": False},
         {"name": "Event dates",     "id": "filter_daterange",   "enabled": False},
         {"name": "Status",          "id": "filter_istatus",     "enabled": False, "head_id": True},
         ]
@@ -1390,6 +1393,8 @@ class InstallationList(BasicList):
             {'filter': 'daterange', 'dbfield': 'events__start_date__gte',   'keyS': 'start_date'},
             {'filter': 'daterange', 'dbfield': 'events__end_date__lte',     'keyS': 'end_date'},
             {'filter': 'event',     'fkfield': 'events',            'keyFk': 'name', 'keyList': 'eventlist',    'infield': 'name'},
+            {'filter': 'evtype',    'fkfield': 'eventinstallation_relations__event__event_type',        
+             'keyFk': 'name',       'keyList': 'evtypelist',    'infield': 'name'},
             {'filter': 'system',    'fkfield': 'systeminstallationrelation__system',   
              'keyFk': 'english_name', 'keyList': 'systemlist',   'infield': 'english_name'},
             ]
@@ -2022,6 +2027,7 @@ class InstitutionList(BasicList):
         {"name": "Religion",        "id": "filter_religion",    "enabled": False},
         {"name": "Description",     "id": "filter_description", "enabled": False},
         {"name": "Comments",        "id": "filter_comments",    "enabled": False},
+        {"name": "Event type",      "id": "filter_evtype",      "enabled": False},
         ]
     searches = [
         {'section': '', 'filterlist': [
@@ -2033,10 +2039,12 @@ class InstitutionList(BasicList):
             {'filter': 'simname',       'dbfield': 'simple_name',   'keyS': 'simple_name'},
             {'filter': 'itype',         'fkfield': 'institution_type','keyFk': 'name', 
              'keyList': 'instypelist',    'infield': 'name'},
-            {'filter': 'religion',      'fkfield': 'religion',          'keyFk': 'name', 
+            {'filter': 'religion',      'fkfield': 'religion',      'keyFk': 'name', 
              'keyList': 'religionlist',    'infield': 'name'},
             {'filter': 'description',   'dbfield': 'text',          'keyS': 'text'},
             {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            {'filter': 'evtype',        'fkfield': 'eventinstitutionrelation__event__event_type',        
+             'keyFk': 'name',           'keyList': 'evtypelist',    'infield': 'name'},
             ]
          } 
         ] 
@@ -2227,8 +2235,8 @@ class LiteratureDetails(LiteratureEdit):
             sort_start_mix = '<span class="sortable mixed"><span class="fa fa-sort sortshow"></span>&nbsp;'
             sort_end = '</span>'
 
-            # List of Events that link to this Literature
-            events = dict(title="Connections to this Literature", prefix="evnt")
+            # =============== List of Events that link to this Literature ==================
+            events = dict(title="Events connected to this Literature", prefix="evnt")
             if resizable: events['gridclass'] = "resizable"
 
             # events['editable'] = bMayEdit
@@ -2287,6 +2295,67 @@ class LiteratureDetails(LiteratureEdit):
             if bMayEdit:
                 events['columns'].append("")
             related_objects.append(events)
+
+            # =============== List of Systems that link to this Literature ==================
+            systems = dict(title="Systems connected to this Literature", prefix="evnt")
+            if resizable: systems['gridclass'] = "resizable"
+
+            # systems['editable'] = bMayEdit
+            systems['savebuttons'] = bMayEdit
+            systems['saveasbutton'] = True
+
+            rel_list = []
+            qs = SystemLiteratureRelation.objects.filter(literature=instance).exclude(
+                    system__isnull=True, text_type__isnull=True).order_by(
+                    'system__english_name')
+            for item in qs:
+                system = item.system
+                url = None
+                if not system is None: 
+                    url = reverse("system_details", kwargs={'pk': system.id})
+                # url_relation = reverse("systemliteraturerelation_details", kwargs={'pk': item.id})
+                url_relation = None
+                rel_item = []
+                
+                # Order number for this item
+                add_rel_item(rel_item, index, False, align="right")
+                index += 1
+
+                # Name of system
+                add_rel_item(rel_item, item.get_value('systemname'), False, main=True, nowrap=False, link=url)
+
+                # start date
+                add_rel_item(rel_item, item.get_value('turkish_name'), False, main=False, nowrap=True, link=url)
+
+                # end date
+                add_rel_item(rel_item, item.get_value('location'), False, main=False, nowrap=True, link=url)
+
+                # Texttype of relation
+                add_rel_item(rel_item, item.get_value('texttype'), False, main=False, nowrap=True, link=url_relation)
+
+                # Literature page range
+                add_rel_item(rel_item, item.get_value('pages'), False, main=False, nowrap=True, link=url_relation)
+
+                # Actions that can be performed on this item
+                if bMayEdit:
+                    add_rel_item(rel_item, self.get_actions())
+
+                # Add this line to the list
+                rel_list.append(dict(id=item.id, cols=rel_item))
+
+            systems['rel_list'] = rel_list
+
+            systems['columns'] = [
+                '{}<span>#</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>System</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Turkish name</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Location</span>{}'.format(sort_start_int, sort_end), 
+                '{}<span>Text type</span>{}'.format(sort_start, sort_end), 
+                '{}<span>Pages</span>{}'.format(sort_start, sort_end), 
+                ]
+            if bMayEdit:
+                systems['columns'].append("")
+            related_objects.append(systems)
 
             # Add all related objects to the context
             context['related_objects'] = related_objects
@@ -2360,6 +2429,7 @@ class LiteratureList(BasicList):
         {"name": "Issue",       "id": "filter_issue",       "enabled": False},
         {"name": "Text",        "id": "filter_text",        "enabled": False},
         {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        {"name": "Event type",  "id": "filter_evtype",      "enabled": False},
         ]
     searches = [
         {'section': '', 'filterlist': [
@@ -2376,6 +2446,8 @@ class LiteratureList(BasicList):
             {'filter': 'issue',     'dbfield': 'issue',         'keyS': 'issue'},
             {'filter': 'text',      'dbfield': 'text',          'keyS': 'text'},
             {'filter': 'comments',  'dbfield': 'comments',      'keyS': 'comments'},
+            {'filter': 'evtype',    'fkfield': 'eventliteraturerelation__event__event_type',        
+             'keyFk': 'name',       'keyList': 'evtypelist',    'infield': 'name'},
             ]
          } 
         ] 
@@ -2651,6 +2723,7 @@ class PersonList(BasicList):
         {"name": "Type",        "id": "filter_ptype",       "enabled": False},
         {"name": "Description", "id": "filter_description", "enabled": False},
         {"name": "Comments",    "id": "filter_comments",    "enabled": False},
+        {"name": "Event type",  "id": "filter_evtype",      "enabled": False},
         ]
     searches = [
         {'section': '', 'filterlist': [
@@ -2668,6 +2741,8 @@ class PersonList(BasicList):
              'keyList': 'ptypelist',    'infield': 'name'},
             {'filter': 'description',   'dbfield': 'description',   'keyS': 'description'},
             {'filter': 'comments',      'dbfield': 'comments',      'keyS': 'comments'},
+            {'filter': 'evtype',    'fkfield': 'eventpersonrelations__event__event_type',        
+             'keyFk': 'name',       'keyList': 'evtypelist',    'infield': 'name'},
             ]
          } 
         ] 
@@ -3710,8 +3785,8 @@ class SystemDetails(SystemEdit):
             for item in qs:
                 literature = item.literature
                 url = reverse("literature_details", kwargs={'pk': literature.id})
-                url_relation = reverse("systemliteraturerelation_details", kwargs={'pk': item.id})
-                # url_relation = None
+                # url_relation = reverse("systemliteraturerelation_details", kwargs={'pk': item.id})
+                url_relation = url
                 rel_item = []
                 
                 # Order number for this item

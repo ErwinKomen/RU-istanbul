@@ -29,13 +29,14 @@ from installations.viewsbasic import SystemDetails, SystemEdit, SystemList, \
     LocationEdit, LocationDetails, LocationList, \
     LiteratureEdit, LiteratureDetails, LiteratureList, \
     EventEdit, EventDetails, EventList, \
-    EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
     InstitutionEdit, InstitutionDetails, InstitutionList, \
     ImageEdit, ImageDetails, ImageList, \
     PersonSymbolEdit, PersonSymbolDetails, PersonSymbolList, \
     PersonTypeEdit, PersonTypeDetails, PersonTypeList, \
-    ReligionEdit, ReligionDetails, ReligionList, \
-    SystemLiteratureRelationEdit, SystemLiteratureRelationDetails
+    ReligionEdit, ReligionDetails, ReligionList
+# These are NOT needed (see issue #65)
+    # EventLiteratureRelationEdit, EventLiteratureRelationDetails, \
+    #SystemLiteratureRelationEdit, SystemLiteratureRelationDetails, SystemLiteratureRelationList
 # Based on BasicEdit, BasicList
 from installations.viewsbasic import \
     EventTypeEdit, EventTypeDetails, EventTypeList, \
@@ -63,13 +64,14 @@ urlpatterns = [
     # ================== Select 2 ================================
 	re_path(r'^select2/', include('django_select2.urls')),
 
+	# ================== Removed and unnecessary Views ===================================
+	# re_path('eventliterature/edit(?:/(?P<pk>\d+))?/$', EventLiteratureRelationEdit.as_view(), name='eventliteraturerelation_edit'),
+	# re_path('eventliterature/details(?:/(?P<pk>\d+))?/$', EventLiteratureRelationDetails.as_view(), name='eventliteraturerelation_details'),
+
+	# re_path('systemliterature/edit(?:/(?P<pk>\d+))?/$', SystemLiteratureRelationEdit.as_view(), name='systemliteraturerelation_edit'),
+	# re_path('systemliterature/details(?:/(?P<pk>\d+))?/$', SystemLiteratureRelationDetails.as_view(), name='systemliteraturerelation_details'),
+
 	# ================== Views ===================================
-	re_path('eventliterature/edit(?:/(?P<pk>\d+))?/$', EventLiteratureRelationEdit.as_view(), name='eventliteraturerelation_edit'),
-	re_path('eventliterature/details(?:/(?P<pk>\d+))?/$', EventLiteratureRelationDetails.as_view(), name='eventliteraturerelation_details'),
-
-	re_path('systemliterature/edit(?:/(?P<pk>\d+))?/$', SystemLiteratureRelationEdit.as_view(), name='systemliteraturerelation_edit'),
-	re_path('systemliterature/details(?:/(?P<pk>\d+))?/$', SystemLiteratureRelationDetails.as_view(), name='systemliteraturerelation_details'),
-
 	re_path('event/edit(?:/(?P<pk>\d+))?/$', EventEdit.as_view(), name='event_edit'),
 	re_path('event/details(?:/(?P<pk>\d+))?/$', EventDetails.as_view(), name='event_details'),
 	re_path('event/list/$', EventList.as_view(), name='event_list'),
